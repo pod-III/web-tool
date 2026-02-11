@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DebateTime - English 1 Batam</title>
+    
+    <!-- =========================================
+         1. EXTERNAL RESOURCES
+    ========================================== -->
+    
+    <!-- Typography: Fredoka (Headings) & Nunito (Body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (Styling Engine) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons (Visual Assets) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- =========================================
+         2. DESIGN SYSTEM CONFIGURATION
+         Theme: English 1 Batam (Pink, Orange, Green, Blue)
+    ========================================== -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'e1-pink': '#FF6B95',   // Playful / Overtime
+                        'e1-orange': '#FF8C42', // Energy / Protected
+                        'e1-green': '#00E676',  // Success / Open
+                        'e1-blue': '#2979FF',   // Logic / Neutral
+                        'e1-dark': '#1e293b',   // Borders/Text
+                        'e1-chalk': '#f8fafc',  // Backgrounds
+                    },
+                    fontFamily: {
+                        headings: ['Fredoka', 'sans-serif'],
+                        body: ['Nunito', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'neo': '4px 4px 0px 0px rgba(30, 41, 59, 1)', // Hard shadow
+                        'neo-lg': '8px 8px 0px 0px rgba(30, 41, 59, 1)',
+                    },
+                    borderWidth: { '3': '3px', '4': '4px' },
+                    animation: {
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- =========================================
+         3. CUSTOM STYLES
+    ========================================== -->
+    <style>
+        /* Base Background: Graph Paper Pattern */
+        body {
+            background-color: #f8fafc;
+            background-image: 
+                linear-gradient(rgba(30, 41, 59, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30, 41, 59, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            transition: background-color 0.5s ease; /* Smooth color transitions */
+        }
+        .dark body {
+            background-color: #0f172a;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        }
+
+        /* Phase Backgrounds (Overrides default body bg based on timer state) */
+        body.phase-protected { background-color: #FFF7ED; } /* Light Orange */
+        body.phase-open { background-color: #F0FDF4; }     /* Light Green */
+        body.phase-overtime { background-color: #FFF1F2; } /* Light Pink */
+
+        /* Dark Mode Phase Overrides */
+        .dark body.phase-protected { background-color: #431407; }
+        .dark body.phase-open { background-color: #064e3b; }
+        .dark body.phase-overtime { background-color: #881337; }
+
+        /* Neo-Brutalism Button Physics */
+        .btn-neo { transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-neo:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px 0px rgba(30, 41, 59, 1); }
+        .btn-neo:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px rgba(30, 41, 59, 1); }
+
+        /* Typography: Tabular nums ensure timer doesn't jitter when seconds change */
+        .timer-text { font-variant-numeric: tabular-nums; }
+        
+        /* Bell Shake Animation */
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(-15deg); }
+            75% { transform: rotate(5deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .animate-shake { animation: shake 0.5s ease-in-out; }
+    </style>
+</head>
+
+<body class="font-body text-e1-dark flex flex-col min-h-screen transition-colors duration-500">
+
+    <!-- =========================================
+         4. NAVBAR
+    ========================================== -->
+    <nav class="w-full bg-white/90 backdrop-blur border-b-4 border-e1-dark p-4 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-e1-dark p-2 rounded-xl border-2 border-e1-dark shadow-neo-sm">
+                    <i data-lucide="mic-2" class="text-white w-6 h-6"></i>
+                </div>
+                <h1 class="font-headings text-2xl font-bold tracking-wide">Debate<span class="text-e1-blue">Time</span></h1>
+            </div>
+            <!-- Dark Mode Toggle -->
+            <button onclick="toggleDarkMode()" class="bg-e1-dark text-white p-2 rounded-xl border-2 border-e1-dark shadow-neo-sm hover:translate-y-[-2px] transition-transform">
+                <i data-lucide="moon" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- =========================================
+         5. MAIN CONTENT AREA
+    ========================================== -->
+    <main class="flex-grow flex flex-col items-center justify-center p-6 w-full max-w-4xl mx-auto">
+        
+        <!-- A. FORMAT PRESETS -->
+        <div class="flex flex-wrap justify-center gap-3 mb-8 w-full">
+            <button onclick="switchMode('WSDC')" class="flex-1 min-w-[100px] bg-white text-e1-dark font-headings font-bold py-3 px-4 rounded-xl border-2 border-e1-dark shadow-neo btn-neo active-mode ring-offset-2 ring-e1-blue" id="btn-WSDC">
+                WSDC (8m)
+            </button>
+            <button onclick="switchMode('BP')" class="flex-1 min-w-[100px] bg-white text-e1-dark font-headings font-bold py-3 px-4 rounded-xl border-2 border-e1-dark shadow-neo btn-neo" id="btn-BP">
+                BP (7m)
+            </button>
+            <button onclick="switchMode('Reply')" class="flex-1 min-w-[100px] bg-white text-e1-dark font-headings font-bold py-3 px-4 rounded-xl border-2 border-e1-dark shadow-neo btn-neo" id="btn-Reply">
+                Reply (4m)
+            </button>
+        </div>
+
+        <!-- B. TIMER CARD -->
+        <div class="relative bg-white w-full max-w-2xl aspect-[16/9] lg:aspect-[21/9] rounded-3xl border-4 border-e1-dark shadow-neo-lg flex flex-col items-center justify-center mb-8 overflow-hidden transition-colors duration-500" id="timerCard">
+            
+            <!-- Phase Indicator (e.g., "Protected Time") -->
+            <div class="absolute top-6 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full border-2 border-e1-dark bg-slate-100 font-bold text-sm tracking-widest uppercase transition-colors duration-300" id="phaseBadge">
+                Ready
+            </div>
+
+            <!-- The Big Numbers -->
+            <div class="font-headings font-bold text-[6rem] md:text-[8rem] lg:text-[10rem] leading-none tracking-tighter text-e1-dark timer-text transition-colors duration-300" id="timerDisplay">
+                08:00
+            </div>
+
+            <!-- Bell Icon (Flashes when sound plays) -->
+            <div id="bellIndicator" class="absolute top-6 right-6 opacity-20 transition-opacity duration-200">
+                <i data-lucide="bell" class="w-8 h-8 md:w-12 md:h-12 text-e1-dark"></i>
+            </div>
+
+            <!-- Bottom Progress Bar -->
+            <div class="absolute bottom-0 left-0 h-4 bg-slate-100 w-full border-t-4 border-e1-dark">
+                <div id="progressBar" class="h-full bg-e1-blue w-full transition-all duration-1000 linear origin-left"></div>
+            </div>
+        </div>
+
+        <!-- C. CONTROL BUTTONS -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-2xl">
+            <!-- Play/Pause -->
+            <button onclick="toggleTimerState()" id="mainBtn" class="col-span-2 bg-e1-green text-e1-dark font-headings font-bold text-xl py-4 rounded-xl border-2 border-e1-dark shadow-neo btn-neo flex items-center justify-center gap-2">
+                <i data-lucide="play"></i> Start Debate
+            </button>
+            
+            <!-- Reset -->
+            <button onclick="resetTimer()" class="bg-white text-e1-dark font-headings font-bold text-lg py-4 rounded-xl border-2 border-e1-dark shadow-neo btn-neo flex items-center justify-center gap-2">
+                <i data-lucide="rotate-ccw"></i> Reset
+            </button>
+
+            <!-- Test Bell -->
+            <button onclick="triggerBell(1)" class="bg-white text-e1-dark font-headings font-bold text-lg py-4 rounded-xl border-2 border-e1-dark shadow-neo btn-neo flex items-center justify-center gap-2" title="Test Bell Sound">
+                <i data-lucide="bell"></i> Test
+            </button>
+        </div>
+
+        <!-- D. MANUAL ADJUSTMENT -->
+        <div class="mt-8 flex items-center gap-4 opacity-50 hover:opacity-100 transition-opacity">
+            <button onclick="adjustTimeManual(30)" class="bg-white px-3 py-1 rounded border-2 border-e1-dark text-xs font-bold shadow-neo btn-neo">+30s</button>
+            <button onclick="adjustTimeManual(-30)" class="bg-white px-3 py-1 rounded border-2 border-e1-dark text-xs font-bold shadow-neo btn-neo">-30s</button>
+        </div>
+
+    </main>
+
+    <!-- =========================================
+         6. JAVASCRIPT LOGIC
+    ========================================== -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        /* --- 1. CONFIGURATION --- 
+           Defines time limits (in seconds) for standard debate formats.
+           - WSDC: World Schools Style (8 min)
+           - BP: British Parliamentary (7 min)
+           - Reply: Reply speeches (4 min)
+        */
+        const DEBATE_MODES = {
+            'WSDC': { 
+                duration: 8 * 60, 
+                protectedStart: 60,   // End of first protected minute
+                protectedEnd: 7 * 60, // Start of last protected minute
+                bells: [
+                    { time: 60, count: 1 },     // 1 bang at 1 min
+                    { time: 7 * 60, count: 1 }, // 1 bang at 7 min
+                    { time: 8 * 60, count: 2 }  // 2 bangs at 8 min
+                ]
+            },
+            'BP': {
+                duration: 7 * 60,
+                protectedStart: 60,
+                protectedEnd: 6 * 60,
+                bells: [
+                    { time: 60, count: 1 },
+                    { time: 6 * 60, count: 1 },
+                    { time: 7 * 60, count: 2 }
+                ]
+            },
+            'Reply': {
+                duration: 4 * 60,
+                protectedStart: 0,      // Usually no POIs in reply
+                protectedEnd: 3 * 60,   // Warning bell at 3 min
+                bells: [
+                    { time: 3 * 60, count: 1 },
+                    { time: 4 * 60, count: 2 }
+                ]
+            }
+        };
+
+        /* --- 2. STATE MANAGEMENT --- */
+        const state = {
+            currentMode: 'WSDC',
+            totalTime: DEBATE_MODES['WSDC'].duration,
+            currentTime: 0,
+            intervalId: null,
+            isRunning: false,
+            audioCtx: null
+        };
+
+        /* --- 3. DOM ELEMENTS --- */
+        const ui = {
+            display: document.getElementById('timerDisplay'),
+            progressBar: document.getElementById('progressBar'),
+            phaseBadge: document.getElementById('phaseBadge'),
+            card: document.getElementById('timerCard'),
+            mainBtn: document.getElementById('mainBtn'),
+            bellIcon: document.getElementById('bellIndicator'),
+            body: document.body
+        };
+
+        // Initialize UI
+        renderTimeDisplay();
+        switchMode('WSDC'); 
+
+
+        /* --- 4. CORE TIMER FUNCTIONS --- */
+
+        function switchMode(modeName) {
+            stopTimer(); // Always stop before switching
+            state.currentMode = modeName;
+            state.totalTime = DEBATE_MODES[modeName].duration;
+            state.currentTime = 0;
+            
+            // Visual Updates for Buttons
+            document.querySelectorAll('[id^="btn-"]').forEach(b => {
+                b.classList.remove('bg-e1-blue', 'text-white', 'ring-2');
+                b.classList.add('bg-white', 'text-e1-dark');
+            });
+            const activeBtn = document.getElementById(`btn-${modeName}`);
+            activeBtn.classList.remove('bg-white', 'text-e1-dark');
+            activeBtn.classList.add('bg-e1-blue', 'text-white', 'ring-2');
+
+            resetVisuals();
+            renderTimeDisplay();
+        }
+
+        function toggleTimerState() {
+            if (state.isRunning) {
+                stopTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            // Ensure AudioContext is ready on user gesture
+            initAudioContext();
+
+            if (state.intervalId) return;
+            
+            state.isRunning = true;
+            
+            // UI Update: Pause Button
+            ui.mainBtn.innerHTML = `<i data-lucide="pause"></i> Pause`;
+            ui.mainBtn.classList.replace('bg-e1-green', 'bg-e1-orange');
+            ui.mainBtn.classList.replace('text-e1-dark', 'text-white');
+            lucide.createIcons();
+
+            // The Heartbeat
+            state.intervalId = setInterval(() => {
+                state.currentTime++;
+                renderTimeDisplay();
+                checkForBells();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(state.intervalId);
+            state.intervalId = null;
+            state.isRunning = false;
+            
+            // UI Update: Resume Button
+            ui.mainBtn.innerHTML = `<i data-lucide="play"></i> Resume`;
+            ui.mainBtn.classList.replace('bg-e1-orange', 'bg-e1-green');
+            ui.mainBtn.classList.replace('text-white', 'text-e1-dark');
+            lucide.createIcons();
+        }
+
+        function resetTimer() {
+            stopTimer();
+            state.currentTime = 0;
+            ui.mainBtn.innerHTML = `<i data-lucide="play"></i> Start Debate`;
+            lucide.createIcons();
+            resetVisuals();
+            renderTimeDisplay();
+        }
+
+        function adjustTimeManual(seconds) {
+            state.currentTime += seconds;
+            if (state.currentTime < 0) state.currentTime = 0;
+            renderTimeDisplay();
+        }
+
+
+        /* --- 5. RENDER LOGIC --- */
+
+        function renderTimeDisplay() {
+            // 1. Format Time (MM:SS)
+            // Note: Standard debate timers count UP from 0
+            const m = Math.floor(state.currentTime / 60);
+            const s = state.currentTime % 60;
+            const timeStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            ui.display.innerText = timeStr;
+
+            // 2. Progress Bar Width
+            const progress = Math.min((state.currentTime / state.totalTime) * 100, 100);
+            ui.progressBar.style.width = `${progress}%`;
+
+            // 3. Determine Phase (Colors)
+            updatePhaseStyles(state.currentTime);
+        }
+
+        function updatePhaseStyles(time) {
+            const config = DEBATE_MODES[state.currentMode];
+            
+            // Clear previous states
+            ui.body.classList.remove('phase-protected', 'phase-open', 'phase-overtime');
+
+            // CASE: OVERTIME (Pink)
+            if (time > config.duration) {
+                ui.body.classList.add('phase-overtime');
+                
+                // Text Colors
+                ui.display.classList.add('text-e1-pink');
+                ui.display.classList.remove('text-e1-dark');
+                
+                // Badge
+                setBadge('OVERTIME', 'bg-e1-pink text-white');
+                
+                // Bar
+                ui.progressBar.classList.replace('bg-e1-blue', 'bg-e1-pink');
+                
+                // Border Pulse
+                if (time % 2 === 0) ui.card.classList.add('border-e1-pink');
+                else ui.card.classList.remove('border-e1-pink');
+                return;
+            } 
+            
+            // CASE: PROTECTED TIME (Orange) - Start and End of Speech
+            const isProtected = time <= config.protectedStart || (time >= config.protectedEnd && config.protectedEnd > 0);
+            
+            if (isProtected) {
+                ui.body.classList.add('phase-protected');
+                
+                ui.display.classList.remove('text-e1-pink');
+                ui.display.classList.add('text-e1-dark');
+                
+                setBadge('Protected Time', 'bg-e1-orange text-white');
+                
+                ui.progressBar.className = 'h-full w-full transition-all duration-1000 linear origin-left bg-e1-orange';
+                ui.card.classList.remove('border-e1-pink');
+                return;
+            }
+
+            // CASE: OPEN ROUND (Green) - Middle of Speech
+            ui.body.classList.add('phase-open');
+            ui.display.classList.remove('text-e1-pink');
+            ui.display.classList.add('text-e1-dark');
+            
+            setBadge('Open for POIs', 'bg-e1-green text-e1-dark');
+            
+            ui.progressBar.className = 'h-full w-full transition-all duration-1000 linear origin-left bg-e1-blue';
+            ui.card.classList.remove('border-e1-pink');
+        }
+
+        function setBadge(text, classes) {
+            ui.phaseBadge.className = `absolute top-6 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full border-2 border-e1-dark font-bold text-sm tracking-widest uppercase transition-colors duration-300 ${classes}`;
+            ui.phaseBadge.innerText = text;
+        }
+
+        function resetVisuals() {
+            ui.body.classList.remove('phase-protected', 'phase-open', 'phase-overtime');
+            ui.display.classList.remove('text-e1-pink');
+            ui.display.classList.add('text-e1-dark');
+            ui.progressBar.className = 'h-full w-full transition-all duration-1000 linear origin-left bg-e1-blue';
+            ui.card.classList.remove('border-e1-pink');
+            setBadge("Ready", "bg-slate-100 text-e1-dark");
+        }
+
+
+        /* --- 6. AUDIO ENGINE (Web Audio API) --- 
+           Synthesizes a metallic "Ding" sound without external MP3 files.
+        */
+
+        function initAudioContext() {
+            if (!state.audioCtx) {
+                state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (state.audioCtx.state === 'suspended') {
+                state.audioCtx.resume();
+            }
+        }
+
+        function checkForBells() {
+            const config = DEBATE_MODES[state.currentMode];
+            
+            // Standard Time Bells
+            const bell = config.bells.find(b => b.time === state.currentTime);
+            if (bell) {
+                triggerBell(bell.count);
+            }
+            
+            // Continuous Overtime Warning (every 15s after limit)
+            if (state.currentTime > config.duration + 15 && state.currentTime % 15 === 0) {
+                 triggerBell(1); 
+            }
+        }
+
+        function triggerBell(count) {
+            initAudioContext();
+            const ctx = state.audioCtx;
+
+            // Visual Shake Feedback
+            ui.bellIcon.classList.remove('opacity-20');
+            ui.bellIcon.classList.add('opacity-100', 'animate-shake');
+            setTimeout(() => {
+                ui.bellIcon.classList.add('opacity-20');
+                ui.bellIcon.classList.remove('opacity-100', 'animate-shake');
+            }, count * 800);
+
+            // Audio Logic: Recursive function to play multiple bells if needed
+            let played = 0;
+            
+            const playOneStrike = () => {
+                if (played >= count) return;
+                
+                const t = ctx.currentTime;
+                
+                // We create multiple oscillators to simulate metallic resonance (inharmonic partials)
+                // Ratios: 1 (Fundamental), 1.5, 2.4, 2.9 (Non-integers create the "clang")
+                const fundamental = 600; 
+                const ratios = [1, 1.5, 2.4, 2.9]; 
+                
+                ratios.forEach(ratio => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.value = fundamental * ratio;
+                    
+                    // Envelope: Instant Attack -> Exponential Decay
+                    gain.gain.setValueAtTime(0, t);
+                    gain.gain.linearRampToValueAtTime(0.1, t + 0.01); // Hit
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + 2.0); // Ring out
+                    
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    
+                    osc.start(t);
+                    osc.stop(t + 2.0);
+                });
+
+                played++;
+                // If count > 1, schedule next strike in 800ms
+                setTimeout(playOneStrike, 800); 
+            };
+            
+            playOneStrike();
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+    </script>
+</body>
+</html>
