@@ -1,0 +1,32 @@
+[
+{
+"id": "flow-sheet",
+"name": "FlowSheet",
+"description": "Professional debate flowing tool with support for WSDC, Asian Parl, and BP formats. Includes Alt-shortcuts and 4-team management.",
+"category": "Debate",
+"route": "flow_sheet.html",
+"icon": "columns",
+"color": "e1-blue",
+"tags": ["Debate", "Work", "Productivity"]
+},
+{
+"id": "ballot-box",
+"name": "BallotBox",
+"description": "Adjudicator's scoring calculator. Calculate speaker margins and ranks for WSDC and BP rounds instantly.",
+"category": "Debate",
+"route": "#",
+"icon": "calculator",
+"color": "e1-pink",
+"tags": ["Math", "Judging"]
+},
+{
+"id": "task-deck",
+"name": "TaskDeck",
+"description": "A Neo-Brutalist Kanban board to manage your teaching materials, coding projects, and daily gym routines.",
+"category": "Work",
+"route": "#",
+"icon": "layout",
+"color": "e1-orange",
+"tags": ["Management", "Planning"]
+}
+]
