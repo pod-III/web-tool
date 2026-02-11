@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowSheet - English 1 Batam</title>
+    
+    <!-- 1. TYPOGRAPHY -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 2. TAILWIND CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 3. ICONS -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- 4. HTML2CANVAS -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <!-- 5. DESIGN SYSTEM CONFIG -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'e1-pink': '#FF6B95',
+                        'e1-orange': '#FF8C42',
+                        'e1-green': '#00E676',
+                        'e1-blue': '#2979FF',
+                        'e1-dark': '#1e293b',
+                        'e1-chalk': '#f8fafc',
+                    },
+                    fontFamily: {
+                        headings: ['Fredoka', 'sans-serif'],
+                        body: ['Nunito', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'neo-sm': '2px 2px 0px 0px rgba(30, 41, 59, 1)',
+                        'neo': '4px 4px 0px 0px rgba(30, 41, 59, 1)',
+                        'neo-lg': '8px 8px 0px 0px rgba(30, 41, 59, 1)',
+                        'neo-xl': '12px 12px 0px 0px rgba(30, 41, 59, 1)',
+                    },
+                    borderWidth: { '3': '3px', '4': '4px', '6': '6px' }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base Aesthetic */
+        body {
+            background-color: #f8fafc;
+            background-image: 
+                linear-gradient(rgba(30, 41, 59, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30, 41, 59, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .dark body { background-color: #0f172a; }
+
+        /* Smooth Flow Scrolling */
+        .flow-container::-webkit-scrollbar { height: 12px; }
+        .flow-container::-webkit-scrollbar-track { background: transparent; }
+        .flow-container::-webkit-scrollbar-thumb { 
+            background: #2979FF; 
+            border: 3px solid #f8fafc; 
+            border-radius: 10px; 
+        }
+
+        .auto-textarea { 
+            field-sizing: content; 
+            min-height: 3rem; 
+            transition: background-color 0.2s;
+        }
+        
+        #modalBackdrop, #setupModalBackdrop {
+            backdrop-filter: blur(8px);
+            background-color: rgba(30, 41, 59, 0.6);
+        }
+
+        /* Active Column Aesthetics */
+        .active-column {
+            border-color: #2979FF !important;
+            box-shadow: 12px 12px 0px 0px rgba(41, 121, 255, 0.3) !important;
+            transform: translateY(-8px);
+            z-index: 20;
+        }
+
+        /* Physical Button Press */
+        .btn-neo {
+            transition: all 0.1s ease;
+        }
+        .btn-neo:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px 0px rgba(30, 41, 59, 1);
+        }
+        .btn-neo:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px 0px rgba(30, 41, 59, 1);
+        }
+
+        /* Team Input Polishing */
+        .team-header-input {
+            transition: all 0.2s;
+        }
+        .team-header-input:focus {
+            background-color: white;
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+
+<body class="font-body text-e1-dark flex flex-col h-screen overflow-hidden transition-colors duration-200">
+
+    <!-- NAVBAR -->
+    <nav class="w-full bg-white/90 backdrop-blur-md border-b-4 border-e1-dark p-3 sticky top-0 z-50 flex-none">
+        <div class="max-w-[1920px] mx-auto w-full flex justify-between items-center px-6">
+            <div class="flex items-center gap-3">
+                <div class="bg-e1-blue p-2 rounded-2xl border-3 border-e1-dark shadow-neo-sm">
+                    <i data-lucide="layout-grid" class="text-white w-6 h-6"></i>
+                </div>
+                <h1 class="font-headings text-2xl font-bold tracking-tight text-e1-dark">Flow<span class="text-e1-pink underline decoration-4 underline-offset-4">Sheet</span></h1>
+            </div>
+            
+            <div class="flex items-center gap-3 text-e1-dark">
+                <button onclick="openSetupModal()" class="bg-e1-blue text-white px-5 py-2.5 rounded-2xl border-3 border-e1-dark shadow-neo btn-neo flex items-center gap-2 font-headings font-bold text-sm">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-white"></i> New Debate
+                </button>
+                <div class="w-1 h-8 bg-e1-dark/10 mx-2 rounded-full"></div>
+                <div class="flex gap-2">
+                    <input type="file" id="importInput" accept=".json" class="hidden" onchange="importData(this)">
+                    <button onclick="document.getElementById('importInput').click()" class="bg-white p-2.5 rounded-xl border-3 border-e1-dark shadow-neo-sm btn-neo" title="Open File">
+                        <i data-lucide="folder-open" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="exportData()" class="bg-white p-2.5 rounded-xl border-3 border-e1-dark shadow-neo-sm btn-neo" title="Save File">
+                        <i data-lucide="save" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="exportToImage()" class="bg-e1-green p-2.5 rounded-xl border-3 border-e1-dark shadow-neo-sm btn-neo" title="Download Image">
+                        <i data-lucide="image" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="toggleDarkMode()" class="bg-e1-dark text-white p-2.5 rounded-xl border-3 border-e1-dark shadow-neo-sm btn-neo">
+                        <i data-lucide="moon" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- TEAM HEADERS (DYNAMIC) -->
+    <div id="teamHeadersContainer" class="w-full bg-e1-chalk/50 border-b-4 border-e1-dark p-3 flex-none flex gap-4 px-10 overflow-x-auto no-scrollbar">
+        <!-- Will be populated by JS -->
+    </div>
+
+    <!-- MAIN BOARD AREA -->
+    <main class="flex-grow w-full overflow-hidden relative">
+        <div id="board" class="flow-container w-full h-full overflow-x-auto overflow-y-hidden flex items-start gap-8 p-10 snap-x">
+            <!-- Columns injected via JS -->
+            <div id="emptyState" class="m-auto text-center p-16 bg-white border-4 border-e1-dark rounded-3xl shadow-neo-lg max-w-md animate-in fade-in zoom-in duration-500">
+                <div class="bg-e1-blue/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="pen-tool" class="w-10 h-10 text-e1-blue"></i>
+                </div>
+                <h2 class="font-headings text-3xl font-bold text-e1-dark mb-3">No Flow Found</h2>
+                <p class="text-slate-500 font-bold mb-8">Start a round to begin tracking arguments.</p>
+                <button onclick="openSetupModal()" class="bg-e1-blue text-white px-8 py-3 rounded-2xl border-4 border-e1-dark shadow-neo font-headings font-bold text-lg btn-neo">
+                    Setup Debate
+                </button>
+            </div>
+        </div>
+
+        <!-- Floating Action Tip -->
+        <div class="absolute bottom-6 right-8 bg-e1-dark text-white border-3 border-e1-dark px-5 py-3 rounded-2xl shadow-neo-lg text-[10px] md:text-xs font-bold pointer-events-none flex flex-col gap-1.5 items-end transform hover:scale-105 transition-transform">
+            <div class="flex items-center gap-2 opacity-80">
+                <i data-lucide="zap" class="w-4 h-4 text-e1-orange fill-e1-orange"></i> 
+                <span>QUICK FLOW SHORTCUTS</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-e1-green">ALT + A</span> <span class="text-slate-400">Argument</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-e1-blue">ALT + R</span> <span class="text-slate-400">Rebuttal</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-e1-pink">ALT + D</span> <span class="text-slate-400">Definition</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-white">ALT + B</span> <span class="text-slate-400">Burden</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- SETUP MODAL -->
+    <div id="setupModalBackdrop" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-6 text-e1-dark">
+        <div class="bg-white border-6 border-e1-dark rounded-[2.5rem] shadow-neo-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-10 animate-in slide-in-from-bottom-10 duration-300">
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <h2 class="font-headings text-4xl font-bold mb-2">Setup Round</h2>
+                    <p class="text-slate-400 font-bold">Configure your debate layout and speakers.</p>
+                </div>
+                <button onclick="closeSetupModal()" class="bg-slate-100 p-2 rounded-xl border-3 border-e1-dark hover:bg-e1-pink hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <div class="space-y-8">
+                <!-- Select Format -->
+                <div>
+                    <label class="block font-headings text-xl font-bold mb-4">1. Format Type</label>
+                    <div class="grid grid-cols-3 gap-4">
+                        <button onclick="setSetupFormat('WSDC')" id="setup-wsdc" class="setup-format-btn bg-white border-4 border-e1-dark rounded-2xl py-4 font-headings font-bold text-lg shadow-neo btn-neo">WSDC</button>
+                        <button onclick="setSetupFormat('Asian')" id="setup-asian" class="setup-format-btn bg-white border-4 border-e1-dark rounded-2xl py-4 font-headings font-bold text-lg shadow-neo btn-neo">Asian Parl.</button>
+                        <button onclick="setSetupFormat('BP')" id="setup-bp" class="setup-format-btn bg-white border-4 border-e1-dark rounded-2xl py-4 font-headings font-bold text-lg shadow-neo btn-neo">British Parl.</button>
+                    </div>
+                </div>
+
+                <!-- Input Details -->
+                <div id="setupDetails" class="hidden space-y-8 animate-in fade-in duration-300">
+                    <div id="setupTeamInputs" class="grid gap-6">
+                        <!-- Dynamic team inputs based on format -->
+                    </div>
+                    
+                    <div class="bg-slate-50 border-4 border-e1-dark border-dashed rounded-3xl p-6">
+                        <label class="block font-headings text-xl font-bold mb-6">2. Speakers</label>
+                        <div id="speakerInputs" class="grid grid-cols-2 gap-6">
+                            <!-- Dynamic speaker inputs -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-4 mt-10">
+                <button onclick="generateDebate()" class="flex-1 bg-e1-green text-e1-dark border-4 border-e1-dark rounded-2xl py-4 font-headings font-bold text-xl shadow-neo btn-neo">
+                    Generate Flow Board
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRMATION MODAL -->
+    <div id="modalBackdrop" class="fixed inset-0 z-[120] hidden flex items-center justify-center p-4 text-e1-dark">
+        <div class="bg-white border-4 border-e1-dark rounded-3xl shadow-neo-lg w-full max-w-md p-8">
+            <h2 id="modalTitle" class="font-headings text-3xl font-bold mb-2">Wait!</h2>
+            <p id="modalMessage" class="text-slate-600 mb-8 font-bold text-lg"></p>
+            <div class="flex gap-4">
+                <button id="modalCancel" class="flex-1 bg-slate-100 border-3 border-e1-dark rounded-2xl py-3 font-bold btn-neo text-e1-dark">Cancel</button>
+                <button id="modalConfirm" class="flex-1 bg-e1-pink text-white border-3 border-e1-dark rounded-2xl py-3 font-bold btn-neo shadow-neo">Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEMPLATES -->
+    <template id="colTemplate">
+        <div class="column-wrapper flex-none w-80 md:w-96 flex flex-col h-full max-h-full rounded-3xl border-4 border-e1-dark shadow-neo bg-white overflow-hidden transition-all duration-300 relative group" data-id="">
+            <div class="col-header border-b-4 border-e1-dark flex flex-col text-e1-dark">
+                <div class="flex items-center gap-3 p-4 bg-white">
+                    <div class="active-dot w-3 h-3 rounded-full bg-e1-blue hidden animate-pulse border-2 border-e1-dark"></div>
+                    <input type="text" class="col-title bg-transparent font-headings font-bold text-xl outline-none flex-1 min-w-0 uppercase tracking-tight text-e1-dark">
+                    <button class="delete-col flex-none text-slate-400 hover:text-e1-pink transition-colors">
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="px-4 pb-4 flex gap-2">
+                    <div class="flex-1 relative">
+                        <i data-lucide="user" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400"></i>
+                        <input type="text" class="speaker-name bg-slate-50 border-3 border-e1-dark rounded-xl pl-8 pr-2 py-1.5 text-[11px] font-bold outline-none w-full focus:bg-white transition-colors" placeholder="SPEAKER NAME">
+                    </div>
+                    <input type="number" class="speaker-score bg-slate-50 border-3 border-e1-dark rounded-xl px-1 py-1.5 text-[11px] font-bold outline-none w-14 text-center focus:bg-white" placeholder="PTS">
+                </div>
+            </div>
+            <div class="cards-container flex-grow overflow-y-auto p-4 space-y-4 pb-24 bg-e1-chalk/30"></div>
+            <div class="col-footer p-3 border-t-4 border-e1-dark grid grid-cols-4 gap-2 bg-white sticky bottom-0">
+                <button class="add-def bg-e1-pink text-white border-3 border-e1-dark rounded-xl py-2 font-headings font-bold text-[10px] shadow-neo-sm btn-neo" title="Definition (Alt+D)">DEF</button>
+                <button class="add-bop bg-e1-dark text-white border-3 border-e1-dark rounded-xl py-2 font-headings font-bold text-[10px] shadow-neo-sm btn-neo" title="Burden (Alt+B)">BOP</button>
+                <button class="add-arg border-3 border-e1-dark rounded-xl py-2 font-headings font-bold text-[10px] shadow-neo-sm btn-neo" title="Argument (Alt+A)">ARG</button>
+                <button class="add-reb bg-e1-blue text-white border-3 border-e1-dark rounded-xl py-2 font-headings font-bold text-[10px] shadow-neo-sm btn-neo" title="Rebuttal (Alt+R)">REB</button>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        lucide.createIcons();
+
+        let columns = [];
+        let activeColId = null;
+        let setupFormat = null;
+        let debateFormat = 'WSDC';
+        
+        const board = document.getElementById('board');
+        const emptyState = document.getElementById('emptyState');
+        const colTemplate = document.getElementById('colTemplate');
+        const setupModal = document.getElementById('setupModalBackdrop');
+        const speakerInputs = document.getElementById('speakerInputs');
+        const teamHeadersContainer = document.getElementById('teamHeadersContainer');
+
+        // --- GLOBAL KEYBOARD SHORTCUTS ---
+        window.addEventListener('keydown', (e) => {
+            if (!activeColId) return;
+            
+            // We use Alt keys for debate shortcuts
+            if (e.altKey) {
+                const key = e.key.toLowerCase();
+                let handled = false;
+
+                if (key === 'a') {
+                    addCard(activeColId, 'arg');
+                    handled = true;
+                } else if (key === 'r') {
+                    addCard(activeColId, 'reb');
+                    handled = true;
+                } else if (key === 'd') {
+                    addCard(activeColId, 'def');
+                    handled = true;
+                } else if (key === 'b') {
+                    addCard(activeColId, 'bop');
+                    handled = true;
+                } else if (key === 'enter') {
+                    // Find the current focused card type or default to arg
+                    const focused = document.activeElement;
+                    const cardWrapper = focused ? focused.closest('[data-card-id]') : null;
+                    const colWrapper = focused ? focused.closest('[data-id]') : null;
+                    
+                    if (cardWrapper && colWrapper) {
+                        const colId = colWrapper.dataset.id;
+                        const cardId = cardWrapper.dataset.cardId;
+                        const colData = columns.find(c => c.id == colId);
+                        const cardData = colData?.cards.find(c => c.id == cardId);
+                        if (cardData) {
+                            addCard(colId, cardData.type);
+                            handled = true;
+                        }
+                    } else {
+                        addCard(activeColId, 'arg');
+                        handled = true;
+                    }
+                }
+
+                if (handled) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        });
+
+        // --- MODALS ---
+
+        function openSetupModal() {
+            setupModal.classList.remove('hidden');
+        }
+
+        function closeSetupModal() {
+            setupFormat = null;
+            setupModal.classList.add('hidden');
+            document.querySelectorAll('.setup-format-btn').forEach(b => b.classList.remove('bg-e1-blue', 'text-white'));
+            document.getElementById('setupDetails').classList.add('hidden');
+        }
+
+        function setSetupFormat(format) {
+            setupFormat = format;
+            document.querySelectorAll('.setup-format-btn').forEach(b => b.classList.remove('bg-e1-blue', 'text-white'));
+            const btn = document.getElementById(`setup-${format.toLowerCase()}`);
+            if(btn) btn.classList.add('bg-e1-blue', 'text-white');
+            document.getElementById('setupDetails').classList.remove('hidden');
+            
+            const teamInputs = document.getElementById('setupTeamInputs');
+            teamInputs.innerHTML = '';
+            
+            const labelClass = "block text-sm font-headings font-bold mb-2 uppercase tracking-wide";
+            const inputClass = "w-full border-3 border-e1-dark rounded-2xl p-4 font-bold uppercase outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all text-e1-dark";
+
+            if (format === 'WSDC' || format === 'Asian') {
+                teamInputs.className = "grid grid-cols-2 gap-6";
+                teamInputs.innerHTML = `
+                    <div>
+                        <label class="${labelClass} text-e1-green">Proposition</label>
+                        <input type="text" id="setupPropName" class="${inputClass} border-e1-green bg-green-50" placeholder="Prop Name">
+                    </div>
+                    <div>
+                        <label class="${labelClass} text-e1-orange">Opposition</label>
+                        <input type="text" id="setupOppName" class="${inputClass} border-e1-orange bg-orange-50" placeholder="Opp Name">
+                    </div>
+                `;
+            } else if (format === 'BP') {
+                teamInputs.className = "grid grid-cols-2 gap-6";
+                teamInputs.innerHTML = `
+                    <div><label class="${labelClass} text-e1-green">OG Team</label><input type="text" id="setupOG" class="${inputClass} border-e1-green bg-green-50" placeholder="OG"></div>
+                    <div><label class="${labelClass} text-e1-orange">OO Team</label><input type="text" id="setupOO" class="${inputClass} border-e1-orange bg-orange-50" placeholder="OO"></div>
+                    <div><label class="${labelClass} text-e1-green">CG Team</label><input type="text" id="setupCG" class="${inputClass} border-e1-green bg-green-50" placeholder="CG"></div>
+                    <div><label class="${labelClass} text-e1-orange">CO Team</label><input type="text" id="setupCO" class="${inputClass} border-e1-orange bg-orange-50" placeholder="CO"></div>
+                `;
+            }
+
+            speakerInputs.innerHTML = '';
+            let titles = [];
+            if (format === 'WSDC' || format === 'Asian') {
+                titles = ['1st Prop', '1st Opp', '2nd Prop', '2nd Opp', '3rd Prop', '3rd Opp', 'Opp Reply', 'Prop Reply'];
+            } else if (format === 'BP') {
+                titles = ['PM (OG)', 'LO (OO)', 'DPM (OG)', 'DLO (OO)', 'MG (CG)', 'MO (CO)', 'GW (CG)', 'OW (CO)'];
+            }
+
+            titles.forEach((title, i) => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase">${title}</label>
+                    <input type="text" class="setup-speaker w-full border-3 border-slate-200 rounded-xl p-3 text-xs font-bold outline-none focus:border-e1-blue transition-all text-e1-dark" data-index="${i}" placeholder="Enter Name...">
+                `;
+                speakerInputs.appendChild(div);
+            });
+        }
+
+        function generateDebate() {
+            if (!setupFormat) return;
+
+            const confirmGen = () => {
+                debateFormat = setupFormat;
+                localStorage.setItem('flow_format', debateFormat);
+                
+                if(debateFormat === 'BP') {
+                    localStorage.setItem('flow_team_og', document.getElementById('setupOG').value || 'OG');
+                    localStorage.setItem('flow_team_oo', document.getElementById('setupOO').value || 'OO');
+                    localStorage.setItem('flow_team_cg', document.getElementById('setupCG').value || 'CG');
+                    localStorage.setItem('flow_team_co', document.getElementById('setupCO').value || 'CO');
+                } else {
+                    localStorage.setItem('flow_team_p', document.getElementById('setupPropName').value || 'Prop');
+                    localStorage.setItem('flow_team_o', document.getElementById('setupOppName').value || 'Opp');
+                }
+
+                const names = Array.from(document.querySelectorAll('.setup-speaker')).map(i => i.value);
+                columns = [];
+                
+                let structure = [];
+                if (debateFormat === 'WSDC' || debateFormat === 'Asian') {
+                    structure = [
+                        { title: '1st Prop', team: 'prop' }, { title: '1st Opp', team: 'opp' },
+                        { title: '2nd Prop', team: 'prop' }, { title: '2nd Opp', team: 'opp' },
+                        { title: '3rd Prop', team: 'prop' }, { title: '3rd Opp', team: 'opp' },
+                        { title: 'Opp Reply', team: 'opp' }, { title: 'Prop Reply', team: 'prop' }
+                    ];
+                } else if (debateFormat === 'BP') {
+                    structure = [
+                        { title: 'PM (OG)', team: 'prop' }, { title: 'LO (OO)', team: 'opp' },
+                        { title: 'DPM (OG)', team: 'prop' }, { title: 'DLO (OO)', team: 'opp' },
+                        { title: 'MG (CG)', team: 'prop' }, { title: 'MO (CO)', team: 'opp' },
+                        { title: 'GW (CG)', team: 'prop' }, { title: 'OW (CO)', team: 'opp' }
+                    ];
+                }
+
+                structure.forEach((s, i) => {
+                    columns.push({
+                        id: Date.now() + i,
+                        team: s.team,
+                        title: s.title,
+                        speakerName: names[i] || '',
+                        score: '',
+                        cards: []
+                    });
+                });
+
+                saveToStorage();
+                renderTeamHeaders();
+                renderBoard();
+                if (columns.length > 0) setActiveColumn(columns[0].id);
+                closeSetupModal();
+            };
+
+            if (columns.length > 0) {
+                showModal({
+                    title: 'New Round?',
+                    message: 'All current work on the board will be lost.',
+                    onConfirm: confirmGen
+                });
+            } else {
+                confirmGen();
+            }
+        }
+
+        function renderTeamHeaders() {
+            teamHeadersContainer.innerHTML = '';
+            const benchClass = "flex-1 min-w-[200px] flex items-center gap-3 bg-white border-3 border-e1-dark rounded-2xl px-4 py-2 shadow-neo-sm transform transition-transform hover:scale-[1.02] text-e1-dark";
+            const inputClass = "flex-1 bg-transparent outline-none font-bold text-sm uppercase tracking-tight placeholder:text-slate-300 text-e1-dark";
+
+            if (debateFormat === 'BP') {
+                const teams = [
+                    { key: 'og', label: 'OG', color: 'bg-e1-green', storage: 'flow_team_og' },
+                    { key: 'oo', label: 'OO', color: 'bg-e1-orange', storage: 'flow_team_oo' },
+                    { key: 'cg', label: 'CG', color: 'bg-e1-green', storage: 'flow_team_cg' },
+                    { key: 'co', label: 'CO', color: 'bg-e1-orange', storage: 'flow_team_co' }
+                ];
+                teams.forEach(t => {
+                    const val = localStorage.getItem(t.storage) || '';
+                    const div = document.createElement('div');
+                    div.className = benchClass;
+                    div.innerHTML = `
+                        <div class="w-8 h-8 rounded-lg ${t.color} border-2 border-e1-dark flex items-center justify-center text-[10px] font-headings font-bold text-white shadow-sm">${t.key.toUpperCase()}</div>
+                        <input type="text" class="${inputClass}" placeholder="Team Name..." value="${val}" oninput="localStorage.setItem('${t.storage}', this.value)">
+                    `;
+                    teamHeadersContainer.appendChild(div);
+                });
+            } else {
+                const teams = [
+                    { label: 'Prop', color: 'bg-e1-green', storage: 'flow_team_p' },
+                    { label: 'Opp', color: 'bg-e1-orange', storage: 'flow_team_o' }
+                ];
+                teams.forEach(t => {
+                    const val = localStorage.getItem(t.storage) || '';
+                    const div = document.createElement('div');
+                    div.className = benchClass;
+                    div.innerHTML = `
+                        <div class="w-12 h-8 rounded-lg ${t.color} border-2 border-e1-dark flex items-center justify-center text-[10px] font-headings font-bold text-white shadow-sm uppercase">${t.label}</div>
+                        <input type="text" class="${inputClass}" placeholder="Enter Team Name..." value="${val}" oninput="localStorage.setItem('${t.storage}', this.value)">
+                    `;
+                    teamHeadersContainer.appendChild(div);
+                });
+            }
+        }
+
+        // --- RENDER BOARD ---
+
+        function renderBoard() {
+            board.innerHTML = '';
+            if (columns.length === 0) {
+                board.appendChild(emptyState);
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            columns.forEach(col => {
+                const clone = colTemplate.content.cloneNode(true);
+                const wrapper = clone.querySelector('.column-wrapper');
+                const header = clone.querySelector('.col-header');
+                const titleInput = clone.querySelector('.col-title');
+                const speakerInput = clone.querySelector('.speaker-name');
+                const scoreInput = clone.querySelector('.speaker-score');
+                const cardsContainer = clone.querySelector('.cards-container');
+                const btnArg = clone.querySelector('.add-arg');
+                const btnDel = clone.querySelector('.delete-col');
+                const activeDot = clone.querySelector('.active-dot');
+
+                wrapper.dataset.id = col.id;
+                const isProp = col.team === 'prop';
+                wrapper.onclick = () => setActiveColumn(col.id);
+                wrapper.ondblclick = () => setActiveColumn(col.id);
+
+                if (isProp) {
+                    header.classList.add('bg-e1-green/10');
+                    wrapper.classList.add('border-e1-green');
+                    btnArg.classList.add('bg-e1-green', 'text-e1-dark');
+                } else {
+                    header.classList.add('bg-e1-orange/10');
+                    wrapper.classList.add('border-e1-orange');
+                    btnArg.classList.add('bg-e1-orange', 'text-white');
+                }
+
+                if (activeColId === col.id) {
+                    wrapper.classList.add('active-column');
+                    activeDot.classList.remove('hidden');
+                }
+
+                titleInput.value = col.title || '';
+                titleInput.oninput = (e) => updateColumnField(col.id, 'title', e.target.value);
+                titleInput.onfocus = () => setActiveColumn(col.id);
+
+                speakerInput.value = col.speakerName || '';
+                speakerInput.oninput = (e) => updateColumnField(col.id, 'speakerName', e.target.value);
+                speakerInput.onfocus = () => setActiveColumn(col.id);
+
+                scoreInput.value = col.score || '';
+                scoreInput.oninput = (e) => updateColumnField(col.id, 'score', e.target.value);
+                scoreInput.onfocus = () => setActiveColumn(col.id);
+
+                btnDel.onclick = (e) => {
+                    e.stopPropagation();
+                    triggerDeleteColumn(col.id);
+                };
+
+                clone.querySelector('.add-def').onclick = (e) => { e.stopPropagation(); addCard(col.id, 'def'); };
+                clone.querySelector('.add-bop').onclick = (e) => { e.stopPropagation(); addCard(col.id, 'bop'); };
+                clone.querySelector('.add-reb').onclick = (e) => { e.stopPropagation(); addCard(col.id, 'reb'); };
+                btnArg.onclick = (e) => { e.stopPropagation(); addCard(col.id, 'arg'); };
+
+                col.cards.forEach(card => {
+                    const cardEl = document.createElement('div');
+                    cardEl.className = `card-neo relative rounded-2xl border-3 border-e1-dark p-4 shadow-neo-sm transition-all animate-in slide-in-from-right-2 duration-200 ${card.type === 'reb' ? 'bg-e1-blue/5 ml-8 scale-95 origin-left' : (card.type === 'def' ? 'bg-e1-pink/5' : (card.type === 'bop' ? 'bg-slate-100' : 'bg-white'))}`;
+                    cardEl.dataset.cardId = card.id;
+
+                    const strip = document.createElement('div');
+                    let sc = isProp ? 'bg-e1-green' : 'bg-e1-orange';
+                    if (card.type === 'reb') sc = 'bg-e1-blue';
+                    if (card.type === 'def') sc = 'bg-e1-pink';
+                    if (card.type === 'bop') sc = 'bg-e1-dark';
+                    strip.className = `absolute left-0 top-0 bottom-0 w-2 rounded-l-xl ${sc}`;
+                    cardEl.appendChild(strip);
+
+                    const textarea = document.createElement('textarea');
+                    textarea.className = "w-full bg-transparent resize-none outline-none font-body font-bold text-e1-dark text-sm auto-textarea overflow-hidden placeholder:text-slate-300";
+                    
+                    let ph = "New Point...";
+                    if(card.type === 'reb') ph = "Response...";
+                    if(card.type === 'def') ph = "Definitions...";
+                    if(card.type === 'bop') ph = "Burden Check...";
+
+                    textarea.placeholder = ph;
+                    textarea.value = card.text;
+                    
+                    textarea.onfocus = () => { 
+                        setActiveColumn(col.id); 
+                        cardEl.classList.add('ring-4', 'ring-e1-blue/20'); 
+                    };
+                    textarea.onblur = () => cardEl.classList.remove('ring-4', 'ring-e1-blue/20');
+                    textarea.oninput = function() {
+                        this.style.height = 'auto';
+                        this.style.height = this.scrollHeight + 'px';
+                        updateCardText(col.id, card.id, this.value);
+                    };
+                    
+                    // Specific card deletion button
+                    const dc = document.createElement('button');
+                    dc.className = "absolute -top-2 -right-2 opacity-0 group-hover/card:opacity-100 bg-white border-2 border-e1-dark p-1 rounded-full shadow-sm hover:bg-e1-pink hover:text-white transition-all text-e1-dark";
+                    dc.innerHTML = '<i data-lucide="x" class="w-3 h-3"></i>';
+                    dc.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteCard(col.id, card.id);
+                    };
+
+                    cardEl.appendChild(textarea);
+                    cardEl.appendChild(dc);
+                    cardsContainer.appendChild(cardEl);
+                    setTimeout(() => { textarea.style.height = 'auto'; textarea.style.height = textarea.scrollHeight + 'px'; }, 0);
+                });
+
+                board.appendChild(wrapper);
+            });
+            lucide.createIcons();
+        }
+
+        // --- UTILS ---
+
+        function setActiveColumn(id) {
+            activeColId = id;
+            document.querySelectorAll('.column-wrapper').forEach(el => {
+                const isActive = el.dataset.id == id;
+                el.classList.toggle('active-column', isActive);
+                const dot = el.querySelector('.active-dot');
+                if (dot) dot.classList.toggle('hidden', !isActive);
+            });
+        }
+
+        function addCard(colId, type) {
+            const col = columns.find(c => c.id == colId);
+            if (!col) return;
+            const cid = Date.now() + Math.random();
+            col.cards.push({ id: cid, type, text: '' });
+            saveToStorage();
+            renderBoard();
+            setActiveColumn(colId);
+            setTimeout(() => {
+                const ta = document.querySelector(`[data-card-id="${cid}"] textarea`);
+                if (ta) ta.focus();
+            }, 100);
+        }
+
+        function triggerDeleteColumn(id) {
+            showModal({ title: 'Delete Speech?', message: 'Every argument tracked in this speech will be permanently removed.', onConfirm: () => {
+                columns = columns.filter(c => c.id != id);
+                saveToStorage(); renderBoard();
+            }});
+        }
+
+        function updateColumnField(id, f, v) { const c = columns.find(x => x.id == id); if(c) { c[f] = v; saveToStorage(); } }
+        function updateCardText(id, cid, t) { const c = columns.find(x => x.id == id); if(c) { const card = c.cards.find(x => x.id == cid); if(card) { card.text = t; saveToStorage(); } } }
+        function deleteCard(id, cid) { const c = columns.find(x => x.id == id); if(c) { c.cards = c.cards.filter(x => x.id != cid); saveToStorage(); renderBoard(); } }
+        
+        function saveToStorage() { localStorage.setItem('flowsheet_data', JSON.stringify(columns)); }
+        function loadFromStorage() {
+            const d = localStorage.getItem('flowsheet_data');
+            if (d) {
+                try {
+                    columns = JSON.parse(d);
+                } catch(e) {
+                    columns = [];
+                }
+            }
+            const fmt = localStorage.getItem('flow_format');
+            if(fmt) debateFormat = fmt;
+        }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(columns));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", `FlowSheet_${debateFormat}_${new Date().toLocaleDateString()}.json`);
+            dl.click();
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const r = new FileReader();
+            r.onload = (e) => { 
+                try {
+                    columns = JSON.parse(e.target.result); 
+                    saveToStorage(); 
+                    renderBoard(); 
+                    renderTeamHeaders();
+                } catch(err) {
+                    console.error("Invalid File", err);
+                }
+            };
+            r.readAsText(file);
+        }
+
+        function showModal({ title, message, onConfirm }) {
+            const m = document.getElementById('modalBackdrop');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            m.classList.remove('hidden');
+            document.getElementById('modalConfirm').onclick = () => { onConfirm(); m.classList.add('hidden'); };
+            document.getElementById('modalCancel').onclick = () => m.classList.add('hidden');
+        }
+
+        async function exportToImage() {
+            const prevId = activeColId;
+            activeColId = null;
+            renderBoard();
+
+            // Loading state
+            const btn = document.querySelector('button[title="Download Image"]');
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`;
+            lucide.createIcons();
+
+            try {
+                const canvas = await html2canvas(board, { 
+                    backgroundColor: '#f8fafc', 
+                    width: board.scrollWidth + 100, 
+                    height: board.scrollHeight + 100,
+                    scale: 2 
+                });
+
+                const link = document.createElement('a');
+                link.download = `Debate_Flow_${new Date().toISOString().slice(0,10)}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            } catch(e) {
+                console.error("Export Error", e);
+            } finally {
+                activeColId = prevId;
+                renderBoard();
+                btn.innerHTML = originalIcon;
+                lucide.createIcons();
+            }
+        }
+
+        function toggleDarkMode() { 
+            document.documentElement.classList.toggle('dark'); 
+        }
+        
+        function triggerClearBoard() {
+            showModal({ title: 'Wipe Board?', message: 'This will delete the entire debate flow. Export first if you need it later.', onConfirm: () => { columns = []; saveToStorage(); renderBoard(); renderTeamHeaders(); } });
+        }
+
+        // Init
+        loadFromStorage();
+        renderTeamHeaders();
+        renderBoard();
+        if(columns.length > 0) setActiveColumn(columns[0].id);
+
+    </script>
+</body>
+</html>
