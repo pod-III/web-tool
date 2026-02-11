@@ -4,29 +4,29 @@
 "name": "FlowSheet",
 "description": "Professional debate flowing tool with support for WSDC, Asian Parl, and BP formats. Includes Alt-shortcuts and 4-team management.",
 "category": "Debate",
-"route": "flow_sheet.html",
+"route": "./adj-note/index.html",
 "icon": "columns",
 "color": "e1-blue",
 "tags": ["Debate", "Work", "Productivity"]
 },
 {
-"id": "ballot-box",
-"name": "BallotBox",
-"description": "Adjudicator's scoring calculator. Calculate speaker margins and ranks for WSDC and BP rounds instantly.",
-"category": "Debate",
-"route": "#",
-"icon": "calculator",
-"color": "e1-pink",
-"tags": ["Math", "Judging"]
+"id": "image-splitter",
+"name": "ImageSplitter",
+"description": "Split images into perfect grids for social media carousels or printing. Features customizable row and column counts.",
+"category": "Work",
+"route": "./image-splitter/index.html",
+"icon": "scissors",
+"color": "e1-green",
+"tags": ["Images", "Utility", "Work"]
 },
 {
-"id": "task-deck",
-"name": "TaskDeck",
-"description": "A Neo-Brutalist Kanban board to manage your teaching materials, coding projects, and daily gym routines.",
-"category": "Work",
-"route": "#",
-"icon": "layout",
+"id": "debate-timer",
+"name": "DebateTimer",
+"description": "A specialized countdown timer for competitive debate. Features presets for WSDC/Asian and BP speeches with automated bell alerts.",
+"category": "Debate",
+"route": "./debate-timer/index.html",
+"icon": "timer",
 "color": "e1-orange",
-"tags": ["Management", "Planning"]
+"tags": ["Debate", "Utility", "Judging"]
 }
 ]
