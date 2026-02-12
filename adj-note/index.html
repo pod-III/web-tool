@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlowSheet - English 1 Batam</title>
+    <title>FlowSheet Pro | Adjudicator Cockpit</title>
     
     <!-- 1. TYPOGRAPHY -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <!-- 2. TAILWIND CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,7 +16,7 @@
     <!-- 3. ICONS -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- 4. HTML2CANVAS -->
+    <!-- 4. LIBRARIES -->
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
     <!-- 5. DESIGN SYSTEM CONFIG -->
@@ -43,104 +43,167 @@
                         'neo-lg': '8px 8px 0px 0px rgba(30, 41, 59, 1)',
                         'neo-xl': '12px 12px 0px 0px rgba(30, 41, 59, 1)',
                     },
-                    borderWidth: { '3': '3px', '4': '4px', '6': '6px' }
+                    borderWidth: { '3': '3px', '4': '4px', '6': '6px' },
+                    cursor: {
+                        'crosshair': 'crosshair'
+                    }
                 }
             }
         }
     </script>
 
     <style>
-        /* Base Aesthetic */
+        /* Base Aesthetic - Graph Paper Background */
         body {
             background-color: #f8fafc;
             background-image: 
                 linear-gradient(rgba(30, 41, 59, 0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(30, 41, 59, 0.05) 1px, transparent 1px);
-            background-size: 20px 20px;
+            background-size: 24px 24px;
         }
-        .dark body { background-color: #0f172a; }
+        .dark body { 
+            background-color: #0f172a; 
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        }
 
-        /* Smooth Flow Scrolling */
-        .flow-container::-webkit-scrollbar { height: 12px; }
+        /* Scrollbars */
+        .flow-container::-webkit-scrollbar { height: 14px; }
         .flow-container::-webkit-scrollbar-track { background: transparent; }
         .flow-container::-webkit-scrollbar-thumb { 
-            background: #2979FF; 
-            border: 3px solid #f8fafc; 
-            border-radius: 10px; 
+            background: #cbd5e1; 
+            border: 4px solid transparent; 
+            background-clip: content-box; 
+            border-radius: 99px; 
         }
+        .flow-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; border: 4px solid transparent; background-clip: content-box; }
 
         .auto-textarea { 
             field-sizing: content; 
-            min-height: 3rem; 
-            transition: background-color 0.2s;
+            min-height: 2.5rem; 
+            transition: height 0.1s;
         }
         
-        #modalBackdrop, #setupModalBackdrop {
+        /* Modal Backdrop */
+        .backdrop-blur-custom {
             backdrop-filter: blur(8px);
-            background-color: rgba(30, 41, 59, 0.6);
+            background-color: rgba(15, 23, 42, 0.4);
         }
 
         /* Active Column Aesthetics */
         .active-column {
             border-color: #2979FF !important;
-            box-shadow: 12px 12px 0px 0px rgba(41, 121, 255, 0.3) !important;
-            transform: translateY(-8px);
+            box-shadow: 8px 8px 0px 0px rgba(41, 121, 255, 0.25) !important;
+            transform: translateY(-4px);
             z-index: 20;
         }
-
-        /* Physical Button Press */
-        .btn-neo {
-            transition: all 0.1s ease;
-        }
-        .btn-neo:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0px 0px rgba(30, 41, 59, 1);
-        }
-        .btn-neo:active {
-            transform: translate(2px, 2px);
-            box-shadow: 0px 0px 0px 0px rgba(30, 41, 59, 1);
+        .dark .active-column {
+             box-shadow: 8px 8px 0px 0px rgba(41, 121, 255, 0.5) !important;
         }
 
-        /* Team Input Polishing */
-        .team-header-input {
-            transition: all 0.2s;
+        /* Neo Interactions */
+        .btn-neo { transition: all 0.1s ease; }
+        .btn-neo:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px 0px rgba(30, 41, 59, 1); }
+        .btn-neo:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px rgba(30, 41, 59, 1); }
+        .dark .btn-neo:hover { box-shadow: 6px 6px 0px 0px #000; }
+
+        /* Drag and Drop Styling */
+        .card-dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+            border: 2px dashed #2979FF !important;
         }
-        .team-header-input:focus {
-            background-color: white;
+        
+        .drop-target-active {
+            background-color: rgba(41, 121, 255, 0.1) !important;
+            border-style: dashed !important;
+            border-color: #2979FF !important;
+        }
+
+        /* Linking Mode */
+        .linking-mode-active {
+            cursor: crosshair !important;
+        }
+        .linking-mode-active .group\/card:hover {
+            border-color: #FF6B95 !important;
+            box-shadow: 0 0 0 4px rgba(255, 107, 149, 0.3) !important;
             transform: scale(1.02);
+        }
+        .linking-source {
+            border-color: #FF8C42 !important;
+            box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.3) !important;
+        }
+
+        .ref-chip {
+            font-size: 0.7rem;
+            line-height: 1rem;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
     </style>
 </head>
 
-<body class="font-body text-e1-dark flex flex-col h-screen overflow-hidden transition-colors duration-200">
+<body class="font-body text-e1-dark dark:text-slate-100 flex flex-col h-screen overflow-hidden transition-colors duration-200">
+
+    <!-- LINKING MODE BANNER (Hidden by default) -->
+    <div id="linkingBanner" class="hidden absolute top-0 left-0 w-full h-12 bg-e1-pink text-white z-[60] flex items-center justify-center font-bold font-headings shadow-md animate-in slide-in-from-top">
+        <div class="flex items-center gap-2">
+            <i data-lucide="link" class="w-4 h-4 animate-pulse"></i>
+            <span>SELECT A CARD TO LINK</span>
+        </div>
+        <button onclick="actions.cancelLink()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 p-1 rounded-lg">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+    </div>
 
     <!-- NAVBAR -->
-    <nav class="w-full bg-white/90 backdrop-blur-md border-b-4 border-e1-dark p-3 sticky top-0 z-50 flex-none">
-        <div class="max-w-[1920px] mx-auto w-full flex justify-between items-center px-6">
-            <div class="flex items-center gap-3">
-                <div class="bg-e1-blue p-2 rounded-2xl border-3 border-e1-dark shadow-neo-sm">
-                    <i data-lucide="layout-grid" class="text-white w-6 h-6"></i>
+    <nav class="w-full bg-white/95 dark:bg-slate-900/95 border-b-4 border-e1-dark dark:border-slate-700 p-2 sticky top-0 z-50 flex-none shadow-sm">
+        <div class="max-w-[1920px] mx-auto w-full flex justify-between items-center px-4">
+            
+            <!-- Logo -->
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <div class="bg-e1-blue p-1.5 rounded-xl border-3 border-e1-dark shadow-neo-sm">
+                        <i data-lucide="feather" class="text-white w-5 h-5"></i>
+                    </div>
+                    <h1 class="hidden md:block font-headings text-xl font-bold tracking-tight">Flow<span class="text-e1-pink underline decoration-4 underline-offset-2">Sheet</span></h1>
                 </div>
-                <h1 class="font-headings text-2xl font-bold tracking-tight text-e1-dark">Flow<span class="text-e1-pink underline decoration-4 underline-offset-4">Sheet</span></h1>
+                <!-- Motion Display -->
+                <div id="navMotion" class="hidden lg:block text-xs font-bold text-slate-500 max-w-md truncate border-l-2 border-slate-300 pl-4">
+                    <!-- Motion Text -->
+                </div>
             </div>
             
-            <div class="flex items-center gap-3 text-e1-dark">
-                <button onclick="openSetupModal()" class="bg-e1-blue text-white px-5 py-2.5 rounded-2xl border-3 border-e1-dark shadow-neo btn-neo flex items-center gap-2 font-headings font-bold text-sm">
-                    <i data-lucide="sparkles" class="w-4 h-4 text-white"></i> New Debate
-                </button>
-                <div class="w-1 h-8 bg-e1-dark/10 mx-2 rounded-full"></div>
+            <!-- Tools -->
+            <div class="flex items-center gap-3">
+                
+                <!-- Quick Actions -->
+                <div class="flex items-center gap-2 mr-4">
+                    <button onclick="app.toggleBallot()" class="bg-e1-dark text-white px-3 py-1.5 rounded-lg border-2 border-transparent hover:border-slate-400 font-bold text-sm flex items-center gap-2 shadow-neo-sm btn-neo">
+                        <i data-lucide="calculator" class="w-4 h-4"></i> Ballot
+                    </button>
+                    <button onclick="openSetupModal()" class="bg-e1-blue text-white px-3 py-1.5 rounded-lg border-2 border-e1-dark font-bold text-sm flex items-center gap-2 shadow-neo-sm btn-neo">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i> New Round
+                    </button>
+                </div>
+
+                <div class="w-0.5 h-8 bg-slate-300 mx-1"></div>
+
+                <!-- Utilities -->
                 <div class="flex gap-2">
-                    <input type="file" id="importInput" accept=".json" class="hidden" onchange="importData(this)">
-                    <button onclick="document.getElementById('importInput').click()" class="bg-white p-2.5 rounded-xl border-3 border-e1-dark shadow-neo-sm btn-neo" title="Open File">
-                        <i data-lucide="folder-open" class="w-5 h-5"></i>
+                    <button onclick="app.toggleHistory()" class="p-2 rounded-lg border-2 border-transparent hover:bg-e1-orange/10 text-e1-orange transition-colors relative" title="History & Backup">
+                        <i data-lucide="archive" class="w-5 h-5"></i>
                     </button>
-                    <button onclick="exportData()" class="bg-white p-2.5 rounded-xl border-3 border-e1-dark shadow-neo-sm btn-neo" title="Save File">
-                        <i data-lucide="save" class="w-5 h-5"></i>
+                    <button onclick="app.toggleFocusMode()" class="p-2 rounded-lg border-2 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Focus Mode">
+                        <i data-lucide="maximize" class="w-5 h-5"></i>
                     </button>
-                    <button onclick="exportToImage()" class="bg-e1-green p-2.5 rounded-xl border-3 border-e1-dark shadow-neo-sm btn-neo" title="Download Image">
+                    <button onclick="exportToImage()" class="p-2 rounded-lg border-2 border-transparent hover:bg-e1-green/20 text-e1-green transition-colors" title="Export Image">
                         <i data-lucide="image" class="w-5 h-5"></i>
                     </button>
-                    <button onclick="toggleDarkMode()" class="bg-e1-dark text-white p-2.5 rounded-xl border-3 border-e1-dark shadow-neo-sm btn-neo">
+                    <button onclick="app.toggleDarkMode()" class="p-2 rounded-lg border-2 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Dark Mode">
                         <i data-lucide="moon" class="w-5 h-5"></i>
                     </button>
                 </div>
@@ -148,623 +211,1050 @@
         </div>
     </nav>
 
-    <!-- TEAM HEADERS (DYNAMIC) -->
-    <div id="teamHeadersContainer" class="w-full bg-e1-chalk/50 border-b-4 border-e1-dark p-3 flex-none flex gap-4 px-10 overflow-x-auto no-scrollbar">
-        <!-- Will be populated by JS -->
+    <!-- TEAM BAR -->
+    <div id="teamHeadersContainer" class="w-full bg-white/50 dark:bg-slate-900/50 border-b-4 border-e1-dark dark:border-slate-700 p-2 flex-none flex gap-4 px-4 overflow-x-auto no-scrollbar items-center min-h-[60px]">
+        <!-- Populated by JS -->
     </div>
 
-    <!-- MAIN BOARD AREA -->
-    <main class="flex-grow w-full overflow-hidden relative">
-        <div id="board" class="flow-container w-full h-full overflow-x-auto overflow-y-hidden flex items-start gap-8 p-10 snap-x">
+    <!-- MAIN BOARD -->
+    <main class="flex-grow w-full overflow-hidden relative bg-e1-chalk dark:bg-slate-900">
+        <div id="board" class="flow-container w-full h-full overflow-x-auto overflow-y-hidden flex items-start gap-6 p-6 snap-x">
             <!-- Columns injected via JS -->
-            <div id="emptyState" class="m-auto text-center p-16 bg-white border-4 border-e1-dark rounded-3xl shadow-neo-lg max-w-md animate-in fade-in zoom-in duration-500">
-                <div class="bg-e1-blue/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i data-lucide="pen-tool" class="w-10 h-10 text-e1-blue"></i>
+            
+            <!-- EMPTY STATE -->
+            <div id="emptyState" class="m-auto text-center p-12 bg-white dark:bg-slate-800 border-4 border-e1-dark dark:border-slate-600 rounded-[2rem] shadow-neo-lg max-w-md animate-in fade-in zoom-in duration-500">
+                <div class="bg-e1-pink/10 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 border-3 border-e1-pink border-dashed">
+                    <i data-lucide="pen-tool" class="w-10 h-10 text-e1-pink"></i>
                 </div>
-                <h2 class="font-headings text-3xl font-bold text-e1-dark mb-3">No Flow Found</h2>
-                <p class="text-slate-500 font-bold mb-8">Start a round to begin tracking arguments.</p>
-                <button onclick="openSetupModal()" class="bg-e1-blue text-white px-8 py-3 rounded-2xl border-4 border-e1-dark shadow-neo font-headings font-bold text-lg btn-neo">
-                    Setup Debate
+                <h2 class="font-headings text-3xl font-bold mb-2">Ready to Adjudicate?</h2>
+                <p class="text-slate-500 dark:text-slate-400 font-bold mb-8">Set up your flowsheet to track arguments, clashes, and scores.</p>
+                <button onclick="openSetupModal()" class="bg-e1-blue text-white px-8 py-3 rounded-xl border-3 border-e1-dark shadow-neo font-headings font-bold text-lg btn-neo">
+                    Start Round
                 </button>
             </div>
         </div>
 
-        <!-- Floating Action Tip -->
-        <div class="absolute bottom-6 right-8 bg-e1-dark text-white border-3 border-e1-dark px-5 py-3 rounded-2xl shadow-neo-lg text-[10px] md:text-xs font-bold pointer-events-none flex flex-col gap-1.5 items-end transform hover:scale-105 transition-transform">
-            <div class="flex items-center gap-2 opacity-80">
-                <i data-lucide="zap" class="w-4 h-4 text-e1-orange fill-e1-orange"></i> 
-                <span>QUICK FLOW SHORTCUTS</span>
+        <!-- KEYBOARD SHORTCUTS HINT -->
+        <div class="absolute bottom-6 right-8 bg-e1-dark text-white border-3 border-e1-dark px-4 py-3 rounded-2xl shadow-neo-lg text-[11px] font-bold pointer-events-none flex flex-col gap-1.5 items-end opacity-60 hover:opacity-100 transition-opacity z-40">
+            <div class="flex items-center gap-2 mb-1">
+                <i data-lucide="keyboard" class="w-4 h-4 text-e1-orange"></i> 
+                <span>SHORTCUTS</span>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="text-e1-green">ALT + A</span> <span class="text-slate-400">Argument</span>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="text-e1-blue">ALT + R</span> <span class="text-slate-400">Rebuttal</span>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="text-e1-pink">ALT + D</span> <span class="text-slate-400">Definition</span>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="text-white">ALT + B</span> <span class="text-slate-400">Burden</span>
+            <div class="flex gap-4">
+                <span class="flex items-center gap-1"><span class="text-e1-green bg-slate-700 px-1 rounded">Alt+A</span> Arg</span>
+                <span class="flex items-center gap-1"><span class="text-e1-blue bg-slate-700 px-1 rounded">Alt+R</span> Reb</span>
+                <span class="flex items-center gap-1"><span class="text-e1-pink bg-slate-700 px-1 rounded">Alt+D</span> Def</span>
+                <span class="flex items-center gap-1"><span class="text-white bg-slate-700 px-1 rounded">Alt+B</span> Bop</span>
             </div>
         </div>
     </main>
 
     <!-- SETUP MODAL -->
-    <div id="setupModalBackdrop" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-6 text-e1-dark">
-        <div class="bg-white border-6 border-e1-dark rounded-[2.5rem] shadow-neo-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-10 animate-in slide-in-from-bottom-10 duration-300">
-            <div class="flex justify-between items-start mb-8">
-                <div>
-                    <h2 class="font-headings text-4xl font-bold mb-2">Setup Round</h2>
-                    <p class="text-slate-400 font-bold">Configure your debate layout and speakers.</p>
-                </div>
-                <button onclick="closeSetupModal()" class="bg-slate-100 p-2 rounded-xl border-3 border-e1-dark hover:bg-e1-pink hover:text-white transition-colors">
-                    <i data-lucide="x" class="w-6 h-6"></i>
+    <div id="setupModal" class="fixed inset-0 z-[100] hidden backdrop-blur-custom flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 border-4 border-e1-dark dark:border-slate-900 rounded-[2rem] shadow-neo-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 animate-in slide-in-from-bottom-5 duration-300">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="font-headings text-3xl font-bold">Round Setup</h2>
+                <button onclick="closeSetupModal()" class="bg-slate-100 dark:bg-slate-700 p-2 rounded-xl hover:bg-e1-pink hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
 
-            <div class="space-y-8">
-                <!-- Select Format -->
-                <div>
-                    <label class="block font-headings text-xl font-bold mb-4">1. Format Type</label>
-                    <div class="grid grid-cols-3 gap-4">
-                        <button onclick="setSetupFormat('WSDC')" id="setup-wsdc" class="setup-format-btn bg-white border-4 border-e1-dark rounded-2xl py-4 font-headings font-bold text-lg shadow-neo btn-neo">WSDC</button>
-                        <button onclick="setSetupFormat('Asian')" id="setup-asian" class="setup-format-btn bg-white border-4 border-e1-dark rounded-2xl py-4 font-headings font-bold text-lg shadow-neo btn-neo">Asian Parl.</button>
-                        <button onclick="setSetupFormat('BP')" id="setup-bp" class="setup-format-btn bg-white border-4 border-e1-dark rounded-2xl py-4 font-headings font-bold text-lg shadow-neo btn-neo">British Parl.</button>
-                    </div>
-                </div>
-
-                <!-- Input Details -->
-                <div id="setupDetails" class="hidden space-y-8 animate-in fade-in duration-300">
-                    <div id="setupTeamInputs" class="grid gap-6">
-                        <!-- Dynamic team inputs based on format -->
-                    </div>
-                    
-                    <div class="bg-slate-50 border-4 border-e1-dark border-dashed rounded-3xl p-6">
-                        <label class="block font-headings text-xl font-bold mb-6">2. Speakers</label>
-                        <div id="speakerInputs" class="grid grid-cols-2 gap-6">
-                            <!-- Dynamic speaker inputs -->
-                        </div>
-                    </div>
-                </div>
+            <div class="mb-6">
+                <label class="block text-xs font-bold uppercase mb-2 text-slate-500">Motion (Topic)</label>
+                <input type="text" id="setup-motion" class="w-full border-3 border-e1-dark dark:border-slate-500 rounded-xl p-3 font-bold text-lg bg-slate-50 dark:bg-slate-700" placeholder="e.g. THW Ban Homework">
             </div>
 
-            <div class="flex gap-4 mt-10">
-                <button onclick="generateDebate()" class="flex-1 bg-e1-green text-e1-dark border-4 border-e1-dark rounded-2xl py-4 font-headings font-bold text-xl shadow-neo btn-neo">
-                    Generate Flow Board
+            <div class="grid grid-cols-3 gap-3 mb-8">
+                <button onclick="setup.setFormat('WSDC')" id="fmt-wsdc" class="fmt-btn p-4 rounded-xl border-3 border-e1-dark bg-white font-bold text-lg hover:bg-slate-50">WSDC</button>
+                <button onclick="setup.setFormat('Asian')" id="fmt-asian" class="fmt-btn p-4 rounded-xl border-3 border-e1-dark bg-white font-bold text-lg hover:bg-slate-50">Asian</button>
+                <button onclick="setup.setFormat('BP')" id="fmt-bp" class="fmt-btn p-4 rounded-xl border-3 border-e1-dark bg-white font-bold text-lg hover:bg-slate-50">BP</button>
+            </div>
+
+            <div id="setup-fields" class="space-y-6 hidden">
+                <div id="team-inputs" class="grid gap-4"></div>
+                
+                <div class="bg-slate-50 dark:bg-slate-900/50 border-3 border-dashed border-slate-300 dark:border-slate-600 rounded-2xl p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-headings font-bold text-lg">Speakers</h3>
+                        <button onclick="setup.clearSpeakers()" class="text-xs text-e1-pink font-bold hover:underline">Clear Names</button>
+                    </div>
+                    <div id="speaker-inputs" class="grid grid-cols-2 gap-3"></div>
+                </div>
+
+                <button onclick="setup.generate()" class="w-full bg-e1-green text-e1-dark border-3 border-e1-dark rounded-xl py-3 font-headings font-bold text-xl shadow-neo btn-neo mt-4">
+                    Create Flowsheet
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- CONFIRMATION MODAL -->
-    <div id="modalBackdrop" class="fixed inset-0 z-[120] hidden flex items-center justify-center p-4 text-e1-dark">
-        <div class="bg-white border-4 border-e1-dark rounded-3xl shadow-neo-lg w-full max-w-md p-8">
-            <h2 id="modalTitle" class="font-headings text-3xl font-bold mb-2">Wait!</h2>
-            <p id="modalMessage" class="text-slate-600 mb-8 font-bold text-lg"></p>
-            <div class="flex gap-4">
-                <button id="modalCancel" class="flex-1 bg-slate-100 border-3 border-e1-dark rounded-2xl py-3 font-bold btn-neo text-e1-dark">Cancel</button>
-                <button id="modalConfirm" class="flex-1 bg-e1-pink text-white border-3 border-e1-dark rounded-2xl py-3 font-bold btn-neo shadow-neo">Proceed</button>
+    <!-- BALLOT MODAL -->
+    <div id="ballotModal" class="fixed inset-0 z-[110] hidden backdrop-blur-custom flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 border-4 border-e1-dark rounded-[2rem] shadow-neo-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+            <div class="p-6 border-b-4 border-e1-dark bg-e1-chalk dark:bg-slate-900 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-e1-dark text-white p-2 rounded-lg"><i data-lucide="calculator" class="w-5 h-5"></i></div>
+                    <h2 class="font-headings text-2xl font-bold">Adjudicator Ballot</h2>
+                </div>
+                <button onclick="app.toggleBallot()" class="hover:bg-slate-200 p-2 rounded-lg transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <div class="flex-grow flex flex-col md:flex-row overflow-hidden">
+                <!-- Scores Column -->
+                <div class="w-full md:w-1/2 p-6 overflow-y-auto border-r-0 md:border-r-4 border-e1-dark bg-white dark:bg-slate-800">
+                    <h3 class="font-bold text-slate-400 text-sm uppercase tracking-wider mb-4">Score Calculation</h3>
+                    <div id="ballotScores" class="space-y-6">
+                        <!-- Injected JS -->
+                    </div>
+                    <div class="mt-8 p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-700 rounded-xl flex items-start gap-3">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-600 flex-none mt-0.5"></i>
+                        <p class="text-xs font-bold text-yellow-800 dark:text-yellow-200">Double check manual math. This calculator sums up the 'PTS' fields from your flow columns.</p>
+                    </div>
+                </div>
+
+                <!-- RFD Column -->
+                <div class="w-full md:w-1/2 p-6 bg-slate-50 dark:bg-slate-900 flex flex-col">
+                    <h3 class="font-bold text-slate-400 text-sm uppercase tracking-wider mb-2">Reason for Decision (RFD)</h3>
+                    <textarea id="rfdInput" class="flex-grow w-full bg-white dark:bg-slate-800 border-3 border-e1-dark rounded-xl p-4 font-body font-semibold resize-none focus:ring-4 ring-e1-blue/20 outline-none" placeholder="Draft your decision here...
+1. The Core Clash
+2. Why Prop won the Burden of Proof
+3. Comparison of Rebuttals"></textarea>
+                    <div class="mt-4 flex justify-end">
+                        <button onclick="navigator.clipboard.writeText(document.getElementById('rfdInput').value)" class="text-sm font-bold text-e1-blue hover:underline">Copy RFD to Clipboard</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORY & DATA MODAL -->
+    <div id="historyModal" class="fixed inset-0 z-[120] hidden backdrop-blur-custom flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 border-4 border-e1-dark rounded-[2rem] shadow-neo-xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+            <div class="p-6 border-b-4 border-e1-dark bg-e1-chalk dark:bg-slate-900 flex justify-between items-center flex-none">
+                <div class="flex items-center gap-3">
+                    <div class="bg-e1-orange text-white p-2 rounded-lg"><i data-lucide="archive" class="w-5 h-5"></i></div>
+                    <h2 class="font-headings text-2xl font-bold">Round History & Backup</h2>
+                </div>
+                <button onclick="app.toggleHistory()" class="hover:bg-slate-200 p-2 rounded-lg transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <div class="flex-grow overflow-y-auto p-6 bg-slate-50 dark:bg-slate-900/50">
+                <!-- Backup Actions -->
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border-3 border-e1-dark dark:border-slate-600 mb-8 flex gap-4 items-center justify-between">
+                    <div>
+                        <h4 class="font-bold text-lg">Current Round Data</h4>
+                        <p class="text-xs text-slate-500">Backup your active flowsheet to a file.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="backup.exportJSON()" class="bg-e1-green text-e1-dark border-2 border-e1-dark px-4 py-2 rounded-lg font-bold text-sm shadow-neo-sm btn-neo flex items-center gap-2">
+                            <i data-lucide="download" class="w-4 h-4"></i> Export JSON
+                        </button>
+                        <button onclick="document.getElementById('jsonInput').click()" class="bg-e1-blue text-white border-2 border-e1-dark px-4 py-2 rounded-lg font-bold text-sm shadow-neo-sm btn-neo flex items-center gap-2">
+                            <i data-lucide="upload" class="w-4 h-4"></i> Import JSON
+                        </button>
+                        <input type="file" id="jsonInput" accept=".json" class="hidden" onchange="backup.importJSON(this)">
+                    </div>
+                </div>
+
+                <!-- History List -->
+                <h3 class="font-headings font-bold text-xl mb-4 flex items-center gap-2">
+                    <i data-lucide="history" class="w-5 h-5 text-slate-400"></i> Past Rounds
+                </h3>
+                <div id="historyList" class="space-y-3">
+                    <!-- Populated via JS -->
+                </div>
             </div>
         </div>
     </div>
 
     <!-- TEMPLATES -->
     <template id="colTemplate">
-        <div class="column-wrapper flex-none w-80 md:w-96 flex flex-col h-full max-h-full rounded-3xl border-4 border-e1-dark shadow-neo bg-white overflow-hidden transition-all duration-300 relative group" data-id="">
-            <div class="col-header border-b-4 border-e1-dark flex flex-col text-e1-dark">
-                <div class="flex items-center gap-3 p-4 bg-white">
-                    <div class="active-dot w-3 h-3 rounded-full bg-e1-blue hidden animate-pulse border-2 border-e1-dark"></div>
-                    <input type="text" class="col-title bg-transparent font-headings font-bold text-xl outline-none flex-1 min-w-0 uppercase tracking-tight text-e1-dark">
-                    <button class="delete-col flex-none text-slate-400 hover:text-e1-pink transition-colors">
-                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+        <div class="column-wrapper flex-none w-[340px] md:w-[380px] flex flex-col h-full max-h-full rounded-2xl border-4 border-e1-dark dark:border-slate-600 shadow-neo bg-white dark:bg-slate-800 overflow-hidden transition-all duration-300 relative group" data-id="">
+            <!-- Header -->
+            <div class="col-header border-b-4 border-e1-dark dark:border-slate-700 flex flex-col">
+                <div class="flex items-center gap-2 p-3 bg-white dark:bg-slate-800">
+                    <div class="active-dot w-2.5 h-2.5 rounded-full bg-e1-blue hidden animate-pulse"></div>
+                    <input type="text" class="col-title bg-transparent font-headings font-bold text-lg outline-none flex-1 min-w-0 uppercase tracking-tight text-e1-dark dark:text-white placeholder:text-slate-300" placeholder="ROLE">
+                    <button class="delete-col opacity-0 group-hover:opacity-100 transition-opacity text-slate-300 hover:text-e1-pink">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
-                <div class="px-4 pb-4 flex gap-2">
+                <div class="px-3 pb-3 flex gap-2">
                     <div class="flex-1 relative">
-                        <i data-lucide="user" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400"></i>
-                        <input type="text" class="speaker-name bg-slate-50 border-3 border-e1-dark rounded-xl pl-8 pr-2 py-1.5 text-[11px] font-bold outline-none w-full focus:bg-white transition-colors" placeholder="SPEAKER NAME">
+                        <i data-lucide="user" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"></i>
+                        <input type="text" class="speaker-name bg-slate-100 dark:bg-slate-700 border-2 border-transparent focus:border-e1-blue rounded-lg pl-8 pr-2 py-1.5 text-xs font-bold outline-none w-full transition-colors text-e1-dark dark:text-white" placeholder="Speaker Name">
                     </div>
-                    <input type="number" class="speaker-score bg-slate-50 border-3 border-e1-dark rounded-xl px-1 py-1.5 text-[11px] font-bold outline-none w-14 text-center focus:bg-white" placeholder="PTS">
+                    <div class="relative w-16">
+                        <input type="number" class="speaker-score bg-slate-100 dark:bg-slate-700 border-2 border-transparent focus:border-e1-blue rounded-lg px-1 py-1.5 text-xs font-bold outline-none w-full text-center" placeholder="PTS">
+                    </div>
                 </div>
             </div>
-            <div class="cards-container flex-grow overflow-y-auto p-4 space-y-4 pb-24 bg-e1-chalk/30"></div>
-            <div class="col-footer p-3 border-t-4 border-e1-dark grid grid-cols-4 gap-2 bg-white sticky bottom-0">
-                <button class="add-def bg-e1-pink text-white border-3 border-e1-dark rounded-xl py-2 font-headings font-bold text-[10px] shadow-neo-sm btn-neo" title="Definition (Alt+D)">DEF</button>
-                <button class="add-bop bg-e1-dark text-white border-3 border-e1-dark rounded-xl py-2 font-headings font-bold text-[10px] shadow-neo-sm btn-neo" title="Burden (Alt+B)">BOP</button>
-                <button class="add-arg border-3 border-e1-dark rounded-xl py-2 font-headings font-bold text-[10px] shadow-neo-sm btn-neo" title="Argument (Alt+A)">ARG</button>
-                <button class="add-reb bg-e1-blue text-white border-3 border-e1-dark rounded-xl py-2 font-headings font-bold text-[10px] shadow-neo-sm btn-neo" title="Rebuttal (Alt+R)">REB</button>
+            
+            <!-- Cards Area (Droppable) -->
+            <div class="cards-container flex-grow overflow-y-auto p-3 space-y-3 pb-24 bg-e1-chalk/50 dark:bg-slate-900/50"></div>
+            
+            <!-- Footer Actions -->
+            <div class="col-footer p-2 border-t-4 border-e1-dark dark:border-slate-600 grid grid-cols-4 gap-1.5 bg-white dark:bg-slate-800 sticky bottom-0 z-10">
+                <button class="add-def bg-e1-pink text-white border-b-4 border-e1-pink/50 hover:border-b-0 translate-y-0 hover:translate-y-[2px] rounded-lg py-2 font-headings font-bold text-[10px] uppercase tracking-wide transition-all">Def</button>
+                <button class="add-bop bg-e1-dark text-white border-b-4 border-e1-dark/50 hover:border-b-0 translate-y-0 hover:translate-y-[2px] rounded-lg py-2 font-headings font-bold text-[10px] uppercase tracking-wide transition-all">Burden</button>
+                <button class="add-arg bg-white dark:bg-slate-700 text-e1-dark dark:text-white border-2 border-e1-dark dark:border-slate-500 rounded-lg py-2 font-headings font-bold text-[10px] uppercase tracking-wide hover:bg-slate-50 transition-colors">Arg</button>
+                <button class="add-reb bg-e1-blue text-white border-b-4 border-e1-blue/50 hover:border-b-0 translate-y-0 hover:translate-y-[2px] rounded-lg py-2 font-headings font-bold text-[10px] uppercase tracking-wide transition-all">Reb</button>
             </div>
         </div>
     </template>
 
     <script>
-        lucide.createIcons();
+        // --- DATA & STATE MANAGEMENT ---
+        const state = {
+            columns: [],
+            activeColId: null,
+            format: 'WSDC', // WSDC, Asian, BP
+            motion: '',
+            history: [],
+            settings: { darkMode: false, focusMode: false },
+            linking: { active: false, sourceCardId: null, sourceColId: null }
+        };
 
-        let columns = [];
-        let activeColId = null;
-        let setupFormat = null;
-        let debateFormat = 'WSDC';
-        
-        const board = document.getElementById('board');
-        const emptyState = document.getElementById('emptyState');
-        const colTemplate = document.getElementById('colTemplate');
-        const setupModal = document.getElementById('setupModalBackdrop');
-        const speakerInputs = document.getElementById('speakerInputs');
-        const teamHeadersContainer = document.getElementById('teamHeadersContainer');
+        const dom = {
+            board: document.getElementById('board'),
+            teamHeader: document.getElementById('teamHeadersContainer'),
+            navMotion: document.getElementById('navMotion'),
+            setupModal: document.getElementById('setupModal'),
+            ballotModal: document.getElementById('ballotModal'),
+            historyModal: document.getElementById('historyModal'),
+            emptyState: document.getElementById('emptyState'),
+            linkingBanner: document.getElementById('linkingBanner')
+        };
 
-        // --- GLOBAL KEYBOARD SHORTCUTS ---
-        window.addEventListener('keydown', (e) => {
-            if (!activeColId) return;
-            
-            // We use Alt keys for debate shortcuts
-            if (e.altKey) {
-                const key = e.key.toLowerCase();
-                let handled = false;
+        // --- UTILITIES ---
+        const utils = {
+            id: () => Date.now().toString(36) + Math.random().toString(36).substr(2),
+            debounce: (func, wait) => {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => { clearTimeout(timeout); func(...args); };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            },
+            save: () => {
+                // Primary Save (Current Round)
+                const currentData = {
+                    format: state.format,
+                    motion: state.motion,
+                    teams: app.getTeamNamesFromDOM(),
+                    columns: state.columns,
+                    lastModified: Date.now()
+                };
+                localStorage.setItem('flow_current', JSON.stringify(currentData));
+                
+                // History is saved separately only when archiving
+                localStorage.setItem('flow_history', JSON.stringify(state.history));
+            },
+            load: () => {
+                const current = localStorage.getItem('flow_current');
+                const hist = localStorage.getItem('flow_history');
+                
+                if (current) {
+                    const data = JSON.parse(current);
+                    state.columns = data.columns || [];
+                    state.format = data.format || 'WSDC';
+                    state.motion = data.motion || '';
+                    // Team names restored in render
+                }
+                if (hist) {
+                    state.history = JSON.parse(hist);
+                }
+                app.checkTheme();
+            },
+            findCard: (cardId) => {
+                for (let col of state.columns) {
+                    const card = col.cards.find(c => c.id === cardId);
+                    if(card) return card;
+                }
+                return null;
+            },
+            archiveCurrentRound: () => {
+                // Don't archive empty rounds
+                if (state.columns.length === 0) return;
+                const hasData = state.columns.some(c => c.cards.length > 0 || c.score);
+                if (!hasData) return;
 
-                if (key === 'a') {
-                    addCard(activeColId, 'arg');
-                    handled = true;
-                } else if (key === 'r') {
-                    addCard(activeColId, 'reb');
-                    handled = true;
-                } else if (key === 'd') {
-                    addCard(activeColId, 'def');
-                    handled = true;
-                } else if (key === 'b') {
-                    addCard(activeColId, 'bop');
-                    handled = true;
-                } else if (key === 'enter') {
-                    // Find the current focused card type or default to arg
-                    const focused = document.activeElement;
-                    const cardWrapper = focused ? focused.closest('[data-card-id]') : null;
-                    const colWrapper = focused ? focused.closest('[data-id]') : null;
-                    
-                    if (cardWrapper && colWrapper) {
-                        const colId = colWrapper.dataset.id;
-                        const cardId = cardWrapper.dataset.cardId;
-                        const colData = columns.find(c => c.id == colId);
-                        const cardData = colData?.cards.find(c => c.id == cardId);
-                        if (cardData) {
-                            addCard(colId, cardData.type);
-                            handled = true;
+                const archive = {
+                    id: utils.id(),
+                    date: Date.now(),
+                    motion: state.motion || 'Untitled Motion',
+                    format: state.format,
+                    teams: app.getTeamNamesFromDOM(),
+                    columns: state.columns
+                };
+                
+                // Add to history (limit to 20)
+                state.history.unshift(archive);
+                if (state.history.length > 20) state.history.pop();
+                
+                utils.save();
+                historyMgr.renderList();
+            }
+        };
+
+        const saveDebounced = utils.debounce(utils.save, 500);
+
+        // --- BACKUP & RESTORE MODULE ---
+        const backup = {
+            exportJSON: () => {
+                const data = {
+                    version: 1,
+                    timestamp: Date.now(),
+                    motion: state.motion,
+                    format: state.format,
+                    teams: app.getTeamNamesFromDOM(),
+                    columns: state.columns
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `FlowSheet_${state.motion ? state.motion.slice(0,10) : 'Round'}_${new Date().toISOString().slice(0,10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+            importJSON: (input) => {
+                const file = input.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if(confirm(`Load backup for "${data.motion || 'Untitled'}"? This will replace your current board.`)) {
+                            // Archive current before replacing
+                            utils.archiveCurrentRound();
+
+                            state.columns = data.columns || [];
+                            state.format = data.format || 'WSDC';
+                            state.motion = data.motion || '';
+                            // Need to handle teams manually since they aren't state-bound directly yet
+                            localStorage.setItem('flow_meta', JSON.stringify({ format: state.format, teams: data.teams }));
+                            
+                            // Re-save as current
+                            utils.save();
+                            
+                            // Render
+                            setup.renderHeaders(data.teams);
+                            render.board();
+                            render.navMotion();
+                            dom.historyModal.classList.add('hidden');
                         }
-                    } else {
-                        addCard(activeColId, 'arg');
-                        handled = true;
+                    } catch(err) {
+                        alert("Invalid JSON file.");
+                        console.error(err);
                     }
-                }
-
-                if (handled) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
+                };
+                reader.readAsText(file);
+                input.value = ''; // Reset
             }
-        });
+        };
 
-        // --- MODALS ---
-
-        function openSetupModal() {
-            setupModal.classList.remove('hidden');
-        }
-
-        function closeSetupModal() {
-            setupFormat = null;
-            setupModal.classList.add('hidden');
-            document.querySelectorAll('.setup-format-btn').forEach(b => b.classList.remove('bg-e1-blue', 'text-white'));
-            document.getElementById('setupDetails').classList.add('hidden');
-        }
-
-        function setSetupFormat(format) {
-            setupFormat = format;
-            document.querySelectorAll('.setup-format-btn').forEach(b => b.classList.remove('bg-e1-blue', 'text-white'));
-            const btn = document.getElementById(`setup-${format.toLowerCase()}`);
-            if(btn) btn.classList.add('bg-e1-blue', 'text-white');
-            document.getElementById('setupDetails').classList.remove('hidden');
-            
-            const teamInputs = document.getElementById('setupTeamInputs');
-            teamInputs.innerHTML = '';
-            
-            const labelClass = "block text-sm font-headings font-bold mb-2 uppercase tracking-wide";
-            const inputClass = "w-full border-3 border-e1-dark rounded-2xl p-4 font-bold uppercase outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all text-e1-dark";
-
-            if (format === 'WSDC' || format === 'Asian') {
-                teamInputs.className = "grid grid-cols-2 gap-6";
-                teamInputs.innerHTML = `
-                    <div>
-                        <label class="${labelClass} text-e1-green">Proposition</label>
-                        <input type="text" id="setupPropName" class="${inputClass} border-e1-green bg-green-50" placeholder="Prop Name">
-                    </div>
-                    <div>
-                        <label class="${labelClass} text-e1-orange">Opposition</label>
-                        <input type="text" id="setupOppName" class="${inputClass} border-e1-orange bg-orange-50" placeholder="Opp Name">
-                    </div>
-                `;
-            } else if (format === 'BP') {
-                teamInputs.className = "grid grid-cols-2 gap-6";
-                teamInputs.innerHTML = `
-                    <div><label class="${labelClass} text-e1-green">OG Team</label><input type="text" id="setupOG" class="${inputClass} border-e1-green bg-green-50" placeholder="OG"></div>
-                    <div><label class="${labelClass} text-e1-orange">OO Team</label><input type="text" id="setupOO" class="${inputClass} border-e1-orange bg-orange-50" placeholder="OO"></div>
-                    <div><label class="${labelClass} text-e1-green">CG Team</label><input type="text" id="setupCG" class="${inputClass} border-e1-green bg-green-50" placeholder="CG"></div>
-                    <div><label class="${labelClass} text-e1-orange">CO Team</label><input type="text" id="setupCO" class="${inputClass} border-e1-orange bg-orange-50" placeholder="CO"></div>
-                `;
-            }
-
-            speakerInputs.innerHTML = '';
-            let titles = [];
-            if (format === 'WSDC' || format === 'Asian') {
-                titles = ['1st Prop', '1st Opp', '2nd Prop', '2nd Opp', '3rd Prop', '3rd Opp', 'Opp Reply', 'Prop Reply'];
-            } else if (format === 'BP') {
-                titles = ['PM (OG)', 'LO (OO)', 'DPM (OG)', 'DLO (OO)', 'MG (CG)', 'MO (CO)', 'GW (CG)', 'OW (CO)'];
-            }
-
-            titles.forEach((title, i) => {
-                const div = document.createElement('div');
-                div.innerHTML = `
-                    <label class="block text-[11px] font-bold text-slate-400 mb-1 uppercase">${title}</label>
-                    <input type="text" class="setup-speaker w-full border-3 border-slate-200 rounded-xl p-3 text-xs font-bold outline-none focus:border-e1-blue transition-all text-e1-dark" data-index="${i}" placeholder="Enter Name...">
-                `;
-                speakerInputs.appendChild(div);
-            });
-        }
-
-        function generateDebate() {
-            if (!setupFormat) return;
-
-            const confirmGen = () => {
-                debateFormat = setupFormat;
-                localStorage.setItem('flow_format', debateFormat);
+        // --- HISTORY MANAGER ---
+        const historyMgr = {
+            renderList: () => {
+                const container = document.getElementById('historyList');
+                container.innerHTML = '';
                 
-                if(debateFormat === 'BP') {
-                    localStorage.setItem('flow_team_og', document.getElementById('setupOG').value || 'OG');
-                    localStorage.setItem('flow_team_oo', document.getElementById('setupOO').value || 'OO');
-                    localStorage.setItem('flow_team_cg', document.getElementById('setupCG').value || 'CG');
-                    localStorage.setItem('flow_team_co', document.getElementById('setupCO').value || 'CO');
+                if (state.history.length === 0) {
+                    container.innerHTML = `<div class="text-center p-6 text-slate-400 font-bold text-sm bg-slate-100 dark:bg-slate-800 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600">No archived rounds found.</div>`;
+                    return;
+                }
+
+                state.history.forEach(item => {
+                    const date = new Date(item.date).toLocaleDateString() + ' ' + new Date(item.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const div = document.createElement('div');
+                    div.className = "bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 rounded-xl p-4 flex justify-between items-center group hover:border-e1-blue transition-colors";
+                    
+                    div.innerHTML = `
+                        <div class="flex-grow min-w-0 mr-4">
+                            <h5 class="font-headings font-bold text-lg text-e1-dark dark:text-white truncate">${item.motion}</h5>
+                            <div class="flex gap-3 text-xs font-bold text-slate-400 mt-1">
+                                <span class="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-e1-blue">${item.format}</span>
+                                <span>${date}</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="load-hist bg-slate-100 dark:bg-slate-700 hover:bg-e1-green hover:text-white text-e1-dark p-2 rounded-lg transition-colors font-bold text-xs">Load</button>
+                            <button class="del-hist bg-slate-100 dark:bg-slate-700 hover:bg-e1-pink hover:text-white text-e1-dark p-2 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    `;
+
+                    // Actions
+                    div.querySelector('.load-hist').onclick = () => {
+                        if(confirm('Load this round? Current board will be archived.')) {
+                            utils.archiveCurrentRound();
+                            state.columns = item.columns;
+                            state.format = item.format;
+                            state.motion = item.motion;
+                            
+                            // Restore teams visual
+                            localStorage.setItem('flow_meta', JSON.stringify({ format: item.format, teams: item.teams }));
+                            
+                            utils.save();
+                            setup.renderHeaders(item.teams);
+                            render.board();
+                            render.navMotion();
+                            dom.historyModal.classList.add('hidden');
+                        }
+                    };
+
+                    div.querySelector('.del-hist').onclick = () => {
+                        if(confirm('Delete this history entry permanently?')) {
+                            state.history = state.history.filter(h => h.id !== item.id);
+                            utils.save();
+                            historyMgr.renderList();
+                        }
+                    };
+
+                    container.appendChild(div);
+                });
+                lucide.createIcons();
+            }
+        };
+
+
+        // --- APP LOGIC ---
+        const app = {
+            init: () => {
+                utils.load();
+                
+                // Load teams from meta
+                const meta = JSON.parse(localStorage.getItem('flow_current') || '{}');
+                setup.renderHeaders(meta.teams);
+                
+                render.board();
+                render.navMotion();
+                
+                // Global Keys
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                         if(state.linking.active) actions.cancelLink();
+                         else {
+                             dom.setupModal.classList.add('hidden');
+                             dom.ballotModal.classList.add('hidden');
+                             dom.historyModal.classList.add('hidden');
+                         }
+                    }
+
+                    if (state.activeColId && e.altKey) {
+                        const key = e.key.toLowerCase();
+                        if (['a','r','d','b'].includes(key)) {
+                            e.preventDefault();
+                            const typeMap = { 'a': 'arg', 'r': 'reb', 'd': 'def', 'b': 'bop' };
+                            actions.addCard(state.activeColId, typeMap[key]);
+                        }
+                    }
+                });
+            },
+
+            checkTheme: () => {
+                if (localStorage.getItem('theme') === 'dark' || 
+                   (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                    state.settings.darkMode = true;
                 } else {
-                    localStorage.setItem('flow_team_p', document.getElementById('setupPropName').value || 'Prop');
-                    localStorage.setItem('flow_team_o', document.getElementById('setupOppName').value || 'Opp');
+                    document.documentElement.classList.remove('dark');
+                    state.settings.darkMode = false;
                 }
+            },
 
-                const names = Array.from(document.querySelectorAll('.setup-speaker')).map(i => i.value);
-                columns = [];
+            toggleDarkMode: () => {
+                document.documentElement.classList.toggle('dark');
+                state.settings.darkMode = !state.settings.darkMode;
+                localStorage.setItem('theme', state.settings.darkMode ? 'dark' : 'light');
+            },
+
+            toggleFocusMode: () => {
+                state.settings.focusMode = !state.settings.focusMode;
+                if(state.settings.focusMode) {
+                    document.querySelector('nav').classList.add('opacity-30', 'hover:opacity-100', 'transition-opacity');
+                    document.getElementById('teamHeadersContainer').classList.add('hidden');
+                } else {
+                    document.querySelector('nav').classList.remove('opacity-30', 'hover:opacity-100', 'transition-opacity');
+                    document.getElementById('teamHeadersContainer').classList.remove('hidden');
+                }
+            },
+
+            toggleBallot: () => {
+                dom.ballotModal.classList.toggle('hidden');
+                if (!dom.ballotModal.classList.contains('hidden')) render.ballot();
+            },
+
+            toggleHistory: () => {
+                dom.historyModal.classList.toggle('hidden');
+                if (!dom.historyModal.classList.contains('hidden')) historyMgr.renderList();
+            },
+
+            getTeamNamesFromDOM: () => {
+                const inputs = document.querySelectorAll('.team-name-input');
+                const names = {};
+                inputs.forEach(inp => names[inp.dataset.teamKey] = inp.value);
+                return names;
+            }
+        };
+
+        // --- SETUP MODULE ---
+        const setup = {
+            selectedFormat: 'WSDC',
+            
+            setFormat: (fmt) => {
+                setup.selectedFormat = fmt;
+                document.querySelectorAll('.fmt-btn').forEach(b => {
+                    b.classList.remove('bg-e1-blue', 'text-white', 'border-e1-blue');
+                    b.classList.add('bg-white', 'border-e1-dark');
+                });
+                const active = document.getElementById(`fmt-${fmt.toLowerCase()}`);
+                active.classList.add('bg-e1-blue', 'text-white', 'border-e1-blue');
+                active.classList.remove('bg-white', 'border-e1-dark');
                 
-                let structure = [];
-                if (debateFormat === 'WSDC' || debateFormat === 'Asian') {
-                    structure = [
-                        { title: '1st Prop', team: 'prop' }, { title: '1st Opp', team: 'opp' },
-                        { title: '2nd Prop', team: 'prop' }, { title: '2nd Opp', team: 'opp' },
-                        { title: '3rd Prop', team: 'prop' }, { title: '3rd Opp', team: 'opp' },
-                        { title: 'Opp Reply', team: 'opp' }, { title: 'Prop Reply', team: 'prop' }
-                    ];
-                } else if (debateFormat === 'BP') {
-                    structure = [
-                        { title: 'PM (OG)', team: 'prop' }, { title: 'LO (OO)', team: 'opp' },
-                        { title: 'DPM (OG)', team: 'prop' }, { title: 'DLO (OO)', team: 'opp' },
-                        { title: 'MG (CG)', team: 'prop' }, { title: 'MO (CO)', team: 'opp' },
-                        { title: 'GW (CG)', team: 'prop' }, { title: 'OW (CO)', team: 'opp' }
-                    ];
+                document.getElementById('setup-fields').classList.remove('hidden');
+                setup.renderInputs();
+            },
+
+            renderInputs: () => {
+                const teamC = document.getElementById('team-inputs');
+                const spkC = document.getElementById('speaker-inputs');
+                teamC.innerHTML = ''; spkC.innerHTML = '';
+
+                // Generate Teams
+                const teams = setup.selectedFormat === 'BP' 
+                    ? ['OG', 'OO', 'CG', 'CO'] 
+                    : ['Proposition', 'Opposition'];
+                
+                teamC.className = `grid ${teams.length > 2 ? 'grid-cols-2' : 'grid-cols-2'} gap-4`;
+
+                teams.forEach(t => {
+                    const d = document.createElement('div');
+                    const color = (t.includes('P') || t.includes('G')) ? 'text-e1-green border-e1-green bg-green-50' : 'text-e1-orange border-e1-orange bg-orange-50';
+                    d.innerHTML = `
+                        <label class="block text-xs font-bold uppercase mb-1 text-slate-500">${t}</label>
+                        <input type="text" id="setup-team-${t}" class="w-full border-3 rounded-xl p-3 font-bold ${color} dark:bg-slate-700 dark:border-slate-500 uppercase" placeholder="${t} Name">
+                    `;
+                    teamC.appendChild(d);
+                });
+
+                // Generate Speakers
+                let roles = [];
+                if (setup.selectedFormat === 'WSDC' || setup.selectedFormat === 'Asian') {
+                    roles = ['1st Prop', '1st Opp', '2nd Prop', '2nd Opp', '3rd Prop', '3rd Opp', 'Opp Reply', 'Prop Reply'];
+                } else {
+                    roles = ['PM (OG)', 'LO (OO)', 'DPM (OG)', 'DLO (OO)', 'MG (CG)', 'MO (CO)', 'GW (CG)', 'OW (CO)'];
                 }
 
-                structure.forEach((s, i) => {
-                    columns.push({
-                        id: Date.now() + i,
-                        team: s.team,
-                        title: s.title,
-                        speakerName: names[i] || '',
+                roles.forEach((r, i) => {
+                    const d = document.createElement('div');
+                    d.innerHTML = `
+                        <input type="text" class="setup-spk-input w-full border-2 border-slate-200 dark:border-slate-600 rounded-lg p-2 text-xs font-bold" placeholder="${r}" data-role="${r}">
+                    `;
+                    spkC.appendChild(d);
+                });
+            },
+
+            clearSpeakers: () => {
+                document.querySelectorAll('.setup-spk-input').forEach(i => i.value = '');
+            },
+
+            generate: () => {
+                // Auto Archive previous round if exists
+                utils.archiveCurrentRound();
+
+                const fmt = setup.selectedFormat;
+                state.format = fmt;
+                state.columns = [];
+                state.motion = document.getElementById('setup-motion').value;
+
+                const speakerInputs = document.querySelectorAll('.setup-spk-input');
+                
+                speakerInputs.forEach((inp, i) => {
+                    const role = inp.dataset.role;
+                    let teamKey = 'prop';
+                    if (role.includes('Opp') || role.includes('OO') || role.includes('CO')) teamKey = 'opp';
+                    if (setup.selectedFormat === 'BP') {
+                        if (role.includes('OG')) teamKey = 'og';
+                        else if (role.includes('OO')) teamKey = 'oo';
+                        else if (role.includes('CG')) teamKey = 'cg';
+                        else if (role.includes('CO')) teamKey = 'co';
+                    }
+
+                    state.columns.push({
+                        id: utils.id(),
+                        title: role,
+                        team: teamKey,
+                        speakerName: inp.value,
                         score: '',
                         cards: []
                     });
                 });
 
-                saveToStorage();
-                renderTeamHeaders();
-                renderBoard();
-                if (columns.length > 0) setActiveColumn(columns[0].id);
-                closeSetupModal();
-            };
-
-            if (columns.length > 0) {
-                showModal({
-                    title: 'New Round?',
-                    message: 'All current work on the board will be lost.',
-                    onConfirm: confirmGen
-                });
-            } else {
-                confirmGen();
-            }
-        }
-
-        function renderTeamHeaders() {
-            teamHeadersContainer.innerHTML = '';
-            const benchClass = "flex-1 min-w-[200px] flex items-center gap-3 bg-white border-3 border-e1-dark rounded-2xl px-4 py-2 shadow-neo-sm transform transition-transform hover:scale-[1.02] text-e1-dark";
-            const inputClass = "flex-1 bg-transparent outline-none font-bold text-sm uppercase tracking-tight placeholder:text-slate-300 text-e1-dark";
-
-            if (debateFormat === 'BP') {
-                const teams = [
-                    { key: 'og', label: 'OG', color: 'bg-e1-green', storage: 'flow_team_og' },
-                    { key: 'oo', label: 'OO', color: 'bg-e1-orange', storage: 'flow_team_oo' },
-                    { key: 'cg', label: 'CG', color: 'bg-e1-green', storage: 'flow_team_cg' },
-                    { key: 'co', label: 'CO', color: 'bg-e1-orange', storage: 'flow_team_co' }
-                ];
-                teams.forEach(t => {
-                    const val = localStorage.getItem(t.storage) || '';
-                    const div = document.createElement('div');
-                    div.className = benchClass;
-                    div.innerHTML = `
-                        <div class="w-8 h-8 rounded-lg ${t.color} border-2 border-e1-dark flex items-center justify-center text-[10px] font-headings font-bold text-white shadow-sm">${t.key.toUpperCase()}</div>
-                        <input type="text" class="${inputClass}" placeholder="Team Name..." value="${val}" oninput="localStorage.setItem('${t.storage}', this.value)">
-                    `;
-                    teamHeadersContainer.appendChild(div);
-                });
-            } else {
-                const teams = [
-                    { label: 'Prop', color: 'bg-e1-green', storage: 'flow_team_p' },
-                    { label: 'Opp', color: 'bg-e1-orange', storage: 'flow_team_o' }
-                ];
-                teams.forEach(t => {
-                    const val = localStorage.getItem(t.storage) || '';
-                    const div = document.createElement('div');
-                    div.className = benchClass;
-                    div.innerHTML = `
-                        <div class="w-12 h-8 rounded-lg ${t.color} border-2 border-e1-dark flex items-center justify-center text-[10px] font-headings font-bold text-white shadow-sm uppercase">${t.label}</div>
-                        <input type="text" class="${inputClass}" placeholder="Enter Team Name..." value="${val}" oninput="localStorage.setItem('${t.storage}', this.value)">
-                    `;
-                    teamHeadersContainer.appendChild(div);
-                });
-            }
-        }
-
-        // --- RENDER BOARD ---
-
-        function renderBoard() {
-            board.innerHTML = '';
-            if (columns.length === 0) {
-                board.appendChild(emptyState);
-                emptyState.classList.remove('hidden');
-                return;
-            }
-            emptyState.classList.add('hidden');
-
-            columns.forEach(col => {
-                const clone = colTemplate.content.cloneNode(true);
-                const wrapper = clone.querySelector('.column-wrapper');
-                const header = clone.querySelector('.col-header');
-                const titleInput = clone.querySelector('.col-title');
-                const speakerInput = clone.querySelector('.speaker-name');
-                const scoreInput = clone.querySelector('.speaker-score');
-                const cardsContainer = clone.querySelector('.cards-container');
-                const btnArg = clone.querySelector('.add-arg');
-                const btnDel = clone.querySelector('.delete-col');
-                const activeDot = clone.querySelector('.active-dot');
-
-                wrapper.dataset.id = col.id;
-                const isProp = col.team === 'prop';
-                wrapper.onclick = () => setActiveColumn(col.id);
-                wrapper.ondblclick = () => setActiveColumn(col.id);
-
-                if (isProp) {
-                    header.classList.add('bg-e1-green/10');
-                    wrapper.classList.add('border-e1-green');
-                    btnArg.classList.add('bg-e1-green', 'text-e1-dark');
+                // Capture Team Names for Display
+                const names = {};
+                if (fmt === 'BP') {
+                    names['og'] = document.getElementById('setup-team-OG').value;
+                    names['oo'] = document.getElementById('setup-team-OO').value;
+                    names['cg'] = document.getElementById('setup-team-CG').value;
+                    names['co'] = document.getElementById('setup-team-CO').value;
                 } else {
-                    header.classList.add('bg-e1-orange/10');
-                    wrapper.classList.add('border-e1-orange');
-                    btnArg.classList.add('bg-e1-orange', 'text-white');
+                    names['prop'] = document.getElementById('setup-team-Proposition').value;
+                    names['opp'] = document.getElementById('setup-team-Opposition').value;
+                }
+                
+                utils.save();
+                setup.renderHeaders(names);
+                render.board();
+                render.navMotion();
+                if(state.columns.length) actions.setActive(state.columns[0].id);
+                
+                dom.setupModal.classList.add('hidden');
+                // Clear inputs for next time? No, keep them for convenience
+                document.getElementById('setup-motion').value = ''; 
+            },
+
+            renderHeaders: (teamsData) => {
+                // teamsData is optional, fallback to stored meta or defaults
+                const meta = JSON.parse(localStorage.getItem('flow_current') || '{}');
+                const teams = teamsData || meta.teams || {};
+                const fmt = state.format || 'WSDC';
+                
+                dom.teamHeader.innerHTML = '';
+                
+                const teamList = fmt === 'BP' 
+                    ? [{k:'og',c:'bg-e1-green'}, {k:'oo',c:'bg-e1-orange'}, {k:'cg',c:'bg-e1-green'}, {k:'co',c:'bg-e1-orange'}]
+                    : [{k:'prop',c:'bg-e1-green'}, {k:'opp',c:'bg-e1-orange'}];
+
+                teamList.forEach(t => {
+                    const val = teams[t.k] || t.k.toUpperCase();
+                    const d = document.createElement('div');
+                    d.className = "flex items-center gap-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 rounded-xl px-3 py-1.5 shadow-sm min-w-[180px]";
+                    d.innerHTML = `
+                        <div class="w-2 h-8 rounded-full ${t.c}"></div>
+                        <input type="text" data-team-key="${t.k}" class="team-name-input bg-transparent outline-none font-headings font-bold text-sm uppercase text-e1-dark dark:text-white w-full" value="${val}" onchange="utils.save()">
+                    `;
+                    dom.teamHeader.appendChild(d);
+                });
+            }
+        };
+
+        // --- RENDER MODULE ---
+        const render = {
+            navMotion: () => {
+                dom.navMotion.textContent = state.motion;
+            },
+            board: () => {
+                dom.board.innerHTML = '';
+                if (!state.columns.length) {
+                    dom.board.appendChild(dom.emptyState);
+                    dom.emptyState.classList.remove('hidden');
+                    return;
+                }
+                dom.emptyState.classList.add('hidden');
+
+                const tpl = document.getElementById('colTemplate');
+
+                state.columns.forEach(col => {
+                    const clone = tpl.content.cloneNode(true);
+                    const el = clone.querySelector('.column-wrapper');
+                    
+                    // Bind ID & Events
+                    el.dataset.id = col.id;
+                    el.onclick = () => {
+                        if (state.linking.active) return; 
+                        actions.setActive(col.id);
+                    };
+
+                    // Drag Over for Column
+                    const container = clone.querySelector('.cards-container');
+                    container.ondragover = (e) => {
+                        e.preventDefault();
+                        container.classList.add('drop-target-active');
+                    };
+                    container.ondragleave = () => container.classList.remove('drop-target-active');
+                    container.ondrop = (e) => {
+                        e.preventDefault();
+                        container.classList.remove('drop-target-active');
+                        actions.dropCard(col.id, null); 
+                    };
+
+                    // Color Coding Logic
+                    const isProp = ['prop', 'og', 'cg'].includes(col.team);
+                    const header = clone.querySelector('.col-header');
+                    
+                    if (isProp) {
+                        el.style.borderColor = ""; 
+                        header.classList.add('border-b-4', 'border-e1-green/30');
+                        clone.querySelector('.active-dot').classList.add('bg-e1-green');
+                    } else {
+                        header.classList.add('border-b-4', 'border-e1-orange/30');
+                        clone.querySelector('.active-dot').classList.add('bg-e1-orange');
+                    }
+
+                    // Inputs
+                    const titleInp = clone.querySelector('.col-title');
+                    titleInp.value = col.title;
+                    titleInp.oninput = (e) => { col.title = e.target.value; saveDebounced(); };
+
+                    const nameInp = clone.querySelector('.speaker-name');
+                    nameInp.value = col.speakerName;
+                    nameInp.oninput = (e) => { col.speakerName = e.target.value; saveDebounced(); };
+
+                    const scoreInp = clone.querySelector('.speaker-score');
+                    scoreInp.value = col.score;
+                    scoreInp.oninput = (e) => { col.score = e.target.value; saveDebounced(); };
+
+                    // Delete Col
+                    clone.querySelector('.delete-col').onclick = (e) => {
+                        e.stopPropagation();
+                        if(confirm('Delete this speech?')) {
+                            state.columns = state.columns.filter(c => c.id !== col.id);
+                            utils.save(); render.board();
+                        }
+                    };
+
+                    // Add Buttons
+                    clone.querySelector('.add-arg').onclick = (e) => { e.stopPropagation(); actions.addCard(col.id, 'arg'); };
+                    clone.querySelector('.add-def').onclick = (e) => { e.stopPropagation(); actions.addCard(col.id, 'def'); };
+                    clone.querySelector('.add-reb').onclick = (e) => { e.stopPropagation(); actions.addCard(col.id, 'reb'); };
+                    clone.querySelector('.add-bop').onclick = (e) => { e.stopPropagation(); actions.addCard(col.id, 'bop'); };
+
+                    // Render Cards
+                    col.cards.forEach(card => container.appendChild(render.card(col.id, card)));
+
+                    if (state.activeColId === col.id) {
+                        el.classList.add('active-column');
+                        el.querySelector('.active-dot').classList.remove('hidden');
+                    }
+
+                    dom.board.appendChild(el);
+                });
+                lucide.createIcons();
+            },
+
+            card: (colId, card) => {
+                const div = document.createElement('div');
+                div.id = `card-${card.id}`;
+                
+                let styles = {
+                    arg: { bg: 'bg-white dark:bg-slate-700', border: 'border-l-4 border-l-slate-300' },
+                    reb: { bg: 'bg-e1-blue/5 dark:bg-blue-900/20', border: 'border-l-4 border-l-e1-blue ml-4' },
+                    def: { bg: 'bg-e1-pink/5 dark:bg-pink-900/20', border: 'border-l-4 border-l-e1-pink' },
+                    bop: { bg: 'bg-e1-dark text-white', border: 'border-l-4 border-l-white' }
+                }[card.type];
+
+                div.className = `relative rounded-xl border-2 border-slate-200 dark:border-slate-600 p-3 shadow-sm transition-all group/card ${styles.bg} ${styles.border}`;
+                if (card.type === 'bop') div.classList.add('text-white');
+
+                // Linking Logic Visuals
+                if (state.linking.active) {
+                    div.onclick = (e) => {
+                        e.stopPropagation();
+                        actions.completeLink(colId, card.id);
+                    };
+                    if (state.linking.sourceCardId === card.id) {
+                        div.classList.add('linking-source');
+                    }
                 }
 
-                if (activeColId === col.id) {
-                    wrapper.classList.add('active-column');
-                    activeDot.classList.remove('hidden');
-                }
-
-                titleInput.value = col.title || '';
-                titleInput.oninput = (e) => updateColumnField(col.id, 'title', e.target.value);
-                titleInput.onfocus = () => setActiveColumn(col.id);
-
-                speakerInput.value = col.speakerName || '';
-                speakerInput.oninput = (e) => updateColumnField(col.id, 'speakerName', e.target.value);
-                speakerInput.onfocus = () => setActiveColumn(col.id);
-
-                scoreInput.value = col.score || '';
-                scoreInput.oninput = (e) => updateColumnField(col.id, 'score', e.target.value);
-                scoreInput.onfocus = () => setActiveColumn(col.id);
-
-                btnDel.onclick = (e) => {
+                // Drag Attributes
+                div.draggable = true;
+                div.ondragstart = (e) => {
+                    if (state.linking.active) { e.preventDefault(); return; }
+                    e.dataTransfer.setData('text/plain', JSON.stringify({ cardId: card.id, fromColId: colId }));
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => div.classList.add('card-dragging'), 0);
+                };
+                div.ondragend = () => div.classList.remove('card-dragging');
+                div.ondragover = (e) => {
+                     e.preventDefault(); 
+                     e.stopPropagation(); 
+                };
+                div.ondrop = (e) => {
+                    e.preventDefault();
                     e.stopPropagation();
-                    triggerDeleteColumn(col.id);
+                    actions.dropCard(colId, card.id); 
                 };
 
-                clone.querySelector('.add-def').onclick = (e) => { e.stopPropagation(); addCard(col.id, 'def'); };
-                clone.querySelector('.add-bop').onclick = (e) => { e.stopPropagation(); addCard(col.id, 'bop'); };
-                clone.querySelector('.add-reb').onclick = (e) => { e.stopPropagation(); addCard(col.id, 'reb'); };
-                btnArg.onclick = (e) => { e.stopPropagation(); addCard(col.id, 'arg'); };
+                // Header
+                const header = document.createElement('div');
+                header.className = "flex justify-between items-center mb-1 text-slate-400";
+                
+                const dragHandle = document.createElement('div');
+                dragHandle.className = "cursor-grab active:cursor-grabbing hover:text-e1-dark dark:hover:text-white";
+                dragHandle.innerHTML = `<i data-lucide="grip-vertical" class="w-4 h-4"></i>`;
+                
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = "flex gap-2";
 
-                col.cards.forEach(card => {
-                    const cardEl = document.createElement('div');
-                    cardEl.className = `card-neo relative rounded-2xl border-3 border-e1-dark p-4 shadow-neo-sm transition-all animate-in slide-in-from-right-2 duration-200 ${card.type === 'reb' ? 'bg-e1-blue/5 ml-8 scale-95 origin-left' : (card.type === 'def' ? 'bg-e1-pink/5' : (card.type === 'bop' ? 'bg-slate-100' : 'bg-white'))}`;
-                    cardEl.dataset.cardId = card.id;
+                // Link Button
+                const linkBtn = document.createElement('button');
+                linkBtn.className = "hover:text-e1-blue transition-colors";
+                linkBtn.title = "Link to another card";
+                linkBtn.innerHTML = `<i data-lucide="link" class="w-3.5 h-3.5"></i>`;
+                linkBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    actions.startLink(colId, card.id);
+                };
 
-                    const strip = document.createElement('div');
-                    let sc = isProp ? 'bg-e1-green' : 'bg-e1-orange';
-                    if (card.type === 'reb') sc = 'bg-e1-blue';
-                    if (card.type === 'def') sc = 'bg-e1-pink';
-                    if (card.type === 'bop') sc = 'bg-e1-dark';
-                    strip.className = `absolute left-0 top-0 bottom-0 w-2 rounded-l-xl ${sc}`;
-                    cardEl.appendChild(strip);
+                // Delete Button
+                const delBtn = document.createElement('button');
+                delBtn.className = "hover:text-e1-pink transition-colors opacity-0 group-hover/card:opacity-100";
+                delBtn.innerHTML = `<i data-lucide="x" class="w-3.5 h-3.5"></i>`;
+                delBtn.onclick = (e) => { e.stopPropagation(); actions.deleteCard(colId, card.id); };
 
-                    const textarea = document.createElement('textarea');
-                    textarea.className = "w-full bg-transparent resize-none outline-none font-body font-bold text-e1-dark text-sm auto-textarea overflow-hidden placeholder:text-slate-300";
-                    
-                    let ph = "New Point...";
-                    if(card.type === 'reb') ph = "Response...";
-                    if(card.type === 'def') ph = "Definitions...";
-                    if(card.type === 'bop') ph = "Burden Check...";
+                actionsDiv.appendChild(linkBtn);
+                actionsDiv.appendChild(delBtn);
+                header.appendChild(dragHandle);
+                header.appendChild(actionsDiv);
+                
+                // Reference Chips
+                if (card.refs && card.refs.length > 0) {
+                    const refsDiv = document.createElement('div');
+                    refsDiv.className = "flex flex-wrap gap-1 mb-2";
+                    card.refs.forEach(refId => {
+                        const targetCard = utils.findCard(refId);
+                        if(targetCard) {
+                            const chip = document.createElement('button');
+                            chip.className = "ref-chip flex items-center gap-1 bg-e1-blue/10 text-e1-blue border border-e1-blue/30 rounded px-1.5 py-0.5 hover:bg-e1-blue hover:text-white transition-colors text-left";
+                            const t = targetCard.text ? targetCard.text.substring(0, 25) + '...' : 'Empty Card';
+                            chip.innerHTML = `<i data-lucide="corner-down-right" class="w-3 h-3"></i> <span>${t}</span>`;
+                            chip.onclick = (e) => {
+                                e.stopPropagation();
+                                const el = document.getElementById(`card-${refId}`);
+                                if(el) {
+                                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    el.classList.add('ring-4', 'ring-e1-pink');
+                                    setTimeout(() => el.classList.remove('ring-4', 'ring-e1-pink'), 1000);
+                                } else {
+                                    alert("Referenced card deleted.");
+                                }
+                            };
+                            refsDiv.appendChild(chip);
+                        }
+                    });
+                    div.appendChild(refsDiv);
+                }
 
-                    textarea.placeholder = ph;
-                    textarea.value = card.text;
-                    
-                    textarea.onfocus = () => { 
-                        setActiveColumn(col.id); 
-                        cardEl.classList.add('ring-4', 'ring-e1-blue/20'); 
-                    };
-                    textarea.onblur = () => cardEl.classList.remove('ring-4', 'ring-e1-blue/20');
-                    textarea.oninput = function() {
-                        this.style.height = 'auto';
-                        this.style.height = this.scrollHeight + 'px';
-                        updateCardText(col.id, card.id, this.value);
-                    };
-                    
-                    // Specific card deletion button
-                    const dc = document.createElement('button');
-                    dc.className = "absolute -top-2 -right-2 opacity-0 group-hover/card:opacity-100 bg-white border-2 border-e1-dark p-1 rounded-full shadow-sm hover:bg-e1-pink hover:text-white transition-all text-e1-dark";
-                    dc.innerHTML = '<i data-lucide="x" class="w-3 h-3"></i>';
-                    dc.onclick = (e) => {
-                        e.stopPropagation();
-                        deleteCard(col.id, card.id);
-                    };
+                div.appendChild(header);
 
-                    cardEl.appendChild(textarea);
-                    cardEl.appendChild(dc);
-                    cardsContainer.appendChild(cardEl);
-                    setTimeout(() => { textarea.style.height = 'auto'; textarea.style.height = textarea.scrollHeight + 'px'; }, 0);
+                // Textarea
+                const ta = document.createElement('textarea');
+                ta.className = "w-full bg-transparent resize-none outline-none font-body text-sm auto-textarea overflow-hidden";
+                if(card.type === 'bop') ta.classList.add('text-white', 'placeholder:text-slate-400');
+                else ta.classList.add('text-e1-dark', 'dark:text-slate-100');
+
+                let ph = "Point...";
+                if (card.type === 'reb') ph = "Rebuttal to...";
+                if (card.type === 'def') ph = "Definition/Model...";
+                if (card.type === 'bop') ph = "Burden of Proof check...";
+                ta.placeholder = ph;
+                ta.value = card.text;
+
+                // Event Listeners
+                ta.onfocus = () => { 
+                    if (!state.linking.active) actions.setActive(colId); 
+                    div.classList.add('ring-2', 'ring-e1-blue/30'); 
+                };
+                ta.onblur = () => div.classList.remove('ring-2', 'ring-e1-blue/30');
+                ta.oninput = function() {
+                    this.style.height = 'auto';
+                    this.style.height = this.scrollHeight + 'px';
+                    card.text = this.value;
+                    saveDebounced();
+                };
+
+                div.appendChild(ta);
+                setTimeout(() => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }, 0);
+                return div;
+            },
+
+            ballot: () => {
+                const container = document.getElementById('ballotScores');
+                container.innerHTML = '';
+                
+                const meta = JSON.parse(localStorage.getItem('flow_current') || '{}');
+                const teamNames = app.getTeamNamesFromDOM(); // Get live from DOM if possible, else meta
+
+                // Group scores by Team
+                const scores = {};
+                
+                state.columns.forEach(col => {
+                    if (!scores[col.team]) scores[col.team] = { name: teamNames[col.team] || col.team.toUpperCase(), total: 0, speakers: [] };
+                    const pts = parseFloat(col.score) || 0;
+                    scores[col.team].speakers.push({ role: col.title, name: col.speakerName, pts });
+                    scores[col.team].total += pts;
                 });
 
-                board.appendChild(wrapper);
-            });
-            lucide.createIcons();
-        }
+                Object.values(scores).forEach(team => {
+                    const div = document.createElement('div');
+                    div.className = "bg-slate-50 dark:bg-slate-700 rounded-xl p-4 border-2 border-slate-200 dark:border-slate-600";
+                    
+                    let rows = team.speakers.map(s => `
+                        <div class="flex justify-between text-sm py-1 border-b border-slate-200 dark:border-slate-600 last:border-0">
+                            <span class="text-slate-500 dark:text-slate-300 w-24">${s.role}</span>
+                            <span class="font-bold flex-1 truncate px-2">${s.name || '-'}</span>
+                            <span class="font-mono font-bold">${s.pts || 0}</span>
+                        </div>
+                    `).join('');
 
-        // --- UTILS ---
+                    div.innerHTML = `
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-headings font-bold text-lg text-e1-blue">${team.name}</h4>
+                            <span class="bg-e1-dark text-white text-xs font-bold px-2 py-1 rounded">Total: ${team.total}</span>
+                        </div>
+                        <div class="space-y-1">${rows}</div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+        };
 
-        function setActiveColumn(id) {
-            activeColId = id;
-            document.querySelectorAll('.column-wrapper').forEach(el => {
-                const isActive = el.dataset.id == id;
-                el.classList.toggle('active-column', isActive);
-                const dot = el.querySelector('.active-dot');
-                if (dot) dot.classList.toggle('hidden', !isActive);
-            });
-        }
+        // --- ACTIONS ---
+        const actions = {
+            setActive: (id) => {
+                state.activeColId = id;
+                document.querySelectorAll('.column-wrapper').forEach(el => {
+                    if (el.dataset.id == id) {
+                        el.classList.add('active-column');
+                        el.querySelector('.active-dot').classList.remove('hidden');
+                    } else {
+                        el.classList.remove('active-column');
+                        el.querySelector('.active-dot').classList.add('hidden');
+                    }
+                });
+            },
+            addCard: (colId, type) => {
+                const col = state.columns.find(c => c.id === colId);
+                if(col) {
+                    const newCard = { id: utils.id(), type, text: '', refs: [] };
+                    col.cards.push(newCard);
+                    utils.save();
+                    render.board();
+                    
+                    setTimeout(() => {
+                        const colEl = document.querySelector(`.column-wrapper[data-id="${colId}"]`);
+                        const cards = colEl.querySelectorAll('textarea');
+                        if(cards.length) cards[cards.length - 1].focus();
+                    }, 50);
+                }
+            },
+            deleteCard: (colId, cardId) => {
+                const col = state.columns.find(c => c.id === colId);
+                if(col) {
+                    col.cards = col.cards.filter(c => c.id !== cardId);
+                    utils.save();
+                    render.board();
+                }
+            },
+            
+            // --- LINKING ACTIONS ---
+            startLink: (colId, cardId) => {
+                state.linking = { active: true, sourceCardId: cardId, sourceColId: colId };
+                document.body.classList.add('linking-mode-active');
+                dom.linkingBanner.classList.remove('hidden');
+                render.board(); 
+            },
+            cancelLink: () => {
+                state.linking = { active: false, sourceCardId: null, sourceColId: null };
+                document.body.classList.remove('linking-mode-active');
+                dom.linkingBanner.classList.add('hidden');
+                render.board();
+            },
+            completeLink: (targetColId, targetCardId) => {
+                if (!state.linking.active) return;
+                if (state.linking.sourceCardId === targetCardId) return;
 
-        function addCard(colId, type) {
-            const col = columns.find(c => c.id == colId);
-            if (!col) return;
-            const cid = Date.now() + Math.random();
-            col.cards.push({ id: cid, type, text: '' });
-            saveToStorage();
-            renderBoard();
-            setActiveColumn(colId);
-            setTimeout(() => {
-                const ta = document.querySelector(`[data-card-id="${cid}"] textarea`);
-                if (ta) ta.focus();
-            }, 100);
-        }
+                const col = state.columns.find(c => c.id === state.linking.sourceColId);
+                const card = col.cards.find(c => c.id === state.linking.sourceCardId);
+                
+                if (card) {
+                    if (!card.refs) card.refs = [];
+                    if (!card.refs.includes(targetCardId)) {
+                        card.refs.push(targetCardId);
+                        utils.save();
+                    }
+                }
+                
+                actions.cancelLink(); 
+            },
 
-        function triggerDeleteColumn(id) {
-            showModal({ title: 'Delete Speech?', message: 'Every argument tracked in this speech will be permanently removed.', onConfirm: () => {
-                columns = columns.filter(c => c.id != id);
-                saveToStorage(); renderBoard();
-            }});
-        }
-
-        function updateColumnField(id, f, v) { const c = columns.find(x => x.id == id); if(c) { c[f] = v; saveToStorage(); } }
-        function updateCardText(id, cid, t) { const c = columns.find(x => x.id == id); if(c) { const card = c.cards.find(x => x.id == cid); if(card) { card.text = t; saveToStorage(); } } }
-        function deleteCard(id, cid) { const c = columns.find(x => x.id == id); if(c) { c.cards = c.cards.filter(x => x.id != cid); saveToStorage(); renderBoard(); } }
-        
-        function saveToStorage() { localStorage.setItem('flowsheet_data', JSON.stringify(columns)); }
-        function loadFromStorage() {
-            const d = localStorage.getItem('flowsheet_data');
-            if (d) {
+            // --- DRAG AND DROP ---
+            dropCard: (targetColId, targetBeforeCardId) => {
+                const e = window.event; 
                 try {
-                    columns = JSON.parse(d);
-                } catch(e) {
-                    columns = [];
+                    const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                    const { cardId, fromColId } = data;
+                    
+                    if (!cardId || !fromColId) return;
+
+                    // Remove from old
+                    const sourceCol = state.columns.find(c => c.id === fromColId);
+                    const cardIndex = sourceCol.cards.findIndex(c => c.id === cardId);
+                    if (cardIndex === -1) return;
+                    const [movedCard] = sourceCol.cards.splice(cardIndex, 1);
+
+                    // Add to new
+                    const targetCol = state.columns.find(c => c.id === targetColId);
+                    if (targetBeforeCardId) {
+                        const insertIndex = targetCol.cards.findIndex(c => c.id === targetBeforeCardId);
+                        if (insertIndex !== -1) targetCol.cards.splice(insertIndex, 0, movedCard);
+                        else targetCol.cards.push(movedCard);
+                    } else {
+                        targetCol.cards.push(movedCard);
+                    }
+
+                    utils.save();
+                    render.board();
+                } catch (err) {
+                    console.error("Drop failed", err);
                 }
             }
-            const fmt = localStorage.getItem('flow_format');
-            if(fmt) debateFormat = fmt;
-        }
+        };
 
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(columns));
-            const dl = document.createElement('a');
-            dl.setAttribute("href", dataStr);
-            dl.setAttribute("download", `FlowSheet_${debateFormat}_${new Date().toLocaleDateString()}.json`);
-            dl.click();
-        }
-
-        function importData(input) {
-            const file = input.files[0];
-            if (!file) return;
-            const r = new FileReader();
-            r.onload = (e) => { 
-                try {
-                    columns = JSON.parse(e.target.result); 
-                    saveToStorage(); 
-                    renderBoard(); 
-                    renderTeamHeaders();
-                } catch(err) {
-                    console.error("Invalid File", err);
-                }
-            };
-            r.readAsText(file);
-        }
-
-        function showModal({ title, message, onConfirm }) {
-            const m = document.getElementById('modalBackdrop');
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalMessage').innerText = message;
-            m.classList.remove('hidden');
-            document.getElementById('modalConfirm').onclick = () => { onConfirm(); m.classList.add('hidden'); };
-            document.getElementById('modalCancel').onclick = () => m.classList.add('hidden');
-        }
-
+        // --- EXPORT ---
         async function exportToImage() {
-            const prevId = activeColId;
-            activeColId = null;
-            renderBoard();
-
-            // Loading state
-            const btn = document.querySelector('button[title="Download Image"]');
+            const el = document.getElementById('board');
+            const btn = document.querySelector('button[title="Export Image"]');
+            
             const originalIcon = btn.innerHTML;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`;
+            btn.innerHTML = `<i data-lucide="loader-2" class="animate-spin w-5 h-5"></i>`;
             lucide.createIcons();
 
+            const originalOverflow = el.style.overflow;
+            el.style.overflow = 'visible';
+            
             try {
-                const canvas = await html2canvas(board, { 
-                    backgroundColor: '#f8fafc', 
-                    width: board.scrollWidth + 100, 
-                    height: board.scrollHeight + 100,
-                    scale: 2 
+                const canvas = await html2canvas(el, {
+                    backgroundColor: state.settings.darkMode ? '#0f172a' : '#f8fafc',
+                    scale: 2,
+                    windowWidth: el.scrollWidth + 100,
+                    width: el.scrollWidth + 50
                 });
-
+                
                 const link = document.createElement('a');
-                link.download = `Debate_Flow_${new Date().toISOString().slice(0,10)}.png`;
+                link.download = `FlowSheet_${new Date().toISOString().slice(0,10)}.png`;
                 link.href = canvas.toDataURL();
                 link.click();
             } catch(e) {
-                console.error("Export Error", e);
+                console.error(e);
+                alert("Could not generate image.");
             } finally {
-                activeColId = prevId;
-                renderBoard();
+                el.style.overflow = originalOverflow;
                 btn.innerHTML = originalIcon;
                 lucide.createIcons();
             }
         }
 
-        function toggleDarkMode() { 
-            document.documentElement.classList.toggle('dark'); 
-        }
+        // --- GLOBAL EXPORTS ---
+        window.openSetupModal = () => dom.setupModal.classList.remove('hidden');
+        window.closeSetupModal = () => dom.setupModal.classList.add('hidden');
         
-        function triggerClearBoard() {
-            showModal({ title: 'Wipe Board?', message: 'This will delete the entire debate flow. Export first if you need it later.', onConfirm: () => { columns = []; saveToStorage(); renderBoard(); renderTeamHeaders(); } });
-        }
-
-        // Init
-        loadFromStorage();
-        renderTeamHeaders();
-        renderBoard();
-        if(columns.length > 0) setActiveColumn(columns[0].id);
+        // Start App
+        app.init();
 
     </script>
 </body>
