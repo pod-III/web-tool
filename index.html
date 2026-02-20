@@ -1,292 +1,400 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English 1 Batam - Tool Hub</title>
-    
-    <!-- 1. TYPOGRAPHY -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- 2. TAILWIND CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- 3. ICONS -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>English 1 Batam - Tool Hub</title>
 
-    <!-- 4. DESIGN SYSTEM CONFIG -->
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        'e1-pink': '#FF6B95',
-                        'e1-orange': '#FF8C42',
-                        'e1-green': '#00E676',
-                        'e1-blue': '#2979FF',
-                        'e1-dark': '#1e293b',
-                        'e1-chalk': '#f8fafc',
+        <!-- 1. TYPOGRAPHY -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+
+        <!-- 2. TAILWIND CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <!-- 3. ICONS -->
+        <script src="https://unpkg.com/lucide@latest"></script>
+
+        <!-- 4. DESIGN SYSTEM CONFIG -->
+        <script>
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            "e1-pink": "#FF6B95",
+                            "e1-orange": "#FF8C42",
+                            "e1-green": "#00E676",
+                            "e1-blue": "#2979FF",
+                            "e1-dark": "#1e293b",
+                            "e1-chalk": "#f8fafc",
+                        },
+                        fontFamily: {
+                            headings: ["Fredoka", "sans-serif"],
+                            body: ["Nunito", "sans-serif"],
+                        },
+                        boxShadow: {
+                            neo: "4px 4px 0px 0px rgba(30, 41, 59, 1)",
+                            "neo-lg": "8px 8px 0px 0px rgba(30, 41, 59, 1)",
+                            "neo-xl": "12px 12px 0px 0px rgba(30, 41, 59, 1)",
+                        },
+                        borderWidth: { 3: "3px", 4: "4px", 6: "6px" },
                     },
-                    fontFamily: {
-                        headings: ['Fredoka', 'sans-serif'],
-                        body: ['Nunito', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'neo': '4px 4px 0px 0px rgba(30, 41, 59, 1)',
-                        'neo-lg': '8px 8px 0px 0px rgba(30, 41, 59, 1)',
-                        'neo-xl': '12px 12px 0px 0px rgba(30, 41, 59, 1)',
-                    },
-                    borderWidth: { '3': '3px', '4': '4px', '6': '6px' }
-                }
+                },
+            };
+        </script>
+
+        <style>
+            /* Consistent Grid Pattern Background */
+            body {
+                background-color: #f8fafc;
+                background-image:
+                    linear-gradient(
+                        rgba(30, 41, 59, 0.05) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(30, 41, 59, 0.05) 1px,
+                        transparent 1px
+                    );
+                background-size: 25px 25px;
             }
-        }
-    </script>
+            .dark body {
+                background-color: #0f172a;
+                background-image:
+                    linear-gradient(
+                        rgba(255, 255, 255, 0.05) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(255, 255, 255, 0.05) 1px,
+                        transparent 1px
+                    );
+            }
 
-    <style>
-        /* Consistent Grid Pattern Background */
-        body {
-            background-color: #f8fafc;
-            background-image: 
-                linear-gradient(rgba(30, 41, 59, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(30, 41, 59, 0.05) 1px, transparent 1px);
-            background-size: 25px 25px;
-        }
-        .dark body {
-            background-color: #0f172a;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-        }
+            /* Hover Animation for Cards */
+            .tool-card {
+                transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .tool-card:hover {
+                transform: translate(-4px, -4px);
+                box-shadow: 12px 12px 0px 0px rgba(30, 41, 59, 1);
+            }
+            .tool-card:active {
+                transform: translate(2px, 2px);
+                box-shadow: 2px 2px 0px 0px rgba(30, 41, 59, 1);
+            }
 
-        /* Hover Animation for Cards */
-        .tool-card {
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .tool-card:hover {
-            transform: translate(-4px, -4px);
-            box-shadow: 12px 12px 0px 0px rgba(30, 41, 59, 1);
-        }
-        .tool-card:active {
-            transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0px 0px rgba(30, 41, 59, 1);
-        }
+            .btn-neo {
+                transition: all 0.1s ease;
+            }
+            .btn-neo:hover {
+                transform: translate(-2px, -2px);
+                box-shadow: 6px 6px 0px 0px rgba(30, 41, 59, 1);
+            }
+            .btn-neo:active {
+                transform: translate(2px, 2px);
+                box-shadow: 0px 0px 0px 0px rgba(30, 41, 59, 1);
+            }
 
-        .btn-neo {
-            transition: all 0.1s ease;
-        }
-        .btn-neo:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0px 0px rgba(30, 41, 59, 1);
-        }
-        .btn-neo:active {
-            transform: translate(2px, 2px);
-            box-shadow: 0px 0px 0px 0px rgba(30, 41, 59, 1);
-        }
+            /* Custom Scrollbar */
+            ::-webkit-scrollbar {
+                width: 12px;
+            }
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #1e293b;
+                border: 3px solid #f8fafc;
+                border-radius: 10px;
+            }
+        </style>
+    </head>
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 12px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { 
-            background: #1e293b; 
-            border: 3px solid #f8fafc; 
-            border-radius: 10px; 
-        }
-    </style>
-</head>
-
-<body class="font-body text-e1-dark transition-colors duration-200 min-h-screen flex flex-col">
-
-    <!-- HEADER / NAVBAR -->
-    <nav class="w-full bg-white border-b-4 border-e1-dark p-4 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex justify-between items-center px-4">
-            <div class="flex items-center gap-4">
-                <div class="bg-e1-pink p-2 rounded-xl border-3 border-e1-dark shadow-neo">
-                    <i data-lucide="wrench" class="text-white w-6 h-6"></i>
+    <body
+        class="font-body text-e1-dark transition-colors duration-200 min-h-screen flex flex-col"
+    >
+        <!-- HEADER / NAVBAR -->
+        <nav
+            class="w-full bg-white border-b-4 border-e1-dark p-4 sticky top-0 z-50"
+        >
+            <div
+                class="max-w-7xl mx-auto flex justify-between items-center px-4"
+            >
+                <div class="flex items-center gap-4">
+                    <div
+                        class="bg-e1-pink p-2 rounded-xl border-3 border-e1-dark shadow-neo"
+                    >
+                        <i data-lucide="wrench" class="text-white w-6 h-6"></i>
+                    </div>
+                    <h1 class="font-headings text-2xl font-bold tracking-tight">
+                        Mr.Fahrul<span
+                            class="text-e1-blue underline decoration-4 underline-offset-4"
+                            >Web Tools</span
+                        >
+                    </h1>
                 </div>
-                <h1 class="font-headings text-2xl font-bold tracking-tight">Mr.Fahrul<span class="text-e1-blue underline decoration-4 underline-offset-4">Web Tools</span></h1>
-            </div>
 
-            <div class="flex items-center gap-4">
-                <div class="hidden md:flex gap-6 font-headings font-bold text-sm uppercase mr-6">
-                    <a href="#" class="hover:text-e1-blue transition-colors">Workspace</a>
-                    <a href="#" class="hover:text-e1-pink transition-colors">Debate Hub</a>
-                    <a href="#" class="hover:text-e1-green transition-colors">Teaching</a>
-                </div>
-                <button onclick="toggleDarkMode()" class="bg-e1-dark text-white p-2.5 rounded-xl border-3 border-e1-dark shadow-neo-sm btn-neo">
-                    <i data-lucide="moon" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <!-- HERO SECTION -->
-    <header class="w-full py-16 px-6 text-center">
-        <div class="max-w-4xl mx-auto">
-            <h2 class="font-headings text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                Work hard. <br>
-                <span class="text-e1-pink">Debate</span> harder.
-            </h2>
-            <p class="text-xl md:text-2xl font-bold text-slate-500 mb-10 max-w-2xl mx-auto">
-                A custom collection of digital tools built for the modern English teacher and competitive debater.
-            </p>
-            
-            <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
-                <div class="relative w-full max-w-md">
-                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"></i>
-                    <input type="text" id="toolSearch" oninput="filterTools()" 
-                        class="w-full bg-white border-4 border-e1-dark rounded-2xl p-4 pl-12 font-bold shadow-neo outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all" 
-                        placeholder="Search for a tool...">
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="setFilter('All')" class="filter-btn bg-e1-dark text-white border-3 border-e1-dark px-4 py-2 rounded-xl font-headings font-bold shadow-neo-sm hover:translate-y-[-2px] transition active:translate-y-[1px]">All</button>
-                    <button onclick="setSetupFormat('Debate')" class="filter-btn bg-white border-3 border-e1-dark px-4 py-2 rounded-xl font-headings font-bold shadow-neo-sm hover:translate-y-[-2px] transition active:translate-y-[1px]">Debate</button>
-                    <button onclick="setSetupFormat('Work')" class="filter-btn bg-white border-3 border-e1-dark px-4 py-2 rounded-xl font-headings font-bold shadow-neo-sm hover:translate-y-[-2px] transition active:translate-y-[1px]">Work</button>
+                <div class="flex items-center gap-4">
+                    <div
+                        class="hidden md:flex gap-6 font-headings font-bold text-sm uppercase mr-6"
+                    >
+                        <a href="#" class="hover:text-e1-blue transition-colors"
+                            >Workspace</a
+                        >
+                        <a href="#" class="hover:text-e1-pink transition-colors"
+                            >Debate Hub</a
+                        >
+                        <a
+                            href="#"
+                            class="hover:text-e1-green transition-colors"
+                            >Teaching</a
+                        >
+                    </div>
+                    <button
+                        onclick="toggleDarkMode()"
+                        class="bg-e1-dark text-white p-2.5 rounded-xl border-3 border-e1-dark shadow-neo-sm btn-neo"
+                    >
+                        <i data-lucide="moon" class="w-5 h-5"></i>
+                    </button>
                 </div>
             </div>
-        </div>
-    </header>
+        </nav>
 
-    <!-- TOOLS GRID -->
-    <main class="max-w-7xl mx-auto w-full px-6 pb-20 flex-grow">
-        <div id="toolGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Tools will be injected here via JSON -->
-            <div class="col-span-full py-20 text-center animate-pulse">
-                <i data-lucide="loader-2" class="w-12 h-12 text-slate-300 mx-auto animate-spin mb-4"></i>
-                <p class="font-bold text-slate-400">Loading your tools...</p>
+        <!-- HERO SECTION -->
+        <header class="w-full py-16 px-6 text-center">
+            <div class="max-w-4xl mx-auto">
+                <h2
+                    class="font-headings text-5xl md:text-7xl font-bold mb-6 leading-tight"
+                >
+                    Work hard. <br />
+                    <span class="text-e1-pink">Debate</span> harder.
+                </h2>
+                <p
+                    class="text-xl md:text-2xl font-bold text-slate-500 mb-10 max-w-2xl mx-auto"
+                >
+                    A custom collection of digital tools built for the modern
+                    English teacher and competitive debater.
+                </p>
+
+                <div
+                    class="flex flex-col md:flex-row gap-4 justify-center items-center"
+                >
+                    <div class="relative w-full max-w-md">
+                        <i
+                            data-lucide="search"
+                            class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"
+                        ></i>
+                        <input
+                            type="text"
+                            id="toolSearch"
+                            oninput="filterTools()"
+                            class="w-full bg-white border-4 border-e1-dark rounded-2xl p-4 pl-12 font-bold shadow-neo outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all"
+                            placeholder="Search for a tool..."
+                        />
+                    </div>
+                    <div class="flex gap-2">
+                        <button
+                            onclick="setFilter('All')"
+                            class="filter-btn bg-e1-dark text-white border-3 border-e1-dark px-4 py-2 rounded-xl font-headings font-bold shadow-neo-sm hover:translate-y-[-2px] transition active:translate-y-[1px]"
+                        >
+                            All
+                        </button>
+                        <button
+                            onclick="setSetupFormat('Debate')"
+                            class="filter-btn bg-white border-3 border-e1-dark px-4 py-2 rounded-xl font-headings font-bold shadow-neo-sm hover:translate-y-[-2px] transition active:translate-y-[1px]"
+                        >
+                            Debate
+                        </button>
+                        <button
+                            onclick="setSetupFormat('Work')"
+                            class="filter-btn bg-white border-3 border-e1-dark px-4 py-2 rounded-xl font-headings font-bold shadow-neo-sm hover:translate-y-[-2px] transition active:translate-y-[1px]"
+                        >
+                            Work
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
-    </main>
+        </header>
 
-    <!-- FOOTER -->
-    <footer class="w-full bg-white border-t-4 border-e1-dark p-8 mt-auto">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="text-center md:text-left">
-                <p class="font-headings font-bold text-lg">English 1 Batam</p>
-                <p class="text-sm font-bold text-slate-400">Built with ⚡ in Batam, Indonesia.</p>
+        <!-- TOOLS GRID -->
+        <main class="max-w-7xl mx-auto w-full px-6 pb-20 flex-grow">
+            <div
+                id="toolGrid"
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+                <!-- Tools will be injected here via JSON -->
+                <div class="col-span-full py-20 text-center animate-pulse">
+                    <i
+                        data-lucide="loader-2"
+                        class="w-12 h-12 text-slate-300 mx-auto animate-spin mb-4"
+                    ></i>
+                    <p class="font-bold text-slate-400">
+                        Loading your tools...
+                    </p>
+                </div>
             </div>
-            <div class="flex gap-4">
-                <a href="#" class="bg-white border-3 border-e1-dark p-2 rounded-lg shadow-neo-sm hover:bg-slate-50 transition"><i data-lucide="github"></i></a>
-                <a href="#" class="bg-white border-3 border-e1-dark p-2 rounded-lg shadow-neo-sm hover:bg-slate-50 transition"><i data-lucide="twitter"></i></a>
-                <a href="#" class="bg-white border-3 border-e1-dark p-2 rounded-lg shadow-neo-sm hover:bg-slate-50 transition"><i data-lucide="mail"></i></a>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="w-full bg-white border-t-4 border-e1-dark p-8 mt-auto">
+            <div
+                class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6"
+            >
+                <div class="text-center md:text-left">
+                    <p class="font-headings font-bold text-lg">
+                        English 1 Batam
+                    </p>
+                    <p class="text-sm font-bold text-slate-400">
+                        Built with ⚡ in Batam, Indonesia.
+                    </p>
+                </div>
+                <div class="flex gap-4">
+                    <a
+                        href="#"
+                        class="bg-white border-3 border-e1-dark p-2 rounded-lg shadow-neo-sm hover:bg-slate-50 transition"
+                        ><i data-lucide="github"></i
+                    ></a>
+                    <a
+                        href="#"
+                        class="bg-white border-3 border-e1-dark p-2 rounded-lg shadow-neo-sm hover:bg-slate-50 transition"
+                        ><i data-lucide="twitter"></i
+                    ></a>
+                    <a
+                        href="#"
+                        class="bg-white border-3 border-e1-dark p-2 rounded-lg shadow-neo-sm hover:bg-slate-50 transition"
+                        ><i data-lucide="mail"></i
+                    ></a>
+                </div>
             </div>
-        </div>
-    </footer>
+        </footer>
 
-    <script>
-        lucide.createIcons();
+        <script>
+            lucide.createIcons();
 
-        let allTools = [];
-        let currentFilter = 'All';
+            let allTools = [];
+            let currentFilter = "All";
 
-        // Fetch Tools from JSON
-        async function loadTools() {
-            try {
-                const response = await fetch('tools.json');
-                allTools = await response.json();
-                renderTools(allTools);
-            } catch (err) {
-                console.error("Error loading tools:", err);
-                document.getElementById('toolGrid').innerHTML = `
+            // Fetch Tools from JSON
+            async function loadTools() {
+                try {
+                    const response = await fetch("tools.json");
+                    allTools = await response.json();
+                    renderTools(allTools);
+                } catch (err) {
+                    console.error("Error loading tools:", err);
+                    document.getElementById("toolGrid").innerHTML = `
                     <div class="col-span-full bg-red-50 border-4 border-red-500 rounded-3xl p-10 text-center">
                         <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-4"></i>
                         <h3 class="font-headings text-2xl font-bold text-red-600 mb-2">Oops! Something went wrong.</h3>
                         <p class="font-bold text-red-400">Could not load tools database. Please ensure tools.json exists.</p>
                     </div>
                 `;
-                lucide.createIcons();
+                    lucide.createIcons();
+                }
             }
-        }
 
-        function renderTools(tools) {
-            const grid = document.getElementById('toolGrid');
-            grid.innerHTML = '';
+            function renderTools(tools) {
+                const grid = document.getElementById("toolGrid");
+                grid.innerHTML = "";
 
-            if(tools.length === 0) {
-                grid.innerHTML = `
+                if (tools.length === 0) {
+                    grid.innerHTML = `
                     <div class="col-span-full py-20 text-center opacity-40">
                         <i data-lucide="search-x" class="w-16 h-16 mx-auto mb-4"></i>
                         <p class="font-headings text-2xl font-bold">No tools found matching your search.</p>
                     </div>
                 `;
-                lucide.createIcons();
-                return;
-            }
+                    lucide.createIcons();
+                    return;
+                }
 
-            tools.forEach(tool => {
-                const colorMap = {
-                    'e1-blue': 'bg-e1-blue border-e1-blue',
-                    'e1-pink': 'bg-e1-pink border-e1-pink',
-                    'e1-orange': 'bg-e1-orange border-e1-orange',
-                    'e1-green': 'bg-e1-green border-e1-green'
-                };
+                tools.forEach((tool) => {
+                    const colorMap = {
+                        "e1-blue": "bg-e1-blue border-e1-blue",
+                        "e1-pink": "bg-e1-pink border-e1-pink",
+                        "e1-orange": "bg-e1-orange border-e1-orange",
+                        "e1-green": "bg-e1-green border-e1-green",
+                    };
 
-                const card = document.createElement('a');
-                card.href = tool.route;
-                card.className = "tool-card bg-white border-4 border-e1-dark rounded-[2rem] p-8 shadow-neo-lg flex flex-col group";
-                
-                card.innerHTML = `
+                    const card = document.createElement("a");
+                    card.href = tool.route;
+                    card.className =
+                        "tool-card bg-white border-4 border-e1-dark rounded-[2rem] p-8 shadow-neo-lg flex flex-col group";
+
+                    card.innerHTML = `
                     <div class="flex justify-between items-start mb-6">
-                        <div class="p-4 rounded-2xl border-3 border-e1-dark shadow-neo ${tool.color || 'bg-e1-blue'} text-white group-hover:rotate-6 transition-transform">
-                            <i data-lucide="${tool.icon || 'box'}" class="w-8 h-8"></i>
+                    <div class="p-4 rounded-2xl border-3 border-e1-dark shadow-neo ${colorMap[tool.color] || tool.color || "bg-e1-blue border-e1-blue"} text-white group-hover:rotate-6 transition-transform">
+                            <i data-lucide="${tool.icon || "box"}" class="w-8 h-8"></i>
                         </div>
+
                         <span class="bg-slate-100 border-2 border-e1-dark rounded-full px-4 py-1 text-[10px] font-bold uppercase tracking-widest">${tool.category}</span>
                     </div>
-                    
+
                     <h3 class="font-headings text-2xl font-bold mb-3 group-hover:text-e1-blue transition-colors">${tool.name}</h3>
                     <p class="text-slate-500 font-bold text-sm mb-6 flex-grow leading-relaxed">
                         ${tool.description}
                     </p>
-                    
+
                     <div class="flex flex-wrap gap-2 mb-8">
-                        ${tool.tags.map(tag => `<span class="text-[9px] font-black uppercase text-slate-400">#${tag}</span>`).join('')}
+                        ${tool.tags.map((tag) => `<span class="text-[9px] font-black uppercase text-slate-400">#${tag}</span>`).join("")}
                     </div>
 
                     <div class="w-full bg-e1-dark text-white font-headings font-bold py-3 rounded-xl text-center border-2 border-e1-dark shadow-neo-sm group-hover:bg-e1-blue transition-colors">
                         Open Tool
                     </div>
                 `;
-                grid.appendChild(card);
-            });
-            lucide.createIcons();
-        }
+                    grid.appendChild(card);
+                });
+                lucide.createIcons();
+            }
 
-        function filterTools() {
-            const query = document.getElementById('toolSearch').value.toLowerCase();
-            const filtered = allTools.filter(tool => {
-                const matchesSearch = tool.name.toLowerCase().includes(query) || tool.description.toLowerCase().includes(query);
-                const matchesCategory = currentFilter === 'All' || tool.category === currentFilter;
-                return matchesSearch && matchesCategory;
-            });
-            renderTools(filtered);
-        }
+            function filterTools() {
+                const query = document
+                    .getElementById("toolSearch")
+                    .value.toLowerCase();
+                const filtered = allTools.filter((tool) => {
+                    const matchesSearch =
+                        tool.name.toLowerCase().includes(query) ||
+                        tool.description.toLowerCase().includes(query);
+                    const matchesCategory =
+                        currentFilter === "All" ||
+                        tool.category === currentFilter;
+                    return matchesSearch && matchesCategory;
+                });
+                renderTools(filtered);
+            }
 
-        function setSetupFormat(category) {
-            currentFilter = category;
-            
-            // UI Updates
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                if(btn.innerText === category) {
-                    btn.classList.add('bg-e1-dark', 'text-white');
-                    btn.classList.remove('bg-white');
-                } else {
-                    btn.classList.remove('bg-e1-dark', 'text-white');
-                    btn.classList.add('bg-white');
-                }
-            });
+            function setSetupFormat(category) {
+                currentFilter = category;
 
-            filterTools();
-        }
+                // UI Updates
+                document.querySelectorAll(".filter-btn").forEach((btn) => {
+                    if (btn.innerText === category) {
+                        btn.classList.add("bg-e1-dark", "text-white");
+                        btn.classList.remove("bg-white");
+                    } else {
+                        btn.classList.remove("bg-e1-dark", "text-white");
+                        btn.classList.add("bg-white");
+                    }
+                });
 
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
-        }
+                filterTools();
+            }
 
-        // Initialize
-        loadTools();
+            function toggleDarkMode() {
+                document.documentElement.classList.toggle("dark");
+            }
 
-    </script>
-</body>
+            // Initialize
+            loadTools();
+        </script>
+    </body>
 </html>
