@@ -1,58 +1,42 @@
 [
-    {
-        "id": "flow-sheet",
-        "name": "FlowSheet",
-        "description": "Professional debate flowing tool with support for WSDC, Asian Parl, and BP formats. Includes Alt-shortcuts and 4-team management.",
-        "category": "Debate",
-        "route": "./adj-note/index.html",
-        "icon": "columns",
-        "color": "e1-blue",
-        "tags": [
-            "Debate",
-            "Work",
-            "Productivity"
-        ]
-    },
-    {
-        "id": "image-splitter",
-        "name": "ImageSplitter",
-        "description": "Split images into perfect grids for social media carousels or printing. Features customizable row and column counts.",
-        "category": "Work",
-        "route": "./image-splitter/index.html",
-        "icon": "scissors",
-        "color": "e1-green",
-        "tags": [
-            "Images",
-            "Utility",
-            "Work"
-        ]
-    },
-    {
-        "id": "debate-timer",
-        "name": "DebateTimer",
-        "description": "A specialized countdown timer for competitive debate. Features presets for WSDC/Asian and BP speeches with automated bell alerts.",
-        "category": "Debate",
-        "route": "./debate-timer/index.html",
-        "icon": "timer",
-        "color": "e1-orange",
-        "tags": [
-            "Debate",
-            "Utility",
-            "Judging"
-        ]
-    },
-    {
-        "id": "list-converter",
-        "name": "Magic List Converter",
-        "description": "Instantly convert ordered lists to comma-separated text (CSV), or turn messy text into clean bullet points.",
-        "category": "Work",
-        "tags": [
-            "Text",
-            "Utility",
-            "Helper"
-        ],
-        "icon": "list-ordered",
-        "color": "bg-e1-pink border-e1-pink",
-        "route": "list-converter/index.html"
-    }
+  {
+    "id": "flow-sheet",
+    "name": "FlowSheet",
+    "description": "Professional debate flowing tool with support for WSDC, Asian Parl, and BP formats. Includes Alt-shortcuts and 4-team management.",
+    "category": "Debate",
+    "route": "./adj-note/index.html",
+    "icon": "columns",
+    "color": "e1-blue",
+    "tags": ["Debate", "Work", "Productivity"]
+  },
+  {
+    "id": "image-splitter",
+    "name": "ImageSplitter",
+    "description": "Split images into perfect grids for social media carousels or printing. Features customizable row and column counts.",
+    "category": "Work",
+    "route": "./image-splitter/index.html",
+    "icon": "scissors",
+    "color": "e1-green",
+    "tags": ["Images", "Utility", "Work"]
+  },
+  {
+    "id": "debate-timer",
+    "name": "DebateTimer",
+    "description": "A specialized countdown timer for competitive debate. Features presets for WSDC/Asian and BP speeches with automated bell alerts.",
+    "category": "Debate",
+    "route": "./debate-timer/index.html",
+    "icon": "timer",
+    "color": "e1-orange",
+    "tags": ["Debate", "Utility", "Judging"]
+  },
+  {
+    "id": "list-converter",
+    "name": "Magic List Converter",
+    "description": "Instantly convert ordered lists to comma-separated text (CSV), or turn messy text into clean bullet points.",
+    "category": "Work",
+    "tags": ["Text", "Utility", "Helper"],
+    "icon": "list-ordered",
+    "color": "bg-e1-pink border-e1-pink",
+    "route": "./list-converter/index.html"
+  }
 ]
