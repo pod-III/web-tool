@@ -1,42 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fantasy VTT | Game Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+
     <style>
-        body { 
-            font-family: 'Lora', serif; 
-            overscroll-behavior: none; 
-            background-color: #0c0a09; 
+        body {
+            font-family: 'Lora', serif;
+            overscroll-behavior: none;
+            background-color: #0c0a09;
             background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
         }
-        h1, h2, h3, .font-cinzel, button { font-family: 'Cinzel', serif; }
-        
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #1c1917; }
-        ::-webkit-scrollbar-thumb { background: #78350f; border-radius: 4px; }
-        
-        #canvas-wrapper { position: relative; width: 100%; height: 100%; overflow: hidden; touch-action: none; background-color: #0c0a09; }
-        #canvas-container { 
-            position: absolute; 
+
+        h1,
+        h2,
+        h3,
+        .font-cinzel,
+        button {
+            font-family: 'Cinzel', serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1c1917;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #78350f;
+            border-radius: 4px;
+        }
+
+        #canvas-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: none;
+            background-color: #0c0a09;
+        }
+
+        #canvas-container {
+            position: absolute;
             transform-origin: top left;
-            cursor: crosshair; 
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            cursor: crosshair;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
             border: 2px solid #78350f;
             background: #1c1917;
-            will-change: transform; 
+            will-change: transform;
         }
-        canvas { position: absolute; top: 0; left: 0; transform-origin: top left; touch-action: none; pointer-events: none; }
-        #layer-fog { pointer-events: auto; } 
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: top left;
+            touch-action: none;
+            pointer-events: none;
+        }
+
+        #layer-fog {
+            pointer-events: auto;
+        }
 
         .ping-ring {
             position: absolute;
-            width: 40px; height: 40px;
+            width: 40px;
+            height: 40px;
             background: rgba(217, 119, 6, 0.4);
             border: 2px solid #f59e0b;
             border-radius: 50%;
@@ -45,79 +85,110 @@
             pointer-events: none;
             z-index: 50;
         }
+
         @keyframes ping-anim {
-            0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+            0% {
+                transform: translate(-50%, -50%) scale(0.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(3);
+                opacity: 0;
+            }
         }
     </style>
 </head>
+
 <body class="text-stone-300 h-screen w-screen overflow-hidden flex flex-col selection:bg-amber-500/30">
 
-    <header class="bg-stone-900 border-b border-amber-900/50 p-4 flex justify-between items-center z-40 shrink-0 shadow-md">
-        <h1 class="text-xl font-bold text-amber-500 flex items-center gap-3 font-cinzel tracking-wider">
-            <i data-lucide="scroll" class="w-6 h-6"></i> Arcane Tabletop
-        </h1>
-        <button id="mode-toggle" class="bg-amber-700 hover:bg-amber-600 text-stone-100 px-6 py-2 rounded font-semibold transition-colors shadow-lg shadow-amber-900/20 flex items-center gap-2 border border-amber-500/30 tracking-wider">
+    <header
+        class="bg-stone-900 border-b border-amber-900/50 p-4 flex justify-between items-center z-40 shrink-0 shadow-md">
+        <div class="flex items-center gap-4">
+            <a href="../index.html" class="text-amber-500 hover:text-amber-400 transition-colors" title="Back to Home">
+                <i data-lucide="home" class="w-6 h-6"></i>
+            </a>
+            <h1 class="text-xl font-bold text-amber-500 flex items-center gap-3 font-cinzel tracking-wider">
+                <i data-lucide="scroll" class="w-6 h-6"></i> Arcane Tabletop
+            </h1>
+        </div>
+        <button id="mode-toggle"
+            class="bg-amber-700 hover:bg-amber-600 text-stone-100 px-6 py-2 rounded font-semibold transition-colors shadow-lg shadow-amber-900/20 flex items-center gap-2 border border-amber-500/30 tracking-wider">
             <i data-lucide="user" class="w-4 h-4"></i> Enter Player View
         </button>
     </header>
 
     <div class="flex flex-1 overflow-hidden relative">
-        <aside id="dm-sidebar" class="w-80 bg-stone-900 border-r border-amber-900/50 flex flex-col shadow-2xl z-30 shrink-0">
+        <aside id="dm-sidebar"
+            class="w-80 bg-stone-900 border-r border-amber-900/50 flex flex-col shadow-2xl z-30 shrink-0">
             <div class="flex-1 overflow-y-auto p-6 space-y-8">
                 <section class="space-y-4">
-                    <h2 class="text-xs font-semibold text-amber-600 uppercase tracking-widest flex items-center gap-2 font-cinzel">
+                    <h2
+                        class="text-xs font-semibold text-amber-600 uppercase tracking-widest flex items-center gap-2 font-cinzel">
                         <i data-lucide="map" class="w-4 h-4"></i> Cartography
                     </h2>
-                    <select id="map-select" class="w-full bg-stone-950 border border-amber-900/50 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500 text-stone-300 font-lora">
+                    <select id="map-select"
+                        class="w-full bg-stone-950 border border-amber-900/50 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500 text-stone-300 font-lora">
                         <option value="">-- Select Map --</option>
                     </select>
-                    <label class="flex items-center justify-center gap-2 w-full cursor-pointer bg-stone-800 hover:bg-stone-700 transition-colors p-3 rounded text-sm font-medium border border-stone-700 tracking-wider">
+                    <label
+                        class="flex items-center justify-center gap-2 w-full cursor-pointer bg-stone-800 hover:bg-stone-700 transition-colors p-3 rounded text-sm font-medium border border-stone-700 tracking-wider">
                         <i data-lucide="image-plus" class="w-4 h-4"></i> Upload Map
                         <input type="file" id="map-upload" accept="image/*" class="sr-only">
                     </label>
                 </section>
 
                 <section class="space-y-4">
-                    <h2 class="text-xs font-semibold text-amber-600 uppercase tracking-widest flex items-center gap-2 font-cinzel">
+                    <h2
+                        class="text-xs font-semibold text-amber-600 uppercase tracking-widest flex items-center gap-2 font-cinzel">
                         <i data-lucide="swords" class="w-4 h-4"></i> Miniatures
                     </h2>
-                    <input type="text" id="token-name" placeholder="Character Name..." class="w-full bg-stone-950 border border-amber-900/50 rounded px-4 py-2 text-sm focus:outline-none focus:border-amber-500 transition-colors font-lora italic">
-                    <label class="flex w-full cursor-pointer bg-amber-700 hover:bg-amber-600 transition-colors p-3 rounded text-center text-sm font-medium shadow-lg shadow-amber-900/20 items-center justify-center gap-2 border border-amber-500/30 tracking-wider">
+                    <input type="text" id="token-name" placeholder="Character Name..."
+                        class="w-full bg-stone-950 border border-amber-900/50 rounded px-4 py-2 text-sm focus:outline-none focus:border-amber-500 transition-colors font-lora italic">
+                    <label
+                        class="flex w-full cursor-pointer bg-amber-700 hover:bg-amber-600 transition-colors p-3 rounded text-center text-sm font-medium shadow-lg shadow-amber-900/20 items-center justify-center gap-2 border border-amber-500/30 tracking-wider">
                         <i data-lucide="plus" class="w-4 h-4"></i> Place Miniature
                         <input type="file" id="token-upload" accept="image/*" class="sr-only">
                     </label>
                 </section>
 
                 <section class="space-y-4">
-                    <h2 class="text-xs font-semibold text-amber-600 uppercase tracking-widest flex items-center gap-2 font-cinzel">
+                    <h2
+                        class="text-xs font-semibold text-amber-600 uppercase tracking-widest flex items-center gap-2 font-cinzel">
                         <i data-lucide="wand-2" class="w-4 h-4"></i> Tools
                     </h2>
                     <div class="grid grid-cols-1 gap-2 font-lora text-sm">
-                        <button id="tool-drag" class="bg-stone-800 hover:bg-stone-700 border border-stone-700 p-3 rounded transition-colors flex items-center justify-start gap-3 ring-2 ring-amber-500 font-lora">
+                        <button id="tool-drag"
+                            class="bg-stone-800 hover:bg-stone-700 border border-stone-700 p-3 rounded transition-colors flex items-center justify-start gap-3 ring-2 ring-amber-500 font-lora">
                             <i data-lucide="hand" class="w-4 h-4 text-stone-400"></i> Move Minis
                         </button>
-                        <button id="tool-pan" class="bg-stone-800 hover:bg-stone-700 border border-stone-700 p-3 rounded transition-colors flex items-center justify-start gap-3 font-lora">
+                        <button id="tool-pan"
+                            class="bg-stone-800 hover:bg-stone-700 border border-stone-700 p-3 rounded transition-colors flex items-center justify-start gap-3 font-lora">
                             <i data-lucide="move" class="w-4 h-4 text-stone-400"></i> Pan Canvas
                         </button>
-                        <button id="tool-fog-draw" class="bg-stone-800 hover:bg-stone-700 border border-stone-700 p-3 rounded transition-colors flex items-center justify-start gap-3 font-lora">
+                        <button id="tool-fog-draw"
+                            class="bg-stone-800 hover:bg-stone-700 border border-stone-700 p-3 rounded transition-colors flex items-center justify-start gap-3 font-lora">
                             <i data-lucide="cloud-fog" class="w-4 h-4 text-stone-400"></i> Draw Darkness
                         </button>
-                        <button id="tool-fog-toggle" class="bg-stone-800 hover:bg-stone-700 border border-stone-700 p-3 rounded transition-colors flex items-center justify-start gap-3 font-lora">
+                        <button id="tool-fog-toggle"
+                            class="bg-stone-800 hover:bg-stone-700 border border-stone-700 p-3 rounded transition-colors flex items-center justify-start gap-3 font-lora">
                             <i data-lucide="eye" class="w-4 h-4 text-stone-400"></i> Reveal/Hide Area
                         </button>
                     </div>
                 </section>
 
                 <section class="space-y-4 pt-4 border-t border-amber-900/30">
-                     <h2 class="text-xs font-semibold text-amber-600 uppercase tracking-widest flex items-center gap-2 font-cinzel">
+                    <h2
+                        class="text-xs font-semibold text-amber-600 uppercase tracking-widest flex items-center gap-2 font-cinzel">
                         <i data-lucide="save" class="w-4 h-4"></i> Campaign Data
                     </h2>
                     <div class="flex gap-2">
-                        <button id="btn-export" class="flex-1 bg-stone-800 hover:bg-stone-700 border border-stone-700 p-2 rounded text-xs transition-colors flex items-center justify-center gap-1">
+                        <button id="btn-export"
+                            class="flex-1 bg-stone-800 hover:bg-stone-700 border border-stone-700 p-2 rounded text-xs transition-colors flex items-center justify-center gap-1">
                             <i data-lucide="download" class="w-3 h-3"></i> Export
                         </button>
-                        <label class="flex-1 cursor-pointer bg-stone-800 hover:bg-stone-700 border border-stone-700 p-2 rounded text-xs transition-colors flex items-center justify-center gap-1 text-center">
+                        <label
+                            class="flex-1 cursor-pointer bg-stone-800 hover:bg-stone-700 border border-stone-700 p-2 rounded text-xs transition-colors flex items-center justify-center gap-1 text-center">
                             <i data-lucide="upload" class="w-3 h-3"></i> Import
                             <input type="file" id="campaign-import" accept=".json" class="sr-only">
                         </label>
@@ -135,14 +206,19 @@
         </main>
     </div>
 
-    <div id="custom-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center backdrop-blur-sm transition-opacity">
-        <div class="bg-stone-900 border-2 border-amber-700 p-6 rounded-lg max-w-sm w-full shadow-[0_0_30px_rgba(217,119,6,0.2)]">
+    <div id="custom-modal"
+        class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center backdrop-blur-sm transition-opacity">
+        <div
+            class="bg-stone-900 border-2 border-amber-700 p-6 rounded-lg max-w-sm w-full shadow-[0_0_30px_rgba(217,119,6,0.2)]">
             <h3 id="modal-title" class="text-amber-500 font-cinzel text-xl mb-4 font-bold tracking-wider">Notice</h3>
             <p id="modal-message" class="text-stone-300 font-lora mb-4 text-sm hidden"></p>
-            <input type="text" id="modal-input" class="w-full bg-stone-950 border border-amber-900/50 rounded px-3 py-2 text-stone-300 font-lora mb-5 hidden focus:outline-none focus:border-amber-500">
+            <input type="text" id="modal-input"
+                class="w-full bg-stone-950 border border-amber-900/50 rounded px-3 py-2 text-stone-300 font-lora mb-5 hidden focus:outline-none focus:border-amber-500">
             <div class="flex justify-end gap-3 font-cinzel text-sm tracking-wider">
-                <button id="modal-cancel" class="px-4 py-2 bg-stone-800 hover:bg-stone-700 border border-stone-600 rounded text-stone-300 transition-colors hidden">Cancel</button>
-                <button id="modal-confirm" class="px-4 py-2 bg-amber-700 hover:bg-amber-600 rounded text-white shadow-lg shadow-amber-900/20 transition-colors">Confirm</button>
+                <button id="modal-cancel"
+                    class="px-4 py-2 bg-stone-800 hover:bg-stone-700 border border-stone-600 rounded text-stone-300 transition-colors hidden">Cancel</button>
+                <button id="modal-confirm"
+                    class="px-4 py-2 bg-amber-700 hover:bg-amber-600 rounded text-white shadow-lg shadow-amber-900/20 transition-colors">Confirm</button>
             </div>
         </div>
     </div>
@@ -197,15 +273,15 @@
 
         // --- State Management ---
         let isDMMode = true;
-        let currentTool = 'drag'; 
-        
-        let mapsList = []; 
-        let currentMapData = null; 
+        let currentTool = 'drag';
+
+        let mapsList = [];
+        let currentMapData = null;
         let mapImage = null;
         let tokens = [];
-        let fogShapes = []; 
+        let fogShapes = [];
         let currentDrawPoints = [];
-        
+
         let transform = { x: 0, y: 0, scale: 1 };
         let activePointers = new Map();
         let lastPinchDist = null;
@@ -223,7 +299,7 @@
         const mapCanvas = document.getElementById('layer-map');
         const tokenCanvas = document.getElementById('layer-token');
         const fogCanvas = document.getElementById('layer-fog');
-        
+
         const mapCtx = mapCanvas.getContext('2d');
         const tokenCtx = tokenCanvas.getContext('2d');
         const fogCtx = fogCanvas.getContext('2d');
@@ -237,7 +313,7 @@
             isDMMode = !isDMMode;
             const sidebar = document.getElementById('dm-sidebar');
             const btn = e.currentTarget;
-            
+
             if (isDMMode) {
                 sidebar.style.display = 'flex';
                 btn.innerHTML = `<i data-lucide="user" class="w-4 h-4"></i> Enter Player View`;
@@ -250,7 +326,7 @@
                 btn.classList.replace('hover:bg-amber-600', 'hover:bg-stone-600');
             }
             lucide.createIcons();
-            renderFog(); 
+            renderFog();
         });
 
         function setTool(tool, btnId) {
@@ -270,7 +346,7 @@
         const dbName = "ArcaneVTT_DB";
         let db;
         const request = indexedDB.open(dbName, 1);
-        
+
         request.onupgradeneeded = (e) => {
             db = e.target.result;
             if (!db.objectStoreNames.contains('maps')) {
@@ -287,7 +363,7 @@
             if (!currentMapData) return;
             currentMapData.tokens = tokens.map(t => ({ id: t.id, name: t.name, x: t.x, y: t.y, src: t.img.src }));
             currentMapData.fogShapes = fogShapes;
-            
+
             const tx = db.transaction('maps', 'readwrite');
             tx.objectStore('maps').put(currentMapData);
         }
@@ -327,10 +403,10 @@
         document.getElementById('map-upload').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            
+
             let defaultName = file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " ");
             showPrompt("Name this map:", defaultName, (mapName) => {
-                if(!mapName) return;
+                if (!mapName) return;
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     const newMap = {
@@ -340,8 +416,8 @@
                         tokens: [],
                         fogShapes: []
                     };
-                    saveCurrentState(); 
-                    
+                    saveCurrentState();
+
                     const tx = db.transaction('maps', 'readwrite');
                     tx.objectStore('maps').put(newMap);
                     tx.oncomplete = () => {
@@ -371,7 +447,7 @@
                 const w = img.width; const h = img.height;
                 container.style.width = w + 'px'; container.style.height = h + 'px';
                 [mapCanvas, tokenCanvas, fogCanvas].forEach(c => { c.width = w; c.height = h; });
-                
+
                 if (currentMapData.tokens) {
                     currentMapData.tokens.forEach(td => {
                         const tImg = new Image();
@@ -410,8 +486,8 @@
             reader.onload = (event) => {
                 try {
                     const importedMaps = JSON.parse(event.target.result);
-                    if(!Array.isArray(importedMaps)) throw new Error("Invalid format");
-                    
+                    if (!Array.isArray(importedMaps)) throw new Error("Invalid format");
+
                     const tx = db.transaction('maps', 'readwrite');
                     importedMaps.forEach(m => tx.objectStore('maps').put(m));
                     tx.oncomplete = () => {
@@ -431,7 +507,7 @@
             const file = e.target.files[0];
             const nameInput = document.getElementById('token-name').value;
             if (!file) return;
-            
+
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
@@ -440,7 +516,7 @@
                     // Maps exact center of screen to canvas coordinates
                     const viewX = (rect.width / 2 - transform.x) / transform.scale;
                     const viewY = (rect.height / 2 - transform.y) / transform.scale;
-                    
+
                     tokens.push({ id: Date.now(), img: img, name: nameInput, x: viewX, y: viewY });
                     renderTokens();
                     saveCurrentState();
@@ -448,7 +524,7 @@
                 img.src = event.target.result;
             };
             reader.readAsDataURL(file);
-            document.getElementById('token-name').value = ''; 
+            document.getElementById('token-name').value = '';
             e.target.value = ''; // Force clear memory so same token can be uploaded twice
         });
 
@@ -464,30 +540,30 @@
             tokens.forEach(t => {
                 tokenCtx.save();
                 tokenCtx.beginPath();
-                tokenCtx.arc(t.x, t.y, gridSize/2, 0, Math.PI * 2);
+                tokenCtx.arc(t.x, t.y, gridSize / 2, 0, Math.PI * 2);
                 tokenCtx.closePath();
                 tokenCtx.clip();
-                tokenCtx.drawImage(t.img, t.x - gridSize/2, t.y - gridSize/2, gridSize, gridSize);
+                tokenCtx.drawImage(t.img, t.x - gridSize / 2, t.y - gridSize / 2, gridSize, gridSize);
                 tokenCtx.restore();
-                
-                tokenCtx.strokeStyle = '#d97706'; 
+
+                tokenCtx.strokeStyle = '#d97706';
                 tokenCtx.lineWidth = 3;
                 tokenCtx.beginPath();
-                tokenCtx.arc(t.x, t.y, gridSize/2, 0, Math.PI * 2);
+                tokenCtx.arc(t.x, t.y, gridSize / 2, 0, Math.PI * 2);
                 tokenCtx.stroke();
 
-                if(t.name) {
-                    tokenCtx.fillStyle = 'rgba(12, 10, 9, 0.9)'; 
+                if (t.name) {
+                    tokenCtx.fillStyle = 'rgba(12, 10, 9, 0.9)';
                     const textWidth = tokenCtx.measureText(t.name).width;
-                    tokenCtx.roundRect(t.x - textWidth/2 - 6, t.y + gridSize/2 + 4, textWidth + 12, 20, 4);
+                    tokenCtx.roundRect(t.x - textWidth / 2 - 6, t.y + gridSize / 2 + 4, textWidth + 12, 20, 4);
                     tokenCtx.fill();
-                    tokenCtx.strokeStyle = '#78350f'; 
+                    tokenCtx.strokeStyle = '#78350f';
                     tokenCtx.lineWidth = 1;
                     tokenCtx.stroke();
-                    tokenCtx.fillStyle = '#fde68a'; 
+                    tokenCtx.fillStyle = '#fde68a';
                     tokenCtx.font = '12px Lora, serif';
                     tokenCtx.textAlign = 'center';
-                    tokenCtx.fillText(t.name, t.x, t.y + gridSize/2 + 18);
+                    tokenCtx.fillText(t.name, t.x, t.y + gridSize / 2 + 18);
                 }
             });
         }
@@ -504,7 +580,7 @@
                         fogCtx.fillStyle = isDMMode ? 'rgba(0,0,0,0.6)' : '#000000';
                         fogCtx.fill();
                     } else if (isDMMode && !shape.isHidden) {
-                        fogCtx.strokeStyle = 'rgba(217, 119, 6, 0.5)'; 
+                        fogCtx.strokeStyle = 'rgba(217, 119, 6, 0.5)';
                         fogCtx.lineWidth = 2;
                         fogCtx.stroke();
                     }
@@ -514,7 +590,7 @@
                 fogCtx.beginPath();
                 fogCtx.moveTo(currentDrawPoints[0].x, currentDrawPoints[0].y);
                 currentDrawPoints.forEach(p => fogCtx.lineTo(p.x, p.y));
-                fogCtx.strokeStyle = '#d97706'; 
+                fogCtx.strokeStyle = '#d97706';
                 fogCtx.lineWidth = 3;
                 fogCtx.stroke();
             }
@@ -547,7 +623,7 @@
             const rect = wrapper.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
-            
+
             transform.x = mouseX - (mouseX - transform.x) * (newScale / transform.scale);
             transform.y = mouseY - (mouseY - transform.y) * (newScale / transform.scale);
             transform.scale = newScale;
@@ -591,7 +667,7 @@
             }
 
             longPressTimer = setTimeout(() => {
-                if(tokenHit && isDMMode) {
+                if (tokenHit && isDMMode) {
                     showPrompt("Type 'delete' to remove token:", "", (val) => {
                         if (val && val.toLowerCase() === 'delete') {
                             tokens = tokens.filter(t => t.id !== tokenHit.id);
@@ -687,7 +763,7 @@
             if (activeToken) {
                 activeToken = null;
                 saveCurrentState();
-            } 
+            }
             else if (isDMMode && currentTool === 'fog-draw' && isDrawing) {
                 isDrawing = false;
                 if (currentDrawPoints.length > 3) {
@@ -706,7 +782,7 @@
                 fogCtx.moveTo(shape.points[0].x, shape.points[0].y);
                 shape.points.forEach(p => fogCtx.lineTo(p.x, p.y));
                 fogCtx.closePath();
-                
+
                 if (fogCtx.isPointInPath(pos.x, pos.y)) {
                     if (playerMode && !shape.isHidden) return;
                     shape.isHidden = playerMode ? false : !shape.isHidden;
@@ -718,4 +794,5 @@
         }
     </script>
 </body>
+
 </html>

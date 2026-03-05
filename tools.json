@@ -48,5 +48,35 @@
     "icon": "type",
     "color": "bg-e1-blue border-e1-blue",
     "tags": ["Text", "Utility", "Formatting"]
+  },
+  {
+    "id": "dnd-character",
+    "name": "Character Roster",
+    "description": "Beautiful interactive character sheet tracker. Manage HP, stats, and resources with dark mode support and persistence.",
+    "category": "D&D",
+    "route": "./dnd/index.html",
+    "icon": "user",
+    "color": "bg-e1-orange border-e1-orange",
+    "tags": ["D&D", "RPG", "Character Sheet"]
+  },
+  {
+    "id": "dnd-vtt",
+    "name": "Arcane Tabletop",
+    "description": "Minimalist Virtual Tabletop (VTT). Upload maps, place miniatures, and use Fog of War for immersive encounters.",
+    "category": "D&D",
+    "route": "./dnd-map/index.html",
+    "icon": "map",
+    "color": "bg-e1-blue border-e1-blue",
+    "tags": ["D&D", "Map", "VTT"]
+  },
+  {
+    "id": "dnd-printer",
+    "name": "Dungeon Printer",
+    "description": "Print perfectly scaled battle maps and tokens. Automatic multi-page slicing and coin-sized token templates.",
+    "category": "D&D",
+    "route": "./dnd-print/index.html",
+    "icon": "printer",
+    "color": "bg-e1-pink border-e1-pink",
+    "tags": ["D&D", "Print", "Tools"]
   }
 ]
