@@ -95,9 +95,20 @@
     class="p-4 md:p-8 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
 
     <div class="max-w-4xl mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h2 class="text-xl font-bold mb-2 text-slate-800 dark:text-white font-title">Select Character:</h2>
-            <div id="selector-container" class="flex flex-wrap gap-3">
+        <div class="flex-grow">
+            <div class="flex flex-col md:flex-row gap-4 items-start md:items-center mb-2">
+                <div>
+                    <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 font-title">Campaign:</h2>
+                    <select id="campaign-selector" onchange="changeCampaign(this.value)"
+                        class="neo-card bg-white dark:bg-slate-900 border-3 border-slate-800 dark:border-slate-600 rounded-xl px-4 py-2 font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
+                    </select>
+                </div>
+                <div class="flex-grow">
+                    <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 font-title">Character:
+                    </h2>
+                    <div id="selector-container" class="flex flex-wrap gap-2">
+                    </div>
+                </div>
             </div>
         </div>
         <div class="flex gap-2">
@@ -262,6 +273,26 @@
                                 placeholder="One feature per line..."></textarea>
                         </div>
 
+                        <div id="section-quote" class="hidden">
+                            <h3
+                                class="flex items-center gap-2 text-indigo-500 font-bold text-sm mb-2 uppercase tracking-wide">
+                                <i data-lucide="quote" class="w-4 h-4"></i> Quote
+                            </h3>
+                            <div id="view-quote"
+                                class="italic text-slate-600 dark:text-slate-400 font-medium pl-4 border-l-4 border-slate-200 dark:border-slate-700">
+                            </div>
+                        </div>
+
+                        <div id="section-gear" class="hidden">
+                            <h3
+                                class="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-bold text-sm mb-2 uppercase tracking-wide">
+                                <i data-lucide="backpack" class="w-4 h-4"></i> Gear
+                            </h3>
+                            <div id="view-gear"
+                                class="text-slate-700 dark:text-slate-300 font-medium bg-slate-50 dark:bg-slate-800 p-3 rounded-xl text-sm whitespace-pre-wrap border border-slate-200 dark:border-slate-700">
+                            </div>
+                        </div>
+
                         <div>
                             <h3 class="flex items-center gap-2 text-[#FF8C42] font-bold text-lg mb-3">
                                 <i data-lucide="sword" class="w-6 h-6 stroke-[3]"></i> Combat Actions
@@ -285,37 +316,120 @@
     </main>
 
     <script>
-        let currentCharIndex = 0;
-        let isEditMode = false;
-
-        const defaultCharacters = [
+        let campaigns = [
             {
-                name: "TRUMPhet", class: "Fighter", level: 3, color: "#FF8C42", customImg: null,
-                vitals: { ac: 16, init: "+1", speed: "30ft", hp: 28, maxHp: 28 },
-                stats: { STR: [16, "+3"], DEX: [12, "+1"], CON: [14, "+2"], INT: [8, "-1"], WIS: [10, "+0"], CHA: [13, "+1"] },
-                resources: ["Action Surge [ ]", "Second Wind [ ]"],
-                features: ["Fighting Style: Protection", "Second Wind (Heal 1d10+3)"],
-                actions: "<strong>Greatsword:</strong> +5 to hit, 2d6+3 slashing.<br><br><strong>Reaction:</strong> Impose disadvantage on an enemy attacking an ally next to you."
+                "id": "e1-classic",
+                "name": "E1 Batam - Classic",
+                "characters": [
+                    {
+                        "name": "TRUMPhet", "class": "Fighter", "level": 3, "color": "#FF8C42",
+                        "vitals": { "ac": 16, "hp": 28, "maxHp": 28, "init": "+1", "speed": "30ft" },
+                        "stats": { "str": 16, "dex": 12, "con": 14, "int": 8, "wis": 10, "cha": 13 },
+                        "resources": [{ "label": "Action Surge", "max": 1, "used": 0 }, { "label": "Second Wind", "max": 1, "used": 0 }],
+                        "features": ["Fighting Style: Protection", "Second Wind (Heal 1d10+3)"],
+                        "actions": "<strong>Greatsword:</strong> +5 to hit, 2d6+3 slashing.<br><br><strong>Reaction:</strong> Impose disadvantage on an enemy attacking an ally next to you."
+                    },
+                    {
+                        "name": "Knowledge", "class": "Sorcerer", "level": 3, "color": "#2979FF",
+                        "vitals": { "ac": 12, "hp": 20, "maxHp": 20, "init": "+2", "speed": "30ft" },
+                        "stats": { "str": 8, "dex": 14, "con": 13, "int": 10, "wis": 12, "cha": 16 },
+                        "resources": [{ "label": "Sorcery Points", "max": 3, "used": 0 }, { "label": "L1 Slots", "max": 4, "used": 0 }, { "label": "L2 Slots", "max": 2, "used": 0 }],
+                        "features": ["Metamagic: Twinned Spell", "Metamagic: Quickened Spell"],
+                        "actions": "<strong>Mind Sliver:</strong> DC 13 Int Save. 1d6 psychic damage + target subtracts 1d4 from next save.<br><br><strong>Magic Missile:</strong> 3 darts, 1d4+1 force damage each (always hits)."
+                    },
+                    {
+                        "name": "Vanilla", "class": "Sorcerer", "subclass": "Wild Magic", "level": 3, "color": "#FF6B95",
+                        "vitals": { "ac": 12, "hp": 20, "maxHp": 20, "init": "+2", "speed": "30ft" },
+                        "stats": { "str": 8, "dex": 14, "con": 12, "int": 10, "wis": 13, "cha": 16 },
+                        "resources": [{ "label": "Sorcery Points", "max": 3, "used": 0 }, { "label": "Tides of Chaos", "max": 1, "used": 0 }, { "label": "L1 Slots", "max": 4, "used": 0 }, { "label": "L2 Slots", "max": 2, "used": 0 }],
+                        "features": ["Wild Magic Surge", "Tides of Chaos (Gain Advantage)"],
+                        "actions": "<strong>Fire Bolt:</strong> +5 to hit, 1d10 fire damage.<br><br><strong>Shield (Reaction):</strong> Add +5 to your AC until your next turn."
+                    }
+                ]
             },
             {
-                name: "Knowledge", class: "Sorcerer", level: 3, color: "#2979FF", customImg: null,
-                vitals: { ac: 12, init: "+2", speed: "30ft", hp: 20, maxHp: 20 },
-                stats: { STR: [8, "-1"], DEX: [14, "+2"], CON: [13, "+1"], INT: [10, "+0"], WIS: [12, "+1"], CHA: [16, "+3"] },
-                resources: ["Sorcery Points [ ] [ ] [ ]", "L1 Slots [ ][ ][ ][ ]", "L2 Slots [ ][ ]"],
-                features: ["Metamagic: Twinned Spell", "Metamagic: Quickened Spell"],
-                actions: "<strong>Mind Sliver:</strong> DC 13 Int Save. 1d6 psychic damage + target subtracts 1d4 from next save.<br><br><strong>Magic Missile:</strong> 3 darts, 1d4+1 force damage each (always hits)."
-            },
-            {
-                name: "Vanilla", class: "Sorcerer", level: 3, color: "#FF6B95", customImg: null,
-                vitals: { ac: 12, init: "+2", speed: "30ft", hp: 20, maxHp: 20 },
-                stats: { STR: [8, "-1"], DEX: [14, "+2"], CON: [12, "+1"], INT: [10, "+0"], WIS: [13, "+1"], CHA: [16, "+3"] },
-                resources: ["Sorcery Points [ ] [ ] [ ]", "Tides of Chaos [ ]", "L1 Slots [ ][ ][ ][ ]", "L2 Slots [ ][ ]"],
-                features: ["Wild Magic Surge", "Tides of Chaos (Gain Advantage)"],
-                actions: "<strong>Fire Bolt:</strong> +5 to hit, 1d10 fire damage.<br><br><strong>Shield (Reaction):</strong> Add +5 to your AC until your next turn."
+                "id": "tabletop-style",
+                "name": "Tabletop Roster",
+                "characters": [
+                    {
+                        "name": "Xylem", "class": "Fighter", "subclass": "Eldritch Knight", "level": 3, "color": "orange",
+                        "vitals": { "ac": 16, "hp": 28, "maxHp": 28, "init": "+0", "speed": "30ft" },
+                        "stats": { "str": 18, "dex": 10, "con": 14, "int": 16, "wis": 10, "cha": 8 },
+                        "resources": [{ "label": "Action Surge", "max": 1, "used": 0 }, { "label": "1st Level Slots", "max": 2, "used": 0 }],
+                        "features": ["Great Weapon Fighting", "Action Surge", "Weapon Bond"],
+                        "quote": "Raised by a pastor, but the sword called louder than the sermon.",
+                        "gear": "Chain Mail\nHandaxe x2\nScholars Pack",
+                        "actions": "**Greatsword**: +6 to hit, 2d6+4 Slashing.\n\n**Magic Missile** (1st): Creates 3 darts. 1d4+1 force damage each. Auto-hit.\n\n**Shield** (Reaction): +5 AC until start of next turn."
+                    },
+                    {
+                        "name": "Fumiko", "class": "Druid", "subclass": "Spore Druid", "level": 3, "color": "green",
+                        "vitals": { "ac": 13, "hp": 24, "maxHp": 24, "init": "+1", "speed": "30ft" },
+                        "stats": { "str": 8, "dex": 12, "con": 14, "int": 10, "wis": 16, "cha": 14 },
+                        "resources": [{ "label": "Wild Shape", "max": 2, "used": 0 }, { "label": "1st Level Slots", "max": 4, "used": 0 }],
+                        "features": ["Halo of Spores", "Symbiotic Entity", "Wild Shape"],
+                        "quote": "From Mushroom Town. Her hat is a living colony.",
+                        "gear": "Leather Armor\nWooden Shield",
+                        "actions": "**Shillelagh**: 1d8+3 dmg.\n**Halo of Spores**: 1d4 Necrotic."
+                    }
+                ]
             }
         ];
 
-        let characters = JSON.parse(localStorage.getItem('characters')) || defaultCharacters;
+        let currentCampaignId = '';
+        let currentCharIndex = 0;
+        let isEditMode = false;
+        let characters = [];
+
+        async function initApp() {
+            try {
+                const response = await fetch('data/campaigns.json');
+                if (response.ok) {
+                    const data = await response.json();
+                    campaigns = data.campaigns;
+                    console.log('Campaigns loaded from JSON');
+                }
+            } catch (error) {
+                console.warn('CORS or Fetch error. Using embedded fallback data.', error);
+            }
+
+            renderCampaignSelector();
+            currentCampaignId = campaigns[0].id;
+            loadCampaignCharacters();
+        }
+
+        function renderCampaignSelector() {
+            const selector = document.getElementById('campaign-selector');
+            selector.innerHTML = '';
+            campaigns.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.name;
+                selector.appendChild(opt);
+            });
+        }
+
+        function loadCampaignCharacters() {
+            const campaign = campaigns.find(c => c.id === currentCampaignId);
+            if (campaign) {
+                characters = campaign.characters;
+                currentCharIndex = 0;
+                renderCharacter(0);
+            }
+        }
+
+        function changeCampaign(id) {
+            if (isEditMode) {
+                if (!confirm("Discard unsaved changes?")) {
+                    document.getElementById('campaign-selector').value = currentCampaignId;
+                    return;
+                }
+                toggleEditMode();
+            }
+            currentCampaignId = id;
+            loadCampaignCharacters();
+        }
+
+
 
         function saveToStorage() {
             localStorage.setItem('characters', JSON.stringify(characters));
@@ -370,7 +484,17 @@
 
             document.getElementById('char-name').innerText = char.name;
             document.getElementById('char-label').innerText = `LV ${char.level} ${char.class}`;
-            document.getElementById('char-label').style.backgroundColor = char.color;
+
+            const colorMap = {
+                'orange': '#FF8C42',
+                'green': '#00E676',
+                'blue': '#2979FF',
+                'pink': '#FF6B95',
+                'dark': '#1e293b',
+                'purple': '#9333ea'
+            };
+            const charColor = colorMap[char.color] || char.color;
+            document.getElementById('char-label').style.backgroundColor = charColor;
 
             const imgEl = document.getElementById('char-img');
             const placeholder = document.getElementById('upload-placeholder');
@@ -391,25 +515,51 @@
             const statsGrid = document.getElementById('stats-grid');
             statsGrid.innerHTML = '';
             for (const [key, val] of Object.entries(char.stats)) {
+                const score = Array.isArray(val) ? val[0] : val;
+                const mod = Array.isArray(val) ? val[1] : (score >= 10 ? `+${Math.floor((score - 10) / 2)}` : Math.floor((score - 10) / 2));
                 statsGrid.innerHTML += `
                     <div class="stat-box transition-transform hover:-translate-y-1">
                         <p class="text-[10px] font-bold text-slate-500 uppercase">${key}</p>
-                        <input type="number" value="${val[0]}" class="edit-stat-input hidden w-full text-center bg-transparent text-xl font-bold font-title text-slate-800 dark:text-white outline-none">
-                        <p class="view-stat-val text-xl font-bold font-title text-slate-800 dark:text-white">${val[0]}</p>
-                        <p class="text-xs font-bold text-[#2979FF]">${val[1]}</p>
+                        <input type="number" value="${score}" class="edit-stat-input hidden w-full text-center bg-transparent text-xl font-bold font-title text-slate-800 dark:text-white outline-none">
+                        <p class="view-stat-val text-xl font-bold font-title text-slate-800 dark:text-white">${score}</p>
+                        <p class="text-xs font-bold text-[#2979FF]">${mod}</p>
                     </div>
                 `;
             }
 
-            document.getElementById('view-resources').innerHTML = char.resources.map(r =>
-                `<span class="border-3 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1 rounded-xl text-sm text-slate-700 dark:text-slate-300 font-bold">${r}</span>`
-            ).join('');
+            document.getElementById('view-resources').innerHTML = char.resources.map(r => {
+                const label = typeof r === 'string' ? r : r.label;
+                return `<span class="border-3 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1 rounded-xl text-sm text-slate-700 dark:text-slate-300 font-bold">${label}</span>`;
+            }).join('');
 
             document.getElementById('view-features').innerHTML = char.features.length ? char.features.map(f =>
                 `<div class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-5 h-5 text-[#00E676] shrink-0 mt-0.5"></i> <span>${f}</span></div>`
             ).join('') : '<p class="text-slate-400 italic">No features listed</p>';
 
-            document.getElementById('view-actions').innerHTML = char.actions || '<p class="text-slate-400 italic">No actions listed</p>';
+            if (char.quote) {
+                document.getElementById('section-quote').classList.remove('hidden');
+                document.getElementById('view-quote').innerText = `"${char.quote}"`;
+            } else {
+                document.getElementById('section-quote').classList.add('hidden');
+            }
+
+            if (char.gear) {
+                document.getElementById('section-gear').classList.remove('hidden');
+                document.getElementById('view-gear').innerText = char.gear;
+            } else {
+                document.getElementById('section-gear').classList.add('hidden');
+            }
+
+            const formatActions = (text) => {
+                if (!text) return '<p class="text-slate-400 italic">No actions listed</p>';
+                // Convert **bold** to <strong> and handle newlines if not HTML
+                if (!text.includes('<')) {
+                    text = text.replace(/\n/g, '<br>');
+                }
+                return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            };
+
+            document.getElementById('view-actions').innerHTML = formatActions(char.actions);
 
             lucide.createIcons();
         }
@@ -564,7 +714,7 @@
             }
         }
 
-        renderCharacter(currentCharIndex);
+        initApp();
     </script>
 </body>
 
