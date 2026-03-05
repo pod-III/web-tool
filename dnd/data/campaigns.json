@@ -1,8 +1,8 @@
 {
     "campaigns": [
         {
-            "id": "e1-classic",
-            "name": "E1 Batam - Classic",
+            "id": "fr11",
+            "name": "FR11",
             "characters": [
                 {
                     "name": "TRUMPhet",
@@ -135,12 +135,100 @@
                         "Tides of Chaos (Gain Advantage)"
                     ],
                     "actions": "<strong>Fire Bolt:</strong> +5 to hit, 1d10 fire damage.<br><br><strong>Shield (Reaction):</strong> Add +5 to your AC until your next turn."
+                },
+                {
+                    "name": "Alicia putri",
+                    "class": "Bard",
+                    "subclass": "",
+                    "level": 3,
+                    "color": "#00E676",
+                    "vitals": {
+                        "ac": 13,
+                        "hp": 21,
+                        "maxHp": 21,
+                        "init": "+2",
+                        "speed": "30ft"
+                    },
+                    "stats": {
+                        "str": 8,
+                        "dex": 14,
+                        "con": 12,
+                        "int": 10,
+                        "wis": 13,
+                        "cha": 16
+                    },
+                    "resources": [
+                        {
+                            "label": "Inspirations (d6)",
+                            "max": 3,
+                            "used": 0
+                        },
+                        {
+                            "label": "L1 Slots",
+                            "max": 4,
+                            "used": 0
+                        },
+                        {
+                            "label": "L2 Slots",
+                            "max": 2,
+                            "used": 0
+                        }
+                    ],
+                    "features": [
+                        "Jack of All Trades (+1 to non-proficient skills)",
+                        "Song of Rest (Extra 1d6 heal on short rest)"
+                    ],
+                    "actions": "<strong>Vicious Mockery:</strong> DC 13 Wis Save. 1d4 psychic + disadvantage on next attack.<br><br><strong>Healing Word:</strong> Heal 1d4+3 (Bonus Action)."
+                },
+                {
+                    "name": "Maltoves",
+                    "class": "Druid",
+                    "subclass": "Moon",
+                    "level": 3,
+                    "color": "#FF8C42",
+                    "vitals": {
+                        "ac": 14,
+                        "hp": 24,
+                        "maxHp": 24,
+                        "init": "+1",
+                        "speed": "30ft"
+                    },
+                    "stats": {
+                        "str": 10,
+                        "dex": 12,
+                        "con": 14,
+                        "int": 13,
+                        "wis": 16,
+                        "cha": 8
+                    },
+                    "resources": [
+                        {
+                            "label": "Wild Shapes",
+                            "max": 2,
+                            "used": 0
+                        },
+                        {
+                            "label": "L1 Slots",
+                            "max": 4,
+                            "used": 0
+                        },
+                        {
+                            "label": "L2 Slots",
+                            "max": 2,
+                            "used": 0
+                        }
+                    ],
+                    "features": [
+                        "Combat Wild Shape (Transform as Bonus Action)",
+                        "Circle of the Moon"
+                    ],
+                    "actions": "<strong>Shillelagh:</strong> +5 to hit, 1d8+3 magic bludgeoning.<br><br><strong>Entangle:</strong> DC 13 Str Save. 20ft square of restrained weeds."
                 }
             ]
         },
         {
-            "id": "tabletop-style",
-            "name": "Tabletop Roster",
+            "id": "FR8",
+            "name": "FR8",
             "characters": [
                 {
                     "id": 1,
