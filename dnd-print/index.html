@@ -9,8 +9,7 @@
     <!-- Fonts: Fredoka & Nunito -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Nunito:wght@200..900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -28,23 +27,32 @@
     <!-- Design System Configuration -->
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
+                        stone: {
+                            900: '#1c1917',
+                            950: '#0c0a09',
+                        },
+                        amber: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            900: '#78350f',
+                        },
                         pink: '#FF6B95',
                         orange: '#FF8C42',
                         green: '#00E676',
                         blue: '#2979FF',
-                        dark: '#1e293b',
-                        chalk: '#f8fafc',
+                        dark: '#1c1917',
+                        chalk: '#f5f5f4',
                     },
                     fontFamily: {
-                        heading: ['Fredoka', 'sans-serif'],
-                        body: ['Nunito', 'sans-serif'],
+                        heading: ['Cinzel', 'serif'],
+                        body: ['Lora', 'serif'],
                     },
                     boxShadow: {
-                        'neo': '4px 4px 0px 0px rgba(30, 41, 59, 1)',
+                        'neo': '0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                     }
                 }
             }
@@ -54,11 +62,9 @@
     <style>
         /* Graph Paper Background */
         body {
-            background-color: #f8fafc;
-            background-image:
-                linear-gradient(rgba(30, 41, 59, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(30, 41, 59, 0.05) 1px, transparent 1px);
-            background-size: 20px 20px;
+            background-color: #0c0a09;
+            background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+            color: #d6d3d1; /* stone-300 */
         }
 
         /* Print Specific Styles */
@@ -109,7 +115,7 @@
     </style>
 </head>
 
-<body class="text-dark font-body antialiased">
+<body class="text-stone-300 font-body antialiased">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -154,13 +160,13 @@
 
         const Button = ({ children, onClick, color = 'blue', className = '', iconName, disabled = false }) => {
             const colors = {
-                pink: 'bg-pink text-white border-dark',
-                orange: 'bg-orange text-white border-dark',
-                green: 'bg-green text-dark border-dark',
-                blue: 'bg-blue text-white border-dark',
-                dark: 'bg-dark text-white border-slate-600',
-                white: 'bg-white text-dark border-dark',
-                gray: 'bg-gray-200 text-gray-400 border-gray-400'
+                pink: 'bg-amber-700 text-stone-100 border-amber-900/50',
+                orange: 'bg-amber-700 text-stone-100 border-amber-900/50',
+                green: 'bg-amber-700 text-stone-100 border-amber-900/50',
+                blue: 'bg-amber-700 text-stone-100 border-amber-900/50',
+                dark: 'bg-stone-800 text-amber-500 border-amber-900/50 hover:bg-stone-700',
+                white: 'bg-stone-900 text-stone-300 border-amber-900/50',
+                gray: 'bg-stone-800 text-stone-500 border-stone-700'
             };
 
             const activeClass = disabled ? colors.gray : colors[color];
@@ -192,18 +198,18 @@
         const Card = ({ children, title, color = 'white', className = '' }) => (
             <div className={`
                 bg-${color} 
-                border-3 border-dark 
+                border-3 border-amber-900/50 
                 rounded-2xl 
                 shadow-neo 
                 overflow-hidden
                 ${className}
             `}>
                 {title && (
-                    <div className="bg-dark p-3 border-b-3 border-dark">
+                    <div className="bg-stone-800 border-b border-amber-900/50 p-3 border-b-3 border-amber-900/50">
                         <h3 className="text-white font-heading font-bold text-xl">{title}</h3>
                     </div>
                 )}
-                <div className="p-4 md:p-6 bg-white">
+                <div className="p-4 md:p-6 bg-stone-900">
                     {children}
                 </div>
             </div>
@@ -322,12 +328,12 @@
             return (
                 <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 no-print">
-                        <Card title="1. Upload Map" color="blue">
+                        <Card title="1. Upload Map" color="dark">
                             <div className="flex flex-col gap-4">
-                                <label className="flex flex-col items-center justify-center w-full h-32 border-4 border-dashed border-blue-300 rounded-xl cursor-pointer bg-blue-50 hover:bg-blue-100 transition">
+                                <label className="flex flex-col items-center justify-center w-full h-32 border-4 border-dashed border-amber-900/50 rounded-xl cursor-pointer bg-stone-800 hover:bg-stone-700 transition">
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <Icon name="Upload" className="w-8 h-8 text-blue-500 mb-2" />
-                                        <p className="text-sm text-blue-700 font-bold">Click to upload map image</p>
+                                        <Icon name="Upload" className="w-8 h-8 text-amber-500 mb-2" />
+                                        <p className="text-sm text-amber-600 font-bold">Click to upload map image</p>
                                     </div>
                                     <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
                                 </label>
@@ -335,29 +341,29 @@
                                 {image && (
                                     <div className="space-y-4">
                                         {/* Page Settings Container */}
-                                        <div className="bg-blue-50 p-4 rounded-xl border-2 border-blue-100 flex flex-col gap-4">
+                                        <div className="bg-stone-800 p-4 rounded-xl border-2 border-amber-900/50 flex flex-col gap-4">
 
                                             {/* Orientation Toggle */}
                                             <div className="flex gap-2">
                                                 <button
                                                     onClick={() => setOrientation('portrait')}
-                                                    className={`flex-1 py-2 px-3 rounded-lg border-2 font-bold flex items-center justify-center gap-2 transition-all ${orientation === 'portrait' ? 'bg-blue text-white border-dark shadow-neo' : 'bg-white text-slate-500 border-slate-300'}`}
+                                                    className={`flex-1 py-2 px-3 rounded-lg border-2 font-bold flex items-center justify-center gap-2 transition-all ${orientation === 'portrait' ? 'bg-blue text-white border-amber-900/50 shadow-neo' : 'bg-stone-900 text-slate-500 border-slate-300'}`}
                                                 >
                                                     <Icon name="File" size={20} /> Portrait
                                                 </button>
                                                 <button
                                                     onClick={() => setOrientation('landscape')}
-                                                    className={`flex-1 py-2 px-3 rounded-lg border-2 font-bold flex items-center justify-center gap-2 transition-all ${orientation === 'landscape' ? 'bg-blue text-white border-dark shadow-neo' : 'bg-white text-slate-500 border-slate-300'}`}
+                                                    className={`flex-1 py-2 px-3 rounded-lg border-2 font-bold flex items-center justify-center gap-2 transition-all ${orientation === 'landscape' ? 'bg-blue text-white border-amber-900/50 shadow-neo' : 'bg-stone-900 text-slate-500 border-slate-300'}`}
                                                 >
                                                     <Icon name="File" className="rotate-90" size={20} /> Landscape
                                                 </button>
                                             </div>
 
-                                            <div className="h-px bg-blue-200"></div>
+                                            <div className="h-px border-amber-900/50 text-amber-500"></div>
 
                                             {/* Page Width Stepper */}
                                             <div>
-                                                <label className="font-bold text-dark block mb-2 text-sm uppercase tracking-wider">Map Width (Pages)</label>
+                                                <label className="font-bold text-stone-300 block mb-2 text-sm uppercase tracking-wider">Map Width (Pages)</label>
                                                 <div className="flex items-center gap-3">
                                                     <Button
                                                         onClick={() => setScaleX(curr => Math.max(1, curr - 1))}
@@ -368,9 +374,9 @@
                                                         <Icon name="Minus" size={20} />
                                                     </Button>
 
-                                                    <div className="flex-1 bg-white border-2 border-slate-300 rounded-lg h-12 flex items-center justify-center shadow-inner">
-                                                        <span className="font-heading font-bold text-2xl text-dark">{scaleX}</span>
-                                                        <span className="ml-2 text-slate-400 font-bold text-sm">PAGES WIDE</span>
+                                                    <div className="flex-1 bg-stone-900 border-2 border-slate-300 rounded-lg h-12 flex items-center justify-center shadow-inner">
+                                                        <span className="font-heading font-bold text-2xl text-stone-300">{scaleX}</span>
+                                                        <span className="ml-2 text-stone-500 font-bold text-sm">PAGES WIDE</span>
                                                     </div>
 
                                                     <Button
@@ -389,8 +395,8 @@
                             </div>
                         </Card>
 
-                        <Card title="Instructions" color="chalk">
-                            <ul className="list-disc list-inside space-y-3 text-slate-600 font-medium">
+                        <Card title="Instructions" color="dark">
+                            <ul className="list-disc list-inside space-y-3 text-stone-400 font-medium">
                                 <li><strong>Orientation:</strong> If you choose Landscape here, change your Printer Layout to Landscape too.</li>
                                 <li><strong>Scaling:</strong> Increase "Map Width" to split the image across more pieces of paper (zooms in).</li>
                                 <li><strong>Grid:</strong> The overlay grid is exactly <strong>23mm</strong> (Rp 100 Coin size).</li>
@@ -417,7 +423,7 @@
                     {processing && <div className="text-center font-bold text-xl text-blue animate-pulse py-12">Processing Map Slices...</div>}
 
                     {!processing && slices.length > 0 && (
-                        <div className="flex flex-col items-center gap-8 bg-slate-200 p-8 rounded-2xl border-4 border-slate-300 border-dashed">
+                        <div className="flex flex-col items-center gap-8 bg-stone-900 p-8 rounded-2xl border-4 border-slate-300 border-dashed">
                             <div className="no-print w-full flex justify-between items-center mb-4">
                                 <h3 className="text-2xl font-heading font-bold">Preview ({slices.length} Pages)</h3>
                                 <Button onClick={() => window.print()} color="green" iconName="Printer">Print Map</Button>
@@ -427,7 +433,7 @@
                             {slices.map((slice, idx) => (
                                 <div key={idx} className="print-page-wrapper relative group">
                                     {/* Screen Preview Label */}
-                                    <div className="absolute -left-12 top-0 font-bold text-slate-400 no-print group-hover:text-blue transition-colors">P{idx + 1}</div>
+                                    <div className="absolute -left-12 top-0 font-bold text-stone-500 no-print group-hover:text-blue transition-colors">P{idx + 1}</div>
 
                                     {/* The page-preview class handles the visual border/shadow on screen */}
                                     {/* The style block strictly sets mm dimensions for 1:1 screen preview */}
@@ -475,24 +481,24 @@
             return (
                 <div className="space-y-6">
                     <div className="no-print grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card title="Add Tokens" color="pink">
-                            <label className="flex flex-col items-center justify-center w-full h-32 border-4 border-dashed border-pink-300 rounded-xl cursor-pointer bg-pink-50 hover:bg-pink-100 transition">
+                        <Card title="Add Tokens" color="dark">
+                            <label className="flex flex-col items-center justify-center w-full h-32 border-4 border-dashed border-amber-900/50 rounded-xl cursor-pointer bg-stone-800 hover:bg-stone-700 transition">
                                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <Icon name="Circle" className="w-8 h-8 text-pink-500 mb-2" />
-                                    <p className="text-sm text-pink-700 font-bold">Upload Character Images</p>
+                                    <Icon name="Circle" className="w-8 h-8 text-amber-500 mb-2" />
+                                    <p className="text-sm text-amber-600 font-bold">Upload Character Images</p>
                                 </div>
                                 <input type="file" multiple className="hidden" accept="image/*" onChange={addToken} />
                             </label>
                         </Card>
 
-                        <Card title="Token Settings" color="chalk">
-                            <div className="space-y-2 text-slate-600 font-medium">
+                        <Card title="Token Settings" color="dark">
+                            <div className="space-y-2 text-stone-400 font-medium">
                                 <div className="flex items-center gap-2">
-                                    <div className="w-6 h-6 rounded-full bg-pink border-2 border-dark"></div>
+                                    <div className="w-6 h-6 rounded-full bg-pink border-2 border-amber-900/50"></div>
                                     <span>Small = Rp 100 Coin (23mm)</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-full bg-blue border-2 border-dark"></div>
+                                    <div className="w-8 h-8 rounded-full bg-blue border-2 border-amber-900/50"></div>
                                     <span>Large = Rp 500 Coin (27mm)</span>
                                 </div>
                                 <p className="text-sm mt-2">Click a token in the preview to toggle size.</p>
@@ -501,7 +507,7 @@
                     </div>
 
                     {tokens.length > 0 && (
-                        <div className="flex flex-col items-center bg-slate-200 p-8 rounded-2xl border-4 border-slate-300 border-dashed">
+                        <div className="flex flex-col items-center bg-stone-900 p-8 rounded-2xl border-4 border-slate-300 border-dashed">
                             <div className="no-print w-full flex justify-between items-center mb-4">
                                 <h3 className="text-2xl font-heading font-bold">Token Sheet Preview</h3>
                                 <div className="flex gap-2">
@@ -550,10 +556,10 @@
             return (
                 <div className="min-h-screen pb-20">
                     {/* Header - Hidden on Print */}
-                    <header className="bg-dark text-white p-4 border-b-4 border-slate-700 mb-8 no-print">
+                    <header className="bg-stone-800 border-b border-amber-900/50 text-white p-4 border-b-4 border-slate-700 mb-8 no-print">
                         <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex items-center gap-3">
-                                <a href="../index.html" className="text-slate-400 hover:text-white transition-colors mr-2 pt-1" title="Back to Home">
+                                <a href="../index.html" className="text-stone-500 hover:text-white transition-colors mr-2 pt-1" title="Back to Home">
                                     <Icon name="Home" size={28} />
                                 </a>
                                 <Icon name="Scissors" className="w-8 h-8 text-pink" />
@@ -589,7 +595,7 @@
                     </main>
 
                     {/* Footer / Instructions */}
-                    <footer className="no-print text-center mt-12 text-slate-400 text-sm">
+                    <footer className="no-print text-center mt-12 text-stone-500 text-sm">
                         <p>Built for Fahrul in Batam • Fits Rp 100 & Rp 500 Coins</p>
                     </footer>
                 </div>
