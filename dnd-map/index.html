@@ -97,6 +97,49 @@
                 opacity: 0;
             }
         }
+
+        #token-context-menu {
+            position: fixed;
+            z-index: 100;
+            min-width: 180px;
+            background: #1c1917;
+            border: 2px solid #78350f;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 16px rgba(217, 119, 6, 0.15);
+            padding: 6px 0;
+            font-family: 'Lora', serif;
+        }
+
+        #token-context-menu .ctx-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            font-size: 13px;
+            color: #d6d3d1;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        #token-context-menu .ctx-item:hover {
+            background: #292524;
+            color: #fde68a;
+        }
+
+        #token-context-menu .ctx-divider {
+            height: 1px;
+            background: #78350f44;
+            margin: 4px 0;
+        }
+
+        #token-context-menu .ctx-item.danger {
+            color: #ef4444;
+        }
+
+        #token-context-menu .ctx-item.danger:hover {
+            background: #450a0a;
+            color: #fca5a5;
+        }
     </style>
 </head>
 
@@ -127,15 +170,37 @@
                         class="text-xs font-semibold text-amber-600 uppercase tracking-widest flex items-center gap-2 font-cinzel">
                         <i data-lucide="map" class="w-4 h-4"></i> Cartography
                     </h2>
-                    <select id="map-select"
-                        class="w-full bg-stone-950 border border-amber-900/50 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500 text-stone-300 font-lora">
-                        <option value="">-- Select Map --</option>
-                    </select>
-                    <label
-                        class="flex items-center justify-center gap-2 w-full cursor-pointer bg-stone-800 hover:bg-stone-700 transition-colors p-3 rounded text-sm font-medium border border-stone-700 tracking-wider">
-                        <i data-lucide="image-plus" class="w-4 h-4"></i> Upload Map
-                        <input type="file" id="map-upload" accept="image/*" class="sr-only">
-                    </label>
+                    <div class="flex gap-2">
+                        <select id="map-select"
+                            class="flex-1 bg-stone-950 border border-amber-900/50 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-500 text-stone-300 font-lora">
+                            <option value="">-- Select Map --</option>
+                        </select>
+                        <button id="btn-delete-map" title="Delete Current Map"
+                            class="bg-red-900/60 hover:bg-red-800 transition-colors p-2 rounded border border-red-700/50 flex items-center justify-center">
+                            <i data-lucide="trash-2" class="w-4 h-4 text-red-400"></i>
+                        </button>
+                    </div>
+                    <div class="flex gap-2">
+                        <label for="map-upload"
+                            class="flex-1 flex items-center justify-center gap-2 cursor-pointer bg-stone-800 hover:bg-stone-700 transition-colors p-3 rounded text-sm font-medium border border-stone-700 tracking-wider">
+                            <i data-lucide="image-plus" class="w-4 h-4"></i> Upload Map
+                            <input type="file" id="map-upload" accept="image/*" class="sr-only">
+                        </label>
+                        <button id="btn-fit-map" title="Fit Map to Screen"
+                            class="bg-stone-800 hover:bg-stone-700 transition-colors p-3 rounded border border-stone-700 flex items-center justify-center">
+                            <i data-lucide="maximize" class="w-4 h-4 text-stone-300"></i>
+                        </button>
+                        <button id="btn-rotate-map" title="Rotate Map 90°"
+                            class="bg-stone-800 hover:bg-stone-700 transition-colors p-3 rounded border border-stone-700 flex items-center justify-center">
+                            <i data-lucide="rotate-cw" class="w-4 h-4 text-stone-300"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <label class="text-xs text-stone-400 whitespace-nowrap">Grid</label>
+                        <input type="range" id="grid-size-input" min="20" max="120" value="50"
+                            class="flex-1 accent-amber-600 h-1 cursor-pointer">
+                        <span id="grid-size-value" class="text-xs text-amber-500 font-mono w-8 text-right">50</span>
+                    </div>
                 </section>
 
                 <section class="space-y-4">
@@ -145,7 +210,7 @@
                     </h2>
                     <input type="text" id="token-name" placeholder="Character Name..."
                         class="w-full bg-stone-950 border border-amber-900/50 rounded px-4 py-2 text-sm focus:outline-none focus:border-amber-500 transition-colors font-lora italic">
-                    <label
+                    <label for="token-upload"
                         class="flex w-full cursor-pointer bg-amber-700 hover:bg-amber-600 transition-colors p-3 rounded text-center text-sm font-medium shadow-lg shadow-amber-900/20 items-center justify-center gap-2 border border-amber-500/30 tracking-wider">
                         <i data-lucide="plus" class="w-4 h-4"></i> Place Miniature
                         <input type="file" id="token-upload" accept="image/*" class="sr-only">
@@ -161,18 +226,44 @@
                         <button id="tool-drag"
                             class="bg-stone-800 hover:bg-stone-700 border border-stone-700 p-3 rounded transition-colors flex items-center justify-start gap-3 ring-2 ring-amber-500 font-lora">
                             <i data-lucide="hand" class="w-4 h-4 text-stone-400"></i> Move Minis
+                            <span class="ml-auto text-[10px] text-stone-500 font-mono">D</span>
                         </button>
                         <button id="tool-pan"
                             class="bg-stone-800 hover:bg-stone-700 border border-stone-700 p-3 rounded transition-colors flex items-center justify-start gap-3 font-lora">
                             <i data-lucide="move" class="w-4 h-4 text-stone-400"></i> Pan Canvas
+                            <span class="ml-auto text-[10px] text-stone-500 font-mono">P</span>
                         </button>
                         <button id="tool-fog-draw"
                             class="bg-stone-800 hover:bg-stone-700 border border-stone-700 p-3 rounded transition-colors flex items-center justify-start gap-3 font-lora">
                             <i data-lucide="cloud-fog" class="w-4 h-4 text-stone-400"></i> Draw Darkness
+                            <span class="ml-auto text-[10px] text-stone-500 font-mono">F</span>
+                        </button>
+                        <button id="tool-fog-rect"
+                            class="bg-stone-800 hover:bg-stone-700 border border-stone-700 p-3 rounded transition-colors flex items-center justify-start gap-3 font-lora">
+                            <i data-lucide="square" class="w-4 h-4 text-stone-400"></i> Draw Rect Darkness
+                            <span class="ml-auto text-[10px] text-stone-500 font-mono">R</span>
                         </button>
                         <button id="tool-fog-toggle"
                             class="bg-stone-800 hover:bg-stone-700 border border-stone-700 p-3 rounded transition-colors flex items-center justify-start gap-3 font-lora">
                             <i data-lucide="eye" class="w-4 h-4 text-stone-400"></i> Reveal/Hide Area
+                            <span class="ml-auto text-[10px] text-stone-500 font-mono">T</span>
+                        </button>
+                        <button id="tool-grid-toggle"
+                            class="bg-stone-800 hover:bg-stone-700 border border-stone-700 p-3 rounded transition-colors flex items-center justify-start gap-3 font-lora">
+                            <i data-lucide="grid-3x3" class="w-4 h-4 text-stone-400"></i> Toggle Grid
+                            <span class="ml-auto text-[10px] text-stone-500 font-mono">G</span>
+                        </button>
+                    </div>
+                    <div class="flex gap-2 pt-2">
+                        <button id="btn-undo" title="Undo (Ctrl+Z)"
+                            class="flex-1 bg-stone-800 hover:bg-stone-700 border border-stone-700 p-2 rounded text-xs transition-colors flex items-center justify-center gap-1 disabled:opacity-30 disabled:cursor-not-allowed"
+                            disabled>
+                            <i data-lucide="undo-2" class="w-3 h-3"></i> Undo
+                        </button>
+                        <button id="btn-redo" title="Redo (Ctrl+Y)"
+                            class="flex-1 bg-stone-800 hover:bg-stone-700 border border-stone-700 p-2 rounded text-xs transition-colors flex items-center justify-center gap-1 disabled:opacity-30 disabled:cursor-not-allowed"
+                            disabled>
+                            <i data-lucide="redo-2" class="w-3 h-3"></i> Redo
                         </button>
                     </div>
                 </section>
@@ -187,7 +278,7 @@
                             class="flex-1 bg-stone-800 hover:bg-stone-700 border border-stone-700 p-2 rounded text-xs transition-colors flex items-center justify-center gap-1">
                             <i data-lucide="download" class="w-3 h-3"></i> Export
                         </button>
-                        <label
+                        <label for="campaign-import"
                             class="flex-1 cursor-pointer bg-stone-800 hover:bg-stone-700 border border-stone-700 p-2 rounded text-xs transition-colors flex items-center justify-center gap-1 text-center">
                             <i data-lucide="upload" class="w-3 h-3"></i> Import
                             <input type="file" id="campaign-import" accept=".json" class="sr-only">
@@ -200,6 +291,7 @@
         <main id="canvas-wrapper">
             <div id="canvas-container">
                 <canvas id="layer-map"></canvas>
+                <canvas id="layer-grid"></canvas>
                 <canvas id="layer-token"></canvas>
                 <canvas id="layer-fog"></canvas>
             </div>
@@ -221,6 +313,17 @@
                     class="px-4 py-2 bg-amber-700 hover:bg-amber-600 rounded text-white shadow-lg shadow-amber-900/20 transition-colors">Confirm</button>
             </div>
         </div>
+    </div>
+
+    <!-- Token Context Menu -->
+    <div id="token-context-menu" class="hidden">
+        <div class="ctx-item" data-action="rename"><i data-lucide="pencil" class="w-3.5 h-3.5"></i> Rename</div>
+        <div class="ctx-item" data-action="resize-up"><i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i> Size Up
+        </div>
+        <div class="ctx-item" data-action="resize-down"><i data-lucide="arrow-down-left" class="w-3.5 h-3.5"></i> Size
+            Down</div>
+        <div class="ctx-divider"></div>
+        <div class="ctx-item danger" data-action="delete"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete</div>
     </div>
 
     <script>
@@ -271,6 +374,16 @@
             if (cb) cb(val);
         };
 
+        function showConfirm(title, message, callback) {
+            closeModals();
+            mTitle.innerText = title;
+            mMessage.innerText = message;
+            mMessage.classList.remove('hidden');
+            mCancel.classList.remove('hidden');
+            modal.classList.remove('hidden');
+            modalCallback = () => callback(true);
+        }
+
         // --- State Management ---
         let isDMMode = true;
         let currentTool = 'drag';
@@ -281,6 +394,7 @@
         let tokens = [];
         let fogShapes = [];
         let currentDrawPoints = [];
+        let isGridVisible = false;
 
         let transform = { x: 0, y: 0, scale: 1 };
         let activePointers = new Map();
@@ -291,16 +405,75 @@
         let activeToken = null;
         let isDrawing = false;
         let longPressTimer = null;
-        const gridSize = 50;
+        let gridSize = 50;
+
+        // --- Undo/Redo History ---
+        let history = [];
+        let historyIndex = -1;
+        const MAX_HISTORY = 50;
+
+        function snapshotState() {
+            return {
+                tokens: tokens.map(t => ({ id: t.id, name: t.name, x: t.x, y: t.y, src: t.img.src, size: t.size || 1 })),
+                fogShapes: JSON.parse(JSON.stringify(fogShapes))
+            };
+        }
+
+        function pushHistory() {
+            history = history.slice(0, historyIndex + 1);
+            history.push(snapshotState());
+            if (history.length > MAX_HISTORY) history.shift();
+            historyIndex = history.length - 1;
+            updateUndoRedoButtons();
+        }
+
+        function restoreSnapshot(snap) {
+            fogShapes = JSON.parse(JSON.stringify(snap.fogShapes));
+            tokens = [];
+            snap.tokens.forEach(td => {
+                const tImg = new Image();
+                tImg.onload = () => {
+                    tokens.push({ id: td.id, name: td.name, x: td.x, y: td.y, img: tImg, size: td.size || 1 });
+                    renderTokens();
+                };
+                tImg.src = td.src;
+            });
+            renderTokens(); renderFog();
+            saveCurrentState();
+        }
+
+        function undo() {
+            if (historyIndex <= 0) return;
+            historyIndex--;
+            restoreSnapshot(history[historyIndex]);
+            updateUndoRedoButtons();
+        }
+
+        function redo() {
+            if (historyIndex >= history.length - 1) return;
+            historyIndex++;
+            restoreSnapshot(history[historyIndex]);
+            updateUndoRedoButtons();
+        }
+
+        function updateUndoRedoButtons() {
+            document.getElementById('btn-undo').disabled = historyIndex <= 0;
+            document.getElementById('btn-redo').disabled = historyIndex >= history.length - 1;
+        }
+
+        document.getElementById('btn-undo').addEventListener('click', undo);
+        document.getElementById('btn-redo').addEventListener('click', redo);
 
         // --- Canvas Setup ---
         const wrapper = document.getElementById('canvas-wrapper');
         const container = document.getElementById('canvas-container');
         const mapCanvas = document.getElementById('layer-map');
+        const gridCanvas = document.getElementById('layer-grid');
         const tokenCanvas = document.getElementById('layer-token');
         const fogCanvas = document.getElementById('layer-fog');
 
         const mapCtx = mapCanvas.getContext('2d');
+        const gridCtx = gridCanvas.getContext('2d');
         const tokenCtx = tokenCanvas.getContext('2d');
         const fogCtx = fogCanvas.getContext('2d');
 
@@ -309,21 +482,34 @@
         }
 
         // --- UI Interactions ---
+        // BUG FIX #2: Use remove/add instead of fragile classList.replace
         document.getElementById('mode-toggle').addEventListener('click', (e) => {
             isDMMode = !isDMMode;
             const sidebar = document.getElementById('dm-sidebar');
             const btn = e.currentTarget;
 
+            btn.classList.remove('bg-amber-700', 'hover:bg-amber-600', 'bg-stone-700', 'hover:bg-stone-600');
             if (isDMMode) {
                 sidebar.style.display = 'flex';
                 btn.innerHTML = `<i data-lucide="user" class="w-4 h-4"></i> Enter Player View`;
-                btn.classList.replace('bg-stone-700', 'bg-amber-700');
-                btn.classList.replace('hover:bg-stone-600', 'hover:bg-amber-600');
+                btn.classList.add('bg-amber-700', 'hover:bg-amber-600');
             } else {
                 sidebar.style.display = 'none';
                 btn.innerHTML = `<i data-lucide="shield" class="w-4 h-4"></i> Enter DM View`;
-                btn.classList.replace('bg-amber-700', 'bg-stone-700');
-                btn.classList.replace('hover:bg-amber-600', 'hover:bg-stone-600');
+                btn.classList.add('bg-stone-700', 'hover:bg-stone-600');
+                // Auto-center map when entering player view
+                if (mapImage) {
+                    requestAnimationFrame(() => {
+                        const rect = wrapper.getBoundingClientRect();
+                        const scaleX = rect.width / mapImage.width;
+                        const scaleY = rect.height / mapImage.height;
+                        const newScale = Math.min(scaleX, scaleY) * 0.95;
+                        transform.scale = newScale;
+                        transform.x = (rect.width - mapImage.width * newScale) / 2;
+                        transform.y = (rect.height - mapImage.height * newScale) / 2;
+                        updateTransform();
+                    });
+                }
             }
             lucide.createIcons();
             renderFog();
@@ -331,16 +517,113 @@
 
         function setTool(tool, btnId) {
             currentTool = tool;
-            ['tool-drag', 'tool-pan', 'tool-fog-draw', 'tool-fog-toggle'].forEach(id => {
-                document.getElementById(id).classList.remove('ring-2', 'ring-amber-500');
+            ['tool-drag', 'tool-pan', 'tool-fog-draw', 'tool-fog-toggle', 'tool-fog-rect'].forEach(id => {
+                document.getElementById(id)?.classList.remove('ring-2', 'ring-amber-500');
             });
-            document.getElementById(btnId).classList.add('ring-2', 'ring-amber-500');
+            document.getElementById(btnId)?.classList.add('ring-2', 'ring-amber-500');
         }
 
         document.getElementById('tool-drag').addEventListener('click', () => setTool('drag', 'tool-drag'));
         document.getElementById('tool-pan').addEventListener('click', () => setTool('pan', 'tool-pan'));
         document.getElementById('tool-fog-draw').addEventListener('click', () => setTool('fog-draw', 'tool-fog-draw'));
+        document.getElementById('tool-fog-rect').addEventListener('click', () => setTool('fog-rect', 'tool-fog-rect'));
         document.getElementById('tool-fog-toggle').addEventListener('click', () => setTool('fog-toggle', 'tool-fog-toggle'));
+
+        document.getElementById('tool-grid-toggle').addEventListener('click', () => {
+            isGridVisible = !isGridVisible;
+            renderGrid();
+        });
+
+        // --- Grid Size Customization ---
+        const gridSizeInput = document.getElementById('grid-size-input');
+        const gridSizeValue = document.getElementById('grid-size-value');
+        gridSizeInput.addEventListener('input', (e) => {
+            gridSize = parseInt(e.target.value);
+            gridSizeValue.textContent = gridSize;
+            renderGrid();
+            renderTokens();
+            if (currentMapData) {
+                currentMapData.gridSize = gridSize;
+                saveCurrentState();
+            }
+        });
+
+        // --- Fit and Rotate Map ---
+        document.getElementById('btn-fit-map').addEventListener('click', () => {
+            if (!mapImage) return;
+            const rect = wrapper.getBoundingClientRect();
+            const scaleX = rect.width / mapImage.width;
+            const scaleY = rect.height / mapImage.height;
+            const newScale = Math.min(scaleX, scaleY) * 0.95; // 95% fit
+
+            transform.scale = newScale;
+            transform.x = (rect.width - mapImage.width * newScale) / 2;
+            transform.y = (rect.height - mapImage.height * newScale) / 2;
+            updateTransform();
+        });
+
+        // BUG FIX #7: Store original dimensions and preserve fog winding order
+        document.getElementById('btn-rotate-map').addEventListener('click', () => {
+            if (!mapImage || !currentMapData) return;
+
+            const oldW = mapImage.width;
+            const oldH = mapImage.height;
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = oldH;
+            tempCanvas.height = oldW;
+            const tCtx = tempCanvas.getContext('2d');
+
+            tCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
+            tCtx.rotate(Math.PI / 2);
+            tCtx.drawImage(mapImage, -oldW / 2, -oldH / 2);
+
+            if (currentMapData.tokens) {
+                currentMapData.tokens.forEach(t => {
+                    const nx = oldH - t.y;
+                    const ny = t.x;
+                    t.x = nx;
+                    t.y = ny;
+                });
+            }
+            if (currentMapData.fogShapes) {
+                currentMapData.fogShapes.forEach(shape => {
+                    const newPoints = shape.points.map(p => ({
+                        x: oldH - p.y,
+                        y: p.x
+                    }));
+                    shape.points = newPoints;
+                });
+            }
+
+            currentMapData.data = tempCanvas.toDataURL();
+            saveCurrentState();
+            loadMap(currentMapData.id);
+        });
+
+        // --- Map Delete ---
+        document.getElementById('btn-delete-map').addEventListener('click', () => {
+            if (!currentMapData) {
+                showAlert('No Map', 'No map is currently selected to delete.');
+                return;
+            }
+            showConfirm('Delete Map', `Are you sure you want to delete "${currentMapData.name}"? This cannot be undone.`, () => {
+                const idToDelete = currentMapData.id;
+                const tx = db.transaction('maps', 'readwrite');
+                tx.objectStore('maps').delete(idToDelete);
+                tx.oncomplete = () => {
+                    mapsList = mapsList.filter(m => m.id !== idToDelete);
+                    currentMapData = null;
+                    mapImage = null;
+                    tokens = []; fogShapes = [];
+                    [mapCanvas, gridCanvas, tokenCanvas, fogCanvas].forEach(c => {
+                        c.getContext('2d').clearRect(0, 0, c.width, c.height);
+                    });
+                    updateMapDropdown();
+                    if (mapsList.length > 0) loadMap(mapsList[0].id);
+                    else showAlert('Deleted', 'Map has been removed.');
+                };
+            });
+        });
 
         // --- Database & Multi-Map ---
         const dbName = "ArcaneVTT_DB";
@@ -361,8 +644,9 @@
 
         function saveCurrentState() {
             if (!currentMapData) return;
-            currentMapData.tokens = tokens.map(t => ({ id: t.id, name: t.name, x: t.x, y: t.y, src: t.img.src }));
+            currentMapData.tokens = tokens.map(t => ({ id: t.id, name: t.name, x: t.x, y: t.y, src: t.img.src, size: t.size || 1 }));
             currentMapData.fogShapes = fogShapes;
+            currentMapData.gridSize = gridSize;
 
             const tx = db.transaction('maps', 'readwrite');
             tx.objectStore('maps').put(currentMapData);
@@ -414,7 +698,8 @@
                         name: mapName,
                         data: event.target.result,
                         tokens: [],
-                        fogShapes: []
+                        fogShapes: [],
+                        gridSize: gridSize
                     };
                     saveCurrentState();
 
@@ -438,6 +723,10 @@
 
             tokens = [];
             fogShapes = currentMapData.fogShapes || [];
+            // Restore per-map grid size
+            gridSize = currentMapData.gridSize || 50;
+            gridSizeInput.value = gridSize;
+            gridSizeValue.textContent = gridSize;
             transform = { x: 50, y: 50, scale: 1 };
             updateTransform();
 
@@ -446,36 +735,54 @@
                 mapImage = img;
                 const w = img.width; const h = img.height;
                 container.style.width = w + 'px'; container.style.height = h + 'px';
-                [mapCanvas, tokenCanvas, fogCanvas].forEach(c => { c.width = w; c.height = h; });
+                [mapCanvas, gridCanvas, tokenCanvas, fogCanvas].forEach(c => { c.width = w; c.height = h; });
 
                 if (currentMapData.tokens) {
                     currentMapData.tokens.forEach(td => {
                         const tImg = new Image();
                         tImg.onload = () => {
-                            tokens.push({ id: td.id, name: td.name, x: td.x, y: td.y, img: tImg });
+                            tokens.push({ id: td.id, name: td.name, x: td.x, y: td.y, img: tImg, size: td.size || 1 });
                             renderTokens();
                         };
+                        // BUG FIX #5: Add onerror for token images
+                        tImg.onerror = () => console.warn(`Failed to load token image: ${td.name}`);
                         tImg.src = td.src;
                     });
                 }
-                renderMap(); renderTokens(); renderFog();
+                renderMap(); renderGrid(); renderTokens(); renderFog();
+                // Initialize undo history for this map
+                history = [snapshotState()];
+                historyIndex = 0;
+                updateUndoRedoButtons();
             };
+            // BUG FIX #5: Add onerror for map image
+            img.onerror = () => showAlert('Error', `Failed to load map image for "${currentMapData.name}".`);
             img.src = currentMapData.data;
         }
 
         // --- Export / Import ---
+        // BUG FIX #6: Chain export read after save transaction completes
         document.getElementById('btn-export').addEventListener('click', () => {
-            saveCurrentState();
-            const tx = db.transaction('maps', 'readonly');
-            const req = tx.objectStore('maps').getAll();
-            req.onsuccess = () => {
-                const dataStr = JSON.stringify(req.result);
-                const blob = new Blob([dataStr], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `ArcaneVTT_Backup_${new Date().toISOString().split('T')[0]}.json`;
-                a.click();
+            if (currentMapData) {
+                currentMapData.tokens = tokens.map(t => ({ id: t.id, name: t.name, x: t.x, y: t.y, src: t.img.src, size: t.size || 1 }));
+                currentMapData.fogShapes = fogShapes;
+                currentMapData.gridSize = gridSize;
+            }
+            const saveTx = db.transaction('maps', 'readwrite');
+            if (currentMapData) saveTx.objectStore('maps').put(currentMapData);
+            saveTx.oncomplete = () => {
+                const readTx = db.transaction('maps', 'readonly');
+                const req = readTx.objectStore('maps').getAll();
+                req.onsuccess = () => {
+                    const dataStr = JSON.stringify(req.result);
+                    const blob = new Blob([dataStr], { type: "application/json" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `ArcaneVTT_Backup_${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                };
             };
         });
 
@@ -517,11 +824,14 @@
                     const viewX = (rect.width / 2 - transform.x) / transform.scale;
                     const viewY = (rect.height / 2 - transform.y) / transform.scale;
 
-                    tokens.push({ id: Date.now(), img: img, name: nameInput, x: viewX, y: viewY });
+                    tokens.push({ id: Date.now(), img: img, name: nameInput, x: viewX, y: viewY, size: 1 });
                     renderTokens();
+                    pushHistory();
                     saveCurrentState();
                 };
                 img.src = event.target.result;
+                // BUG FIX: Add onerror for token upload
+                img.onerror = () => showAlert('Error', 'Failed to load the token image.');
             };
             reader.readAsDataURL(file);
             document.getElementById('token-name').value = '';
@@ -535,35 +845,71 @@
             mapCtx.drawImage(mapImage, 0, 0);
         }
 
+        function renderGrid() {
+            gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+            if (!isGridVisible || !mapImage) return;
+
+            gridCtx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+            gridCtx.lineWidth = 1;
+            gridCtx.beginPath();
+            for (let x = 0; x <= gridCanvas.width; x += gridSize) {
+                gridCtx.moveTo(x, 0);
+                gridCtx.lineTo(x, gridCanvas.height);
+            }
+            for (let y = 0; y <= gridCanvas.height; y += gridSize) {
+                gridCtx.moveTo(0, y);
+                gridCtx.lineTo(gridCanvas.width, y);
+            }
+            gridCtx.stroke();
+        }
+
         function renderTokens() {
             tokenCtx.clearRect(0, 0, tokenCanvas.width, tokenCanvas.height);
             tokens.forEach(t => {
+                const tSize = (t.size || 1) * gridSize;
+                const radius = tSize / 2;
+
                 tokenCtx.save();
                 tokenCtx.beginPath();
-                tokenCtx.arc(t.x, t.y, gridSize / 2, 0, Math.PI * 2);
+                tokenCtx.arc(t.x, t.y, radius, 0, Math.PI * 2);
                 tokenCtx.closePath();
                 tokenCtx.clip();
-                tokenCtx.drawImage(t.img, t.x - gridSize / 2, t.y - gridSize / 2, gridSize, gridSize);
+                tokenCtx.drawImage(t.img, t.x - radius, t.y - radius, tSize, tSize);
                 tokenCtx.restore();
 
                 tokenCtx.strokeStyle = '#d97706';
                 tokenCtx.lineWidth = 3;
                 tokenCtx.beginPath();
-                tokenCtx.arc(t.x, t.y, gridSize / 2, 0, Math.PI * 2);
+                tokenCtx.arc(t.x, t.y, radius, 0, Math.PI * 2);
                 tokenCtx.stroke();
+
+                // Size badge for non-standard sizes
+                if ((t.size || 1) > 1) {
+                    const sizeLabels = { 2: 'L', 3: 'H', 4: 'G' };
+                    const label = sizeLabels[t.size] || '';
+                    tokenCtx.fillStyle = 'rgba(217, 119, 6, 0.9)';
+                    tokenCtx.beginPath();
+                    tokenCtx.arc(t.x + radius - 8, t.y - radius + 8, 10, 0, Math.PI * 2);
+                    tokenCtx.fill();
+                    tokenCtx.fillStyle = '#fff';
+                    tokenCtx.font = 'bold 11px Cinzel, serif';
+                    tokenCtx.textAlign = 'center';
+                    tokenCtx.textBaseline = 'middle';
+                    tokenCtx.fillText(label, t.x + radius - 8, t.y - radius + 8);
+                }
 
                 if (t.name) {
                     tokenCtx.fillStyle = 'rgba(12, 10, 9, 0.9)';
+                    tokenCtx.font = '12px Lora, serif';
                     const textWidth = tokenCtx.measureText(t.name).width;
-                    tokenCtx.roundRect(t.x - textWidth / 2 - 6, t.y + gridSize / 2 + 4, textWidth + 12, 20, 4);
+                    tokenCtx.roundRect(t.x - textWidth / 2 - 6, t.y + radius + 4, textWidth + 12, 20, 4);
                     tokenCtx.fill();
                     tokenCtx.strokeStyle = '#78350f';
                     tokenCtx.lineWidth = 1;
                     tokenCtx.stroke();
                     tokenCtx.fillStyle = '#fde68a';
-                    tokenCtx.font = '12px Lora, serif';
                     tokenCtx.textAlign = 'center';
-                    tokenCtx.fillText(t.name, t.x, t.y + gridSize / 2 + 18);
+                    tokenCtx.fillText(t.name, t.x, t.y + radius + 18);
                 }
             });
         }
@@ -597,11 +943,12 @@
         }
 
         // --- Interaction Engine ---
+        // BUG FIX #1: Use wrapper rect and manually reverse transform
         function getPointerPos(evt) {
-            const rect = container.getBoundingClientRect();
+            const rect = wrapper.getBoundingClientRect();
             return {
-                x: (evt.clientX - rect.left) / transform.scale,
-                y: (evt.clientY - rect.top) / transform.scale,
+                x: (evt.clientX - rect.left - transform.x) / transform.scale,
+                y: (evt.clientY - rect.top - transform.y) / transform.scale,
                 rawX: evt.clientX,
                 rawY: evt.clientY
             };
@@ -630,12 +977,109 @@
             updateTransform();
         }, { passive: false });
 
+        // --- Context Menu ---
+        const ctxMenu = document.getElementById('token-context-menu');
+        let ctxTargetToken = null;
+
+        function showContextMenu(x, y, token) {
+            ctxTargetToken = token;
+            ctxMenu.style.left = x + 'px';
+            ctxMenu.style.top = y + 'px';
+            ctxMenu.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                const menuRect = ctxMenu.getBoundingClientRect();
+                if (menuRect.right > window.innerWidth) ctxMenu.style.left = (x - menuRect.width) + 'px';
+                if (menuRect.bottom > window.innerHeight) ctxMenu.style.top = (y - menuRect.height) + 'px';
+            });
+        }
+
+        function hideContextMenu() {
+            ctxMenu.classList.add('hidden');
+            ctxTargetToken = null;
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!ctxMenu.contains(e.target)) hideContextMenu();
+        });
+
+        ctxMenu.querySelectorAll('.ctx-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (!ctxTargetToken) return;
+                const action = item.dataset.action;
+                if (action === 'rename') {
+                    showPrompt('Rename Token', ctxTargetToken.name || '', (newName) => {
+                        if (newName !== null) {
+                            ctxTargetToken.name = newName;
+                            renderTokens();
+                            pushHistory();
+                            saveCurrentState();
+                        }
+                    });
+                } else if (action === 'resize-up') {
+                    ctxTargetToken.size = Math.min((ctxTargetToken.size || 1) + 1, 4);
+                    renderTokens();
+                    pushHistory();
+                    saveCurrentState();
+                } else if (action === 'resize-down') {
+                    ctxTargetToken.size = Math.max((ctxTargetToken.size || 1) - 1, 1);
+                    renderTokens();
+                    pushHistory();
+                    saveCurrentState();
+                } else if (action === 'delete') {
+                    tokens = tokens.filter(t => t.id !== ctxTargetToken.id);
+                    renderTokens();
+                    pushHistory();
+                    saveCurrentState();
+                }
+                hideContextMenu();
+            });
+        });
+
+        fogCanvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (!isDMMode) return;
+            const pos = getPointerPos(e);
+            for (let i = tokens.length - 1; i >= 0; i--) {
+                const t = tokens[i];
+                const radius = ((t.size || 1) * gridSize) / 2;
+                if (Math.hypot(pos.x - t.x, pos.y - t.y) < radius) {
+                    showContextMenu(e.clientX, e.clientY, t);
+                    return;
+                }
+            }
+        });
+
+        // --- Keyboard Shortcuts ---
+        document.addEventListener('keydown', (e) => {
+            // Don't trigger shortcuts when typing in inputs
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+            if (!isDMMode) return;
+
+            if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); return; }
+            if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); return; }
+
+            switch (e.key.toLowerCase()) {
+                case 'd': setTool('drag', 'tool-drag'); break;
+                case 'p': setTool('pan', 'tool-pan'); break;
+                case 'f': setTool('fog-draw', 'tool-fog-draw'); break;
+                case 'r': setTool('fog-rect', 'tool-fog-rect'); break;
+                case 't': setTool('fog-toggle', 'tool-fog-toggle'); break;
+                case 'g': isGridVisible = !isGridVisible; renderGrid(); break;
+                case 'delete': case 'backspace':
+                    // No-op at this level, deletion is via context menu
+                    break;
+            }
+        });
+
         fogCanvas.addEventListener('pointerdown', (e) => {
+            if (e.button === 2) return; // Skip right-click
+            hideContextMenu();
             activePointers.set(e.pointerId, e);
             fogCanvas.setPointerCapture(e.pointerId);
 
             if (activePointers.size === 2) {
-                isDrawing = false; activeToken = null; isPanning = false; clearTimeout(longPressTimer);
+                isDrawing = false; activeToken = null; isPanning = false;
+                if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
                 const pts = Array.from(activePointers.values());
                 lastPinchDist = Math.hypot(pts[0].clientX - pts[1].clientX, pts[0].clientY - pts[1].clientY);
                 lastPointerCenter = { x: (pts[0].clientX + pts[1].clientX) / 2, y: (pts[0].clientY + pts[1].clientY) / 2 };
@@ -653,8 +1097,10 @@
             let tokenHit = null;
             if (!isDMMode || currentTool === 'drag') {
                 for (let i = tokens.length - 1; i >= 0; i--) {
-                    if (Math.hypot(pos.x - tokens[i].x, pos.y - tokens[i].y) < gridSize / 2) {
-                        tokenHit = tokens[i];
+                    const t = tokens[i];
+                    const radius = ((t.size || 1) * gridSize) / 2;
+                    if (Math.hypot(pos.x - t.x, pos.y - t.y) < radius) {
+                        tokenHit = t;
                         activeToken = tokenHit;
                         break;
                     }
@@ -666,15 +1112,12 @@
                 return;
             }
 
+            // BUG FIX #4: Null out timer ref inside callback
             longPressTimer = setTimeout(() => {
+                longPressTimer = null;
                 if (tokenHit && isDMMode) {
-                    showPrompt("Type 'delete' to remove token:", "", (val) => {
-                        if (val && val.toLowerCase() === 'delete') {
-                            tokens = tokens.filter(t => t.id !== tokenHit.id);
-                            renderTokens(); saveCurrentState();
-                        }
-                    });
-                } else {
+                    showContextMenu(e.clientX, e.clientY, tokenHit);
+                } else if (!tokenHit) {
                     createPing(pos);
                 }
                 activeToken = null;
@@ -683,15 +1126,14 @@
             if (tokenHit) return;
 
             if (isDMMode) {
-                if (currentTool === 'fog-draw') {
+                if (currentTool === 'fog-draw' || currentTool === 'fog-rect') {
                     isDrawing = true;
                     currentDrawPoints = [pos];
                 } else if (currentTool === 'fog-toggle') {
                     processFogTap(pos);
                 }
-            } else {
-                processFogTap(pos, true);
             }
+            // BUG FIX #3: Players can NO LONGER reveal fog by tapping
         });
 
         fogCanvas.addEventListener('pointermove', (e) => {
@@ -722,7 +1164,7 @@
 
             if (longPressTimer && activePointers.size === 1) {
                 const deltaMove = Math.hypot(e.clientX - lastPointerCenter.x, e.clientY - lastPointerCenter.y);
-                if (deltaMove > 5) clearTimeout(longPressTimer);
+                if (deltaMove > 5) { clearTimeout(longPressTimer); longPressTimer = null; }
             }
 
             if (isPanning && activePointers.size === 1) {
@@ -738,10 +1180,21 @@
                 activeToken.x = pos.x;
                 activeToken.y = pos.y;
                 renderTokens();
-            } else if (isDMMode && currentTool === 'fog-draw' && isDrawing) {
-                const lastPos = currentDrawPoints[currentDrawPoints.length - 1];
-                if (Math.hypot(pos.x - lastPos.x, pos.y - lastPos.y) > 5) {
-                    currentDrawPoints.push(pos);
+            } else if (isDMMode && isDrawing) {
+                if (currentTool === 'fog-draw') {
+                    const lastPos = currentDrawPoints[currentDrawPoints.length - 1];
+                    if (Math.hypot(pos.x - lastPos.x, pos.y - lastPos.y) > 5) {
+                        currentDrawPoints.push(pos);
+                        renderFog();
+                    }
+                } else if (currentTool === 'fog-rect') {
+                    const startPos = currentDrawPoints[0];
+                    currentDrawPoints = [
+                        startPos,
+                        { x: pos.x, y: startPos.y },
+                        pos,
+                        { x: startPos.x, y: pos.y }
+                    ];
                     renderFog();
                 }
             }
@@ -750,7 +1203,7 @@
         fogCanvas.addEventListener('pointerup', (e) => {
             activePointers.delete(e.pointerId);
             fogCanvas.releasePointerCapture(e.pointerId);
-            clearTimeout(longPressTimer);
+            if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
 
             if (activePointers.size < 2) lastPinchDist = null;
             if (activePointers.size === 0) isPanning = false;
@@ -762,12 +1215,15 @@
 
             if (activeToken) {
                 activeToken = null;
+                pushHistory();
                 saveCurrentState();
             }
-            else if (isDMMode && currentTool === 'fog-draw' && isDrawing) {
+            else if (isDMMode && isDrawing) {
                 isDrawing = false;
-                if (currentDrawPoints.length > 3) {
+                if ((currentTool === 'fog-draw' && currentDrawPoints.length > 3) ||
+                    (currentTool === 'fog-rect' && currentDrawPoints.length === 4)) {
                     fogShapes.push({ id: Date.now(), points: currentDrawPoints, isHidden: true });
+                    pushHistory();
                     saveCurrentState();
                 }
                 currentDrawPoints = [];
@@ -787,6 +1243,7 @@
                     if (playerMode && !shape.isHidden) return;
                     shape.isHidden = playerMode ? false : !shape.isHidden;
                     renderFog();
+                    pushHistory();
                     saveCurrentState();
                     break;
                 }
