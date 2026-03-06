@@ -297,6 +297,26 @@
         </div>
     </main>
 
+    <!-- Custom Modal -->
+    <div id="custom-modal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div
+            class="neo-card bg-stone-900 border border-amber-900/50 rounded-2xl p-6 max-w-sm w-full transform scale-95 transition-transform duration-300">
+            <h3 id="modal-title" class="text-xl font-bold font-title text-amber-500 mb-2">Notice</h3>
+            <p id="modal-message" class="text-stone-300 mb-6 font-medium"></p>
+            <div class="flex justify-end gap-3 font-title font-bold">
+                <button id="modal-cancel-btn"
+                    class="neo-button neo-card px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 rounded-xl transition-colors hidden">
+                    Cancel
+                </button>
+                <button id="modal-confirm-btn"
+                    class="neo-button neo-card px-4 py-2 bg-amber-700 hover:bg-amber-600 text-stone-100 border border-amber-900/50 rounded-xl transition-colors">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let campaigns = [
             {
@@ -362,6 +382,57 @@
         let isEditMode = false;
         let characters = [];
 
+        function showModal(title, message, type = 'alert', onConfirm = null, onCancel = null) {
+            const modal = document.getElementById('custom-modal');
+            const modalBox = modal.querySelector('.neo-card');
+            const titleEl = document.getElementById('modal-title');
+            const messageEl = document.getElementById('modal-message');
+            const cancelBtn = document.getElementById('modal-cancel-btn');
+            const confirmBtn = document.getElementById('modal-confirm-btn');
+
+            titleEl.innerText = title;
+            messageEl.innerText = message;
+
+            if (type === 'confirm') {
+                cancelBtn.classList.remove('hidden');
+                confirmBtn.innerText = 'Confirm';
+                confirmBtn.classList.replace('bg-amber-700', 'bg-red-600');
+                confirmBtn.classList.replace('hover:bg-amber-600', 'hover:bg-red-500');
+            } else {
+                cancelBtn.classList.add('hidden');
+                confirmBtn.innerText = 'OK';
+                confirmBtn.classList.replace('bg-red-600', 'bg-amber-700');
+                confirmBtn.classList.replace('hover:bg-red-500', 'hover:bg-amber-600');
+            }
+
+            modal.classList.remove('hidden');
+            // Small delay to allow display:block to apply before animating opacity
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalBox.classList.remove('scale-95');
+                modalBox.classList.add('scale-100');
+            }, 10);
+
+            const closeModal = () => {
+                modal.classList.add('opacity-0');
+                modalBox.classList.remove('scale-100');
+                modalBox.classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300); // Wait for transition duration
+            };
+
+            confirmBtn.onclick = () => {
+                closeModal();
+                if (onConfirm) onConfirm();
+            };
+
+            cancelBtn.onclick = () => {
+                closeModal();
+                if (onCancel) onCancel();
+            };
+        }
+
         async function initApp() {
             try {
                 const response = await fetch('data/campaigns.json');
@@ -401,11 +472,20 @@
 
         function changeCampaign(id) {
             if (isEditMode) {
-                if (!confirm("Discard unsaved changes?")) {
-                    document.getElementById('campaign-selector').value = currentCampaignId;
-                    return;
-                }
-                toggleEditMode();
+                showModal(
+                    "Unsaved Changes",
+                    "You have unsaved changes. Discard them?",
+                    "confirm",
+                    () => { // onConfirm: proceed with changing campaign
+                        toggleEditMode();
+                        currentCampaignId = id;
+                        loadCampaignCharacters();
+                    },
+                    () => { // onCancel: revert select element
+                        document.getElementById('campaign-selector').value = currentCampaignId;
+                    }
+                );
+                return;
             }
             currentCampaignId = id;
             loadCampaignCharacters();
@@ -437,8 +517,16 @@
                 btn.innerText = char.name;
                 btn.onclick = () => {
                     if (isEditMode) {
-                        if (!confirm("Discard unsaved changes?")) return;
-                        toggleEditMode();
+                        showModal(
+                            "Unsaved Changes",
+                            "You have unsaved changes. Discard them?",
+                            "confirm",
+                            () => { // onConfirm: proceed with switching character
+                                toggleEditMode();
+                                renderCharacter(i);
+                            }
+                        );
+                        return;
                     }
                     renderCharacter(i);
                 };
@@ -533,34 +621,35 @@
 
             document.getElementById('view-actions').innerHTML = formatActions(char.actions);
 
-            lucide.createIcons();
-        }
-
-        function toggleEditMode() {
-            isEditMode = !isEditMode;
-            const char = characters[currentCharIndex];
-
-            const elements = [
-                'view-header', 'edit-header', 'save-btn',
-                'char-ac', 'edit-ac', 'char-init', 'edit-init',
-                'char-speed', 'edit-speed', 'hp-max-display', 'edit-max-hp',
-                'view-resources', 'edit-resources', 'view-features', 'edit-features',
-                'view-actions', 'edit-actions'
+            // UI State Management: Update visibility based on isEditMode
+            const viewElements = [
+                'view-header', 'char-ac', 'char-init', 'char-speed', 'hp-max-display',
+                'view-resources', 'view-features', 'view-actions'
             ];
 
-            elements.forEach(id => {
+            const editElements = [
+                'edit-header', 'save-btn', 'edit-ac', 'edit-init', 'edit-speed', 'edit-max-hp',
+                'edit-resources', 'edit-features', 'edit-actions'
+            ];
+
+            viewElements.forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.classList.toggle('hidden');
+                if (el) el.classList.toggle('hidden', isEditMode);
             });
 
-            document.querySelectorAll('.view-stat-val').forEach(el => el.classList.toggle('hidden'));
-            document.querySelectorAll('.edit-stat-input').forEach(el => el.classList.toggle('hidden'));
+            editElements.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.toggle('hidden', !isEditMode);
+            });
 
-            document.getElementById('edit-btn').classList.toggle('text-amber-500');
+            document.querySelectorAll('.view-stat-val').forEach(el => el.classList.toggle('hidden', isEditMode));
+            document.querySelectorAll('.edit-stat-input').forEach(el => el.classList.toggle('hidden', !isEditMode));
+
+            const editBtn = document.getElementById('edit-btn');
+            editBtn.classList.toggle('text-amber-500', isEditMode);
             const editIcon = document.getElementById('edit-icon');
             if (editIcon) {
                 editIcon.setAttribute('data-lucide', isEditMode ? 'check-circle' : 'edit-3');
-                lucide.createIcons();
             }
 
             if (isEditMode) {
@@ -573,10 +662,17 @@
                 document.getElementById('edit-speed').value = char.vitals.speed;
                 document.getElementById('edit-max-hp').value = char.vitals.maxHp;
 
-                document.getElementById('edit-resources').value = char.resources.join(', ');
-                document.getElementById('edit-features').value = char.features.join('\n');
-                document.getElementById('edit-actions').value = char.actions;
+                document.getElementById('edit-resources').value = (char.resources || []).map(r => typeof r === 'string' ? r : r.label).join(', ');
+                document.getElementById('edit-features').value = (char.features || []).join('\n');
+                document.getElementById('edit-actions').value = char.actions || '';
             }
+
+            lucide.createIcons();
+        }
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            renderCharacter(currentCharIndex);
         }
 
         function saveChanges() {
@@ -606,7 +702,7 @@
             });
 
             saveToStorage();
-            toggleEditMode();
+            isEditMode = false;
             renderCharacter(currentCharIndex);
         }
 
@@ -620,23 +716,28 @@
             characters.push(newChar);
             currentCharIndex = characters.length - 1;
             saveToStorage();
-            if (isEditMode) toggleEditMode();
+            isEditMode = true;
             renderCharacter(currentCharIndex);
-            toggleEditMode();
         }
 
         function deleteCharacter() {
             if (characters.length <= 1) {
-                alert("Cannot delete the last character!");
+                showModal("Cannot Delete", "Cannot delete the last character!");
                 return;
             }
-            if (confirm(`Delete ${characters[currentCharIndex].name}?`)) {
-                characters.splice(currentCharIndex, 1);
-                currentCharIndex = Math.max(0, currentCharIndex - 1);
-                saveToStorage();
-                if (isEditMode) isEditMode = false;
-                renderCharacter(currentCharIndex);
-            }
+
+            showModal(
+                "Delete Character",
+                `Are you sure you want to delete ${characters[currentCharIndex].name}?`,
+                "confirm",
+                () => { // onConfirm: proceed with deletion
+                    characters.splice(currentCharIndex, 1);
+                    currentCharIndex = Math.max(0, currentCharIndex - 1);
+                    saveToStorage();
+                    isEditMode = false;
+                    renderCharacter(currentCharIndex);
+                }
+            );
         }
 
         function updateHP(amount) {
