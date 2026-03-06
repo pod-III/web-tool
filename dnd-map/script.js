@@ -39,6 +39,8 @@ const mapSelect = $('map-select');
 const gridSizeInput = $('grid-size-input');
 const gridSizeValue = $('grid-size-value');
 const ctxMenu = $('token-context-menu');
+const tokenLibGrid = $('token-library-grid');
+const tokenLibEmpty = $('token-library-empty');
 
 // ── Custom Modal System ─────────────────────────────────
 let modalCallback = null;
@@ -99,6 +101,7 @@ let tokens = [];
 let fogShapes = [];
 let currentDrawPoints = [];
 let isGridVisible = false;
+let tokenLibrary = [];   // persisted token images
 
 let transform = { x: 0, y: 0, scale: 1 };
 let activePointers = new Map();
@@ -322,18 +325,23 @@ $('btn-delete-map').addEventListener('click', () => {
 
 // ── IndexedDB & Multi-Map ───────────────────────────────
 const DB_NAME = 'ArcaneVTT_DB';
+const DB_VERSION = 2;
 let db;
 
-const request = indexedDB.open(DB_NAME, 1);
+const request = indexedDB.open(DB_NAME, DB_VERSION);
 request.onupgradeneeded = (e) => {
     db = e.target.result;
     if (!db.objectStoreNames.contains('maps')) {
         db.createObjectStore('maps', { keyPath: 'id' });
     }
+    if (!db.objectStoreNames.contains('tokenLibrary')) {
+        db.createObjectStore('tokenLibrary', { keyPath: 'id' });
+    }
 };
 request.onsuccess = (e) => {
     db = e.target.result;
     loadMapList();
+    loadTokenLibrary();
 };
 
 function saveCurrentState() {
@@ -513,31 +521,139 @@ $('campaign-import').addEventListener('change', (e) => {
     e.target.value = '';
 });
 
-// ── Token Upload ────────────────────────────────────────
+// ── Token Upload (uploads & places, also saves to library) ──
 $('token-upload').addEventListener('change', (e) => {
     const file = e.target.files[0];
     const nameInput = $('token-name').value;
     if (!file) return;
 
+    const defaultName = nameInput || file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ');
     const reader = new FileReader();
     reader.onload = (event) => {
+        const dataSrc = event.target.result;
+        // Save to library automatically
+        saveTokenToLibrary(defaultName, dataSrc);
+        // Place on map
         const img = new Image();
         img.onload = () => {
             const rect = wrapper.getBoundingClientRect();
             const viewX = (rect.width / 2 - transform.x) / transform.scale;
             const viewY = (rect.height / 2 - transform.y) / transform.scale;
-            tokens.push({ id: Date.now(), img, name: nameInput, x: viewX, y: viewY, size: 1 });
+            tokens.push({ id: Date.now(), img, name: defaultName, x: viewX, y: viewY, size: 1 });
             renderTokens();
             pushHistory();
             saveCurrentState();
         };
         img.onerror = () => showAlert('Error', 'Failed to load the token image.');
-        img.src = event.target.result;
+        img.src = dataSrc;
     };
     reader.readAsDataURL(file);
     $('token-name').value = '';
     e.target.value = '';
 });
+
+// ── Token Library Upload (saves to library only, no map placement) ──
+$('token-library-upload').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const defaultName = file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ');
+    showPrompt('Name this token:', defaultName, (tokenName) => {
+        if (!tokenName) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            saveTokenToLibrary(tokenName, event.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+});
+
+// ── Token Library Functions ─────────────────────────────
+function saveTokenToLibrary(name, dataSrc) {
+    const entry = { id: Date.now(), name, src: dataSrc };
+    const tx = db.transaction('tokenLibrary', 'readwrite');
+    tx.objectStore('tokenLibrary').put(entry);
+    tx.oncomplete = () => {
+        tokenLibrary.push(entry);
+        renderTokenLibrary();
+    };
+}
+
+function loadTokenLibrary() {
+    const tx = db.transaction('tokenLibrary', 'readonly');
+    const req = tx.objectStore('tokenLibrary').getAll();
+    req.onsuccess = () => {
+        tokenLibrary = req.result || [];
+        renderTokenLibrary();
+    };
+}
+
+function deleteTokenFromLibrary(id) {
+    const tx = db.transaction('tokenLibrary', 'readwrite');
+    tx.objectStore('tokenLibrary').delete(id);
+    tx.oncomplete = () => {
+        tokenLibrary = tokenLibrary.filter(t => t.id !== id);
+        renderTokenLibrary();
+    };
+}
+
+function placeTokenFromLibrary(libToken) {
+    const nameInput = $('token-name').value || libToken.name;
+    const img = new Image();
+    img.onload = () => {
+        const rect = wrapper.getBoundingClientRect();
+        const viewX = (rect.width / 2 - transform.x) / transform.scale;
+        const viewY = (rect.height / 2 - transform.y) / transform.scale;
+        tokens.push({ id: Date.now(), img, name: nameInput, x: viewX, y: viewY, size: 1 });
+        renderTokens();
+        pushHistory();
+        saveCurrentState();
+        $('token-name').value = '';
+    };
+    img.onerror = () => showAlert('Error', 'Failed to load the token image.');
+    img.src = libToken.src;
+}
+
+function renderTokenLibrary() {
+    // Clear existing items but keep the empty message element
+    const items = tokenLibGrid.querySelectorAll('.token-lib-item');
+    for (const item of items) item.remove();
+
+    tokenLibEmpty.style.display = tokenLibrary.length === 0 ? '' : 'none';
+
+    const frag = document.createDocumentFragment();
+    for (const libToken of tokenLibrary) {
+        const div = document.createElement('div');
+        div.className = 'token-lib-item';
+        div.title = libToken.name;
+
+        const img = document.createElement('img');
+        img.src = libToken.src;
+        img.alt = libToken.name;
+        img.loading = 'lazy';
+        div.appendChild(img);
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'lib-name';
+        nameSpan.textContent = libToken.name;
+        div.appendChild(nameSpan);
+
+        const del = document.createElement('span');
+        del.className = 'lib-delete';
+        del.textContent = '×';
+        del.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteTokenFromLibrary(libToken.id);
+        });
+        div.appendChild(del);
+
+        div.addEventListener('click', () => placeTokenFromLibrary(libToken));
+        frag.appendChild(div);
+    }
+    tokenLibGrid.appendChild(frag);
+    lucide.createIcons();
+}
 
 // ── Rendering (rAF batched) ─────────────────────────────
 let renderFlags = { map: false, grid: false, tokens: false, fog: false };
