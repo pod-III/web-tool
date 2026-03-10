@@ -189,7 +189,7 @@ function updateTransform() {
 }
 
 // ── Tool Selection ──────────────────────────────────────
-const TOOL_IDS = ['tool-drag', 'tool-pan', 'tool-fog-draw', 'tool-fog-toggle', 'tool-fog-rect'];
+const TOOL_IDS = ['tool-drag', 'tool-pan', 'tool-fog-draw', 'tool-fog-toggle', 'tool-fog-rect', 'tool-fog-erase'];
 
 function setTool(tool, btnId) {
     currentTool = tool;
@@ -235,6 +235,7 @@ $('tool-drag').addEventListener('click', () => setTool('drag', 'tool-drag'));
 $('tool-pan').addEventListener('click', () => setTool('pan', 'tool-pan'));
 $('tool-fog-draw').addEventListener('click', () => setTool('fog-draw', 'tool-fog-draw'));
 $('tool-fog-rect').addEventListener('click', () => setTool('fog-rect', 'tool-fog-rect'));
+$('tool-fog-erase').addEventListener('click', () => setTool('fog-erase', 'tool-fog-erase'));
 $('tool-fog-toggle').addEventListener('click', () => setTool('fog-toggle', 'tool-fog-toggle'));
 
 $('tool-grid-toggle').addEventListener('click', () => {
@@ -687,8 +688,8 @@ function _renderGrid() {
     gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
     if (!isGridVisible || !mapImage) return;
 
-    gridCtx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
-    gridCtx.lineWidth = 1;
+    gridCtx.strokeStyle = 'rgba(0, 0, 0, 1.0)';
+    gridCtx.lineWidth = 2;
     gridCtx.beginPath();
 
     const w = gridCanvas.width;
@@ -747,6 +748,7 @@ function _renderTokens() {
             tokenCtx.fillStyle = 'rgba(12, 10, 9, 0.9)';
             tokenCtx.font = '12px Lora, serif';
             const textWidth = tokenCtx.measureText(t.name).width;
+            tokenCtx.beginPath();
             tokenCtx.roundRect(t.x - textWidth / 2 - 6, t.y + radius + 4, textWidth + 12, 20, 4);
             tokenCtx.fill();
             tokenCtx.strokeStyle = '#78350f';
@@ -896,13 +898,17 @@ document.addEventListener('keydown', (e) => {
         case 'p': setTool('pan', 'tool-pan'); break;
         case 'f': setTool('fog-draw', 'tool-fog-draw'); break;
         case 'r': setTool('fog-rect', 'tool-fog-rect'); break;
+        case 'e': setTool('fog-erase', 'tool-fog-erase'); break;
         case 't': setTool('fog-toggle', 'tool-fog-toggle'); break;
         case 'g': isGridVisible = !isGridVisible; renderGrid(); break;
     }
 });
 
 // ── Pointer Handling ────────────────────────────────────
+let pointerMoved = false;
+
 fogCanvas.addEventListener('pointerdown', (e) => {
+    pointerMoved = false;
     if (e.button === 2) return;
     hideContextMenu();
     activePointers.set(e.pointerId, e);
@@ -959,6 +965,8 @@ fogCanvas.addEventListener('pointerdown', (e) => {
             currentDrawPoints = [pos];
         } else if (currentTool === 'fog-toggle') {
             processFogTap(pos);
+        } else if (currentTool === 'fog-erase') {
+            processFogErase(pos);
         }
     }
 });
@@ -989,9 +997,12 @@ fogCanvas.addEventListener('pointermove', (e) => {
         return;
     }
 
-    if (longPressTimer && activePointers.size === 1) {
+    if (activePointers.size === 1) {
         const deltaMove = Math.hypot(e.clientX - lastPointerCenter.x, e.clientY - lastPointerCenter.y);
-        if (deltaMove > 5) { clearTimeout(longPressTimer); longPressTimer = null; }
+        if (deltaMove > 5) {
+            pointerMoved = true;
+            if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+        }
     }
 
     if (isPanning && activePointers.size === 1) {
@@ -1028,6 +1039,9 @@ fogCanvas.addEventListener('pointermove', (e) => {
 });
 
 fogCanvas.addEventListener('pointerup', (e) => {
+    const isTap = !pointerMoved && activePointers.size === 1;
+    const pos = getPointerPos(e);
+
     activePointers.delete(e.pointerId);
     fogCanvas.releasePointerCapture(e.pointerId);
     if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
@@ -1054,8 +1068,45 @@ fogCanvas.addEventListener('pointerup', (e) => {
         }
         currentDrawPoints = [];
         renderFog();
+    } else if (!isDMMode && isTap) {
+        processFogTapPlayer(pos);
     }
 });
+
+function processFogTapPlayer(pos) {
+    for (let i = fogShapes.length - 1; i >= 0; i--) {
+        const shape = fogShapes[i];
+        if (!shape.isHidden) continue;
+        fogCtx.beginPath();
+        fogCtx.moveTo(shape.points[0].x, shape.points[0].y);
+        for (const p of shape.points) fogCtx.lineTo(p.x, p.y);
+        fogCtx.closePath();
+        if (fogCtx.isPointInPath(pos.x, pos.y)) {
+            shape.isHidden = false;
+            renderFog();
+            pushHistory();
+            saveCurrentState();
+            break;
+        }
+    }
+}
+
+function processFogErase(pos) {
+    for (let i = fogShapes.length - 1; i >= 0; i--) {
+        const shape = fogShapes[i];
+        fogCtx.beginPath();
+        fogCtx.moveTo(shape.points[0].x, shape.points[0].y);
+        for (const p of shape.points) fogCtx.lineTo(p.x, p.y);
+        fogCtx.closePath();
+        if (fogCtx.isPointInPath(pos.x, pos.y)) {
+            fogShapes.splice(i, 1);
+            renderFog();
+            pushHistory();
+            saveCurrentState();
+            break;
+        }
+    }
+}
 
 function processFogTap(pos) {
     for (let i = fogShapes.length - 1; i >= 0; i--) {
