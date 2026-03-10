@@ -783,11 +783,29 @@ function _renderFog() {
         fogCtx.beginPath();
         fogCtx.moveTo(currentDrawPoints[0].x, currentDrawPoints[0].y);
         for (const p of currentDrawPoints) fogCtx.lineTo(p.x, p.y);
+
+        // Preview line to mouse position
+        if (mousePos) {
+            fogCtx.lineTo(mousePos.x, mousePos.y);
+        }
+
         fogCtx.strokeStyle = '#d97706';
-        fogCtx.lineWidth = 3;
+        fogCtx.setLineDash([5, 5]);
+        fogCtx.lineWidth = 2;
         fogCtx.stroke();
+        fogCtx.setLineDash([]);
+
+        // Mark points
+        fogCtx.fillStyle = '#d97706';
+        for (const p of currentDrawPoints) {
+            fogCtx.beginPath();
+            fogCtx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+            fogCtx.fill();
+        }
     }
 }
+
+let mousePos = null;
 
 // ── Interaction Engine ──────────────────────────────────
 function getPointerPos(evt) {
@@ -960,7 +978,32 @@ fogCanvas.addEventListener('pointerdown', (e) => {
     if (tokenHit) return;
 
     if (isDMMode) {
-        if (currentTool === 'fog-draw' || currentTool === 'fog-rect') {
+        if (currentTool === 'fog-draw') {
+            const now = Date.now();
+            // Handle double tap to finish
+            if (lastTapTime && (now - lastTapTime < 300)) {
+                if (currentDrawPoints.length > 2) {
+                    finishPolygonDrawing();
+                }
+                lastTapTime = 0;
+                return;
+            }
+            lastTapTime = now;
+
+            if (!isDrawing) {
+                isDrawing = true;
+                currentDrawPoints = [pos];
+            } else {
+                // Check if clicking near start point to close
+                const startPos = currentDrawPoints[0];
+                if (Math.hypot(pos.x - startPos.x, pos.y - startPos.y) < 15 / transform.scale && currentDrawPoints.length > 2) {
+                    finishPolygonDrawing();
+                } else {
+                    currentDrawPoints.push(pos);
+                }
+            }
+            renderFog();
+        } else if (currentTool === 'fog-rect') {
             isDrawing = true;
             currentDrawPoints = [pos];
         } else if (currentTool === 'fog-toggle') {
@@ -970,6 +1013,19 @@ fogCanvas.addEventListener('pointerdown', (e) => {
         }
     }
 });
+
+let lastTapTime = 0;
+
+function finishPolygonDrawing() {
+    isDrawing = false;
+    if (currentDrawPoints.length > 2) {
+        fogShapes.push({ id: Date.now(), points: [...currentDrawPoints], isHidden: true });
+        pushHistory();
+        saveCurrentState();
+    }
+    currentDrawPoints = [];
+    renderFog();
+}
 
 fogCanvas.addEventListener('pointermove', (e) => {
     if (!activePointers.has(e.pointerId)) return;
@@ -1014,17 +1070,14 @@ fogCanvas.addEventListener('pointermove', (e) => {
     }
 
     const pos = getPointerPos(e);
+    mousePos = pos;
     if (activeToken) {
         activeToken.x = pos.x;
         activeToken.y = pos.y;
         renderTokens();
     } else if (isDMMode && isDrawing) {
         if (currentTool === 'fog-draw') {
-            const lastPos = currentDrawPoints[currentDrawPoints.length - 1];
-            if (Math.hypot(pos.x - lastPos.x, pos.y - lastPos.y) > 5) {
-                currentDrawPoints.push(pos);
-                renderFog();
-            }
+            renderFog(); // Just render preview
         } else if (currentTool === 'fog-rect') {
             const startPos = currentDrawPoints[0];
             currentDrawPoints = [
@@ -1059,15 +1112,16 @@ fogCanvas.addEventListener('pointerup', (e) => {
         pushHistory();
         saveCurrentState();
     } else if (isDMMode && isDrawing) {
-        isDrawing = false;
-        if ((currentTool === 'fog-draw' && currentDrawPoints.length > 3) ||
-            (currentTool === 'fog-rect' && currentDrawPoints.length === 4)) {
-            fogShapes.push({ id: Date.now(), points: currentDrawPoints, isHidden: true });
-            pushHistory();
-            saveCurrentState();
+        if (currentTool === 'fog-rect') {
+            isDrawing = false;
+            if (currentDrawPoints.length === 4) {
+                fogShapes.push({ id: Date.now(), points: currentDrawPoints, isHidden: true });
+                pushHistory();
+                saveCurrentState();
+            }
+            currentDrawPoints = [];
+            renderFog();
         }
-        currentDrawPoints = [];
-        renderFog();
     } else if (!isDMMode && isTap) {
         processFogTapPlayer(pos);
     }
