@@ -7,7 +7,11 @@
     "route": "./adj-note/index.html",
     "icon": "columns",
     "color": "e1-blue",
-    "tags": ["Debate", "Work", "Productivity"]
+    "tags": [
+      "Debate",
+      "Work",
+      "Productivity"
+    ]
   },
   {
     "id": "image-splitter",
@@ -17,7 +21,11 @@
     "route": "./image-splitter/index.html",
     "icon": "scissors",
     "color": "e1-green",
-    "tags": ["Images", "Utility", "Work"]
+    "tags": [
+      "Images",
+      "Utility",
+      "Work"
+    ]
   },
   {
     "id": "debate-timer",
@@ -27,14 +35,22 @@
     "route": "./debate-timer/index.html",
     "icon": "timer",
     "color": "e1-orange",
-    "tags": ["Debate", "Utility", "Judging"]
+    "tags": [
+      "Debate",
+      "Utility",
+      "Judging"
+    ]
   },
   {
     "id": "list-converter",
     "name": "Magic List Converter",
     "description": "Instantly convert ordered lists to comma-separated text (CSV), or turn messy text into clean bullet points.",
     "category": "Work",
-    "tags": ["Text", "Utility", "Helper"],
+    "tags": [
+      "Text",
+      "Utility",
+      "Helper"
+    ],
     "icon": "list-ordered",
     "color": "bg-e1-pink border-e1-pink",
     "route": "./list-converter/index.html"
@@ -47,7 +63,11 @@
     "route": "./case-converter/index.html",
     "icon": "type",
     "color": "bg-e1-blue border-e1-blue",
-    "tags": ["Text", "Utility", "Formatting"]
+    "tags": [
+      "Text",
+      "Utility",
+      "Formatting"
+    ]
   },
   {
     "id": "dnd-character",
@@ -57,7 +77,11 @@
     "route": "./dnd/index.html",
     "icon": "user",
     "color": "bg-e1-orange border-e1-orange",
-    "tags": ["D&D", "RPG", "Character Sheet"]
+    "tags": [
+      "D&D",
+      "RPG",
+      "Character Sheet"
+    ]
   },
   {
     "id": "dnd-vtt",
@@ -67,7 +91,11 @@
     "route": "./dnd-map/index.html",
     "icon": "map",
     "color": "bg-e1-blue border-e1-blue",
-    "tags": ["D&D", "Map", "VTT"]
+    "tags": [
+      "D&D",
+      "Map",
+      "VTT"
+    ]
   },
   {
     "id": "dnd-printer",
@@ -77,6 +105,24 @@
     "route": "./dnd-print/index.html",
     "icon": "printer",
     "color": "bg-e1-pink border-e1-pink",
-    "tags": ["D&D", "Print", "Tools"]
+    "tags": [
+      "D&D",
+      "Print",
+      "Tools"
+    ]
+  },
+  {
+    "id": "lesson-parser",
+    "name": "Lesson Extractor",
+    "description": "Extract English 1 Teacher Notes modules from PDF or pasted text.",
+    "category": "Work",
+    "route": "./lesson-parser/index.html",
+    "icon": "book-open",
+    "color": "bg-e1-pink border-e1-pink",
+    "tags": [
+      "Teaching",
+      "Utility",
+      "Helper"
+    ]
   }
 ]

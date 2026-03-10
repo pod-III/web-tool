@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lesson Extractor — English 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { heading: ['Fredoka', 'sans-serif'], body: ['Nunito', 'sans-serif'] },
+                    colors: { pink: { DEFAULT: '#FF6B95' }, orange: { DEFAULT: '#FF8C42' }, green: { DEFAULT: '#00E676' }, blue: { DEFAULT: '#2979FF' }, dark: { DEFAULT: '#1e293b' }, chalk: { DEFAULT: '#f8fafc' } }
+                }
+            }
+        }
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+
+    <style>
+        * {
+            font-family: 'Nunito', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-heading,
+        button {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            background-image: radial-gradient(#1e293b18 1px, transparent 1px);
+            background-size: 20px 20px;
+            min-height: 100vh;
+        }
+
+        html.dark body {
+            background-color: #0f172a;
+            background-image: radial-gradient(#ffffff12 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border: 2px solid #1e293b;
+            border-radius: 12px;
+            box-shadow: 4px 4px 0px 0px rgba(30, 41, 59, 1);
+            cursor: pointer;
+            transition: all .1s ease;
+            padding: .55rem 1.25rem;
+            user-select: none;
+        }
+
+        .btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 5px 5px 0px 0px rgba(30, 41, 59, 1);
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px 0px rgba(30, 41, 59, 1);
+        }
+
+        .btn-pink {
+            background: #FF6B95;
+            color: #1e293b
+        }
+
+        .btn-orange {
+            background: #FF8C42;
+            color: #1e293b
+        }
+
+        .btn-green {
+            background: #00E676;
+            color: #1e293b
+        }
+
+        .btn-blue {
+            background: #2979FF;
+            color: #fff
+        }
+
+        .btn-chalk {
+            background: #f8fafc;
+            color: #1e293b
+        }
+
+        .btn-dark {
+            background: #1e293b;
+            color: #fff
+        }
+
+        html.dark .btn {
+            border-color: #94a3b8;
+            box-shadow: 4px 4px 0px 0px rgba(148, 163, 184, 1);
+        }
+
+        html.dark .btn:hover {
+            box-shadow: 5px 5px 0px 0px rgba(148, 163, 184, 1);
+        }
+
+        html.dark .btn:active {
+            box-shadow: 2px 2px 0px 0px rgba(148, 163, 184, 1);
+        }
+
+        html.dark .btn-chalk {
+            background: #334155;
+            color: #f1f5f9;
+        }
+
+        html.dark .btn-dark {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .card {
+            background: #fff;
+            border: 2px solid #1e293b;
+            border-radius: 16px;
+            box-shadow: 4px 4px 0px 0px rgba(30, 41, 59, 1);
+            overflow: hidden;
+            animation: popIn .3s cubic-bezier(.34, 1.56, .64, 1) both;
+        }
+
+        html.dark .card {
+            background: #1e293b;
+            border-color: #475569;
+            box-shadow: 4px 4px 0px 0px rgba(148, 163, 184, .5);
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(.93) translateY(8px)
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0)
+            }
+        }
+
+        .upload-zone {
+            border: 3px dashed #1e293b;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 4px 4px 0px 0px rgba(30, 41, 59, 1);
+            transition: all .15s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-zone.dragover,
+        .upload-zone:hover {
+            background: #ffe4ee;
+            transform: translate(-1px, -1px);
+            box-shadow: 5px 5px 0px 0px rgba(30, 41, 59, 1);
+        }
+
+        html.dark .upload-zone {
+            background: #1e293b;
+            border-color: #475569;
+        }
+
+        html.dark .upload-zone.dragover,
+        html.dark .upload-zone:hover {
+            background: #2d1f2b;
+        }
+
+        .seg-track {
+            display: flex;
+            gap: 6px;
+            background: #e2e8f0;
+            border: 2px solid #1e293b;
+            border-radius: 14px;
+            padding: 4px;
+            box-shadow: 3px 3px 0px 0px rgba(30, 41, 59, 1);
+        }
+
+        html.dark .seg-track {
+            background: #1e293b;
+            border-color: #475569;
+            box-shadow: 3px 3px 0px 0px rgba(148, 163, 184, .5);
+        }
+
+        .seg-btn {
+            flex: 1;
+            padding: 7px 16px;
+            border-radius: 10px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            transition: all .15s ease;
+        }
+
+        .seg-btn.active {
+            background: #FF6B95;
+            color: #1e293b;
+            border: 2px solid #1e293b;
+            box-shadow: 2px 2px 0px 0px rgba(30, 41, 59, 1);
+        }
+
+        html.dark .seg-btn {
+            color: #94a3b8;
+        }
+
+        html.dark .seg-btn.active {
+            color: #fff;
+            background: #FF6B95;
+            border-color: #94a3b8;
+        }
+
+        .badge {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            font-size: .82rem;
+            padding: 2px 9px;
+            border-radius: 8px;
+            border: 2px solid #1e293b;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        html.dark .badge {
+            border-color: #475569;
+        }
+
+        .info-chip {
+            background: #f1f5f9;
+            border: 2px solid #1e293b;
+            border-radius: 10px;
+            padding: 8px 12px;
+            box-shadow: 2px 2px 0px 0px rgba(30, 41, 59, 1);
+        }
+
+        html.dark .info-chip {
+            background: #0f172a;
+            border-color: #475569;
+            box-shadow: 2px 2px 0px 0px rgba(148, 163, 184, .4);
+        }
+
+        .pres-chip {
+            background: #eff6ff;
+            border: 2px solid #2979FF;
+            border-radius: 8px;
+            padding: 3px 10px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: .82rem;
+            font-weight: 600;
+            color: #1e40af;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 2px 2px 0px 0px #2979FF;
+        }
+
+        html.dark .pres-chip {
+            background: #1e3a5f;
+            color: #93c5fd;
+            border-color: #3b82f6;
+            box-shadow: 2px 2px 0px 0px #3b82f6;
+        }
+
+        .section-stripe {
+            border-left: 4px solid;
+            padding-left: 12px;
+        }
+
+        .will-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height .3s ease;
+        }
+
+        .will-content.open {
+            max-height: 500px;
+        }
+
+        .chevron-icon {
+            transition: transform .25s ease;
+        }
+
+        .chevron-icon.open {
+            transform: rotate(180deg);
+        }
+
+        #toast-container {
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: #1e293b;
+            color: #fff;
+            border-radius: 12px;
+            border: 2px solid #00E676;
+            box-shadow: 4px 4px 0px 0px #00E676;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(-12px) scale(.95);
+            transition: all .25s cubic-bezier(.34, 1.4, .64, 1);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        .spin {
+            animation: spin .8s linear infinite;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 99px
+        }
+
+        html.dark ::-webkit-scrollbar-thumb {
+            background: #334155
+        }
+
+        #debug-panel {
+            font-family: monospace;
+            font-size: 11px;
+            white-space: pre-wrap;
+            background: #1e293b;
+            color: #00E676;
+            padding: 12px;
+            border-radius: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+            border: 2px solid #00E676;
+            box-shadow: 4px 4px 0 #00E676;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header
+        class="sticky top-0 z-50 bg-chalk/90 dark:bg-slate-900/90 backdrop-blur-lg border-b-2 border-dark dark:border-slate-600">
+        <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 bg-pink rounded-xl border-2 border-dark flex items-center justify-center"
+                    style="box-shadow:2px 2px 0 #1e293b;">
+                    <i data-lucide="book-open" class="w-5 h-5 text-dark stroke-[2.5]"></i>
+                </div>
+                <div>
+                    <h1 class="font-heading text-xl leading-none text-dark dark:text-white" id="doc-title">Lesson
+                        Extractor</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-none mt-0.5">English 1 Teacher Notes
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleDebug()" class="btn btn-chalk w-9 h-9 p-0 !rounded-xl" title="Debug log">
+                    <i data-lucide="terminal" class="w-4 h-4 stroke-[2.5]"></i>
+                </button>
+                <button onclick="toggleDark()" class="btn btn-chalk w-9 h-9 p-0 !rounded-xl" title="Dark mode">
+                    <i data-lucide="moon" class="w-4 h-4 stroke-[2.5]" id="dark-icon"></i>
+                </button>
+                <button onclick="clearData()" class="btn btn-chalk w-9 h-9 p-0 !rounded-xl" title="Clear data">
+                    <i data-lucide="trash-2" class="w-4 h-4 stroke-[2.5]"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
+
+        <div class="seg-track max-w-xs mx-auto w-full">
+            <button class="seg-btn active" id="tab-upload" onclick="switchTab('upload')">📄 Upload PDF</button>
+            <button class="seg-btn" id="tab-paste" onclick="switchTab('paste')">✏️ Paste Text</button>
+        </div>
+
+        <!-- Upload -->
+        <div id="view-upload">
+            <label for="pdf-upload" class="upload-zone flex flex-col items-center justify-center text-center p-10 gap-3"
+                id="drop-zone">
+                <input type="file" id="pdf-upload" accept="application/pdf" class="hidden">
+                <div class="w-16 h-16 bg-orange rounded-2xl border-2 border-dark flex items-center justify-center"
+                    style="box-shadow:4px 4px 0 #1e293b;">
+                    <i data-lucide="file-text" class="w-8 h-8 text-dark stroke-[2.5]"></i>
+                </div>
+                <div>
+                    <h2 class="font-heading text-2xl text-dark dark:text-white">Upload Teacher Notes</h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1 max-w-xs">Tap to browse or drag & drop
+                        your English 1 PDF here.</p>
+                </div>
+                <span class="badge" style="background:#FF8C42;"><i data-lucide="file-badge"
+                        class="w-3.5 h-3.5 stroke-[2.5]"></i> PDF Only</span>
+                <div id="loading-indicator"
+                    class="hidden absolute inset-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-[14px] flex flex-col items-center justify-center gap-3 z-10">
+                    <div class="w-12 h-12 bg-blue rounded-2xl border-2 border-dark flex items-center justify-center"
+                        style="box-shadow:4px 4px 0 #1e293b;">
+                        <i data-lucide="loader" class="w-6 h-6 text-white spin stroke-[2.5]"></i>
+                    </div>
+                    <span class="font-heading text-lg text-dark dark:text-white">Extracting Modules...</span>
+                </div>
+            </label>
+        </div>
+
+        <!-- Paste -->
+        <div id="view-paste" class="hidden">
+            <div class="card">
+                <div class="p-4 border-b-2 border-dark dark:border-slate-600 flex items-center gap-2 bg-blue">
+                    <i data-lucide="clipboard-paste" class="w-5 h-5 text-white stroke-[2.5]"></i>
+                    <h3 class="font-heading text-lg text-white">Paste Your Notes</h3>
+                </div>
+                <textarea id="raw-text-input"
+                    class="w-full h-52 bg-transparent text-dark dark:text-white p-4 text-sm focus:outline-none placeholder-slate-400"
+                    placeholder="Paste teacher notes text here..."></textarea>
+                <div
+                    class="p-3 bg-slate-50 dark:bg-slate-800 border-t-2 border-dark dark:border-slate-600 flex justify-end">
+                    <button onclick="processPastedText()" class="btn btn-blue">
+                        <i data-lucide="sparkles" class="w-4 h-4 stroke-[2.5]"></i> Extract Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug -->
+        <div id="debug-panel" class="hidden"></div>
+
+        <!-- Cards -->
+        <div class="flex flex-col gap-5" id="modules-container"></div>
+
+    </main>
+
+    <div id="toast-container"></div>
+
+    <script>
+        lucide.createIcons();
+
+        // ── Dark mode ─────────────────────────────────────────────────────────────────
+        function toggleDark() {
+            document.documentElement.classList.toggle('dark');
+            const dark = document.documentElement.classList.contains('dark');
+            document.getElementById('dark-icon').setAttribute('data-lucide', dark ? 'sun' : 'moon');
+            lucide.createIcons();
+            localStorage.setItem('theme', dark ? 'dark' : 'light');
+        }
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+            setTimeout(() => {
+                document.getElementById('dark-icon').setAttribute('data-lucide', 'sun');
+                lucide.createIcons();
+            }, 0);
+        }
+
+        // ── Debug ─────────────────────────────────────────────────────────────────────
+        let debugLines = [];
+        const log = (...a) => debugLines.push(a.map(x => typeof x === 'object' ? JSON.stringify(x, null, 2) : String(x)).join(' '));
+        function toggleDebug() {
+            const p = document.getElementById('debug-panel');
+            p.classList.toggle('hidden');
+            if (!p.classList.contains('hidden')) p.textContent = debugLines.join('\n') || '(no log yet)';
+        }
+
+        // ── IndexedDB ─────────────────────────────────────────────────────────────────
+        const DB_NAME = 'LessonExtractorDB_v2';
+        let db;
+        async function initDB() {
+            return new Promise((res, rej) => {
+                const req = indexedDB.open(DB_NAME, 1);
+                req.onerror = () => rej('DB Error');
+                req.onsuccess = e => { db = e.target.result; res(db); };
+                req.onupgradeneeded = e => {
+                    const d = e.target.result;
+                    if (!d.objectStoreNames.contains('lessons'))
+                        d.createObjectStore('lessons', { keyPath: 'id' });
+                };
+            });
+        }
+        async function saveToDB(title, modules) {
+            if (!db) await initDB();
+            return new Promise(res => {
+                const tx = db.transaction('lessons', 'readwrite');
+                tx.objectStore('lessons').put({ id: 'current', title, modules });
+                tx.oncomplete = () => res();
+            });
+        }
+        async function loadFromDB() {
+            if (!db) await initDB();
+            return new Promise(res => {
+                const tx = db.transaction('lessons', 'readonly');
+                const req = tx.objectStore('lessons').get('current');
+                req.onsuccess = () => res(req.result);
+                req.onerror = () => res(null);
+            });
+        }
+        async function clearData() {
+            if (!db) await initDB();
+            const tx = db.transaction('lessons', 'readwrite');
+            tx.objectStore('lessons').delete('current');
+            tx.oncomplete = () => {
+                document.getElementById('doc-title').innerText = 'Lesson Extractor';
+                debugLines = [];
+                renderModules([]);
+                showToast('🗑️ Saved data cleared');
+            };
+        }
+        window.addEventListener('load', async () => {
+            await initDB();
+            lucide.createIcons();
+            const data = await loadFromDB();
+            if (data?.modules) { document.getElementById('doc-title').innerText = data.title; renderModules(data.modules); }
+            else renderModules([]);
+        });
+
+        // ── Toast ─────────────────────────────────────────────────────────────────────
+        function showToast(msg) {
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 stroke-[2.5]" style="color:#00E676;flex-shrink:0;"></i><span>${msg}</span>`;
+            c.appendChild(t); lucide.createIcons();
+            setTimeout(() => t.classList.add('show'), 10);
+            setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); }, 2800);
+        }
+
+        // ── Tabs ──────────────────────────────────────────────────────────────────────
+        function switchTab(tab) {
+            ['upload', 'paste'].forEach(t => {
+                document.getElementById('tab-' + t).classList.remove('active');
+                document.getElementById('view-' + t).classList.add('hidden');
+            });
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('view-' + tab).classList.remove('hidden');
+        }
+
+        // ── File/Paste entry points ───────────────────────────────────────────────────
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('pdf-upload');
+        const loadingEl = document.getElementById('loading-indicator');
+        const container = document.getElementById('modules-container');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); }));
+        ['dragenter', 'dragover'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.add('dragover')));
+        ['dragleave', 'drop'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.remove('dragover')));
+        dropZone.addEventListener('drop', e => { if (e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]); });
+        fileInput.addEventListener('change', e => { if (e.target.files.length) processFile(e.target.files[0]); });
+
+        async function processFile(file) {
+            if (file.type !== 'application/pdf') { showToast('⚠️ Please upload a PDF file.'); return; }
+            loadingEl.classList.remove('hidden'); container.innerHTML = ''; debugLines = [];
+            try {
+                const buf = await file.arrayBuffer();
+                const { fullText, boldText } = await extractTextWithColumns(buf);
+                log('── FULL TEXT (first 3000) ──\n' + fullText.substring(0, 3000));
+                let title = 'Teacher Notes';
+                const tm = fullText.match(/(Book\s+\d+,\s+Unit\s+\d+)/i);
+                if (tm) { title = tm[1]; document.getElementById('doc-title').innerText = title; }
+                const modules = parseExtractedText(fullText, boldText);
+                await saveToDB(title, modules);
+                renderModules(modules);
+                showToast(`✅ ${modules.length} module${modules.length !== 1 ? 's' : ''} extracted!`);
+                switchTab('upload');
+            } catch (err) {
+                console.error(err); log('ERROR: ' + err);
+                showToast('⚠️ Error parsing PDF — try pasting text.');
+            } finally {
+                loadingEl.classList.add('hidden'); fileInput.value = '';
+            }
+        }
+        async function processPastedText() {
+            const text = document.getElementById('raw-text-input').value;
+            if (!text.trim()) { showToast('⚠️ Nothing to extract!'); return; }
+            container.innerHTML = ''; debugLines = [];
+            log('── PASTED TEXT (first 3000) ──\n' + text.substring(0, 3000));
+            // No bold info available for pasted text — pass empty boldText string
+            // so parsers fall back to full-text regex matching automatically.
+            const modules = parseExtractedText(text, '');
+            await saveToDB(document.getElementById('doc-title').innerText, modules);
+            renderModules(modules);
+            showToast(`✅ ${modules.length} module${modules.length !== 1 ? 's' : ''} extracted!`);
+        }
+
+        // ── PDF Extraction ─────────────────────────────────────────────────────────────
+        // Returns { fullText, boldText } where:
+        //   fullText  = full extracted text (unchanged behaviour)
+        //   boldText  = PARALLEL string, SAME LENGTH as fullText:
+        //               bold characters kept as-is,
+        //               non-bold characters replaced with a space (1-for-1).
+        // Because lengths always match, any slice [start:end] on fullText
+        // can be applied identically to boldText to get the bold content for that chunk.
+        async function extractTextWithColumns(buf) {
+            const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+            let fullText = '';
+            let boldText = '';
+
+            const appendItems = (items) => {
+                let lastY = null;
+                items.forEach(it => {
+                    const nl = lastY !== null && Math.abs(lastY - it.transform[5]) > 10;
+                    const prefix = nl ? '\n' : '';
+                    fullText += prefix + it.str + ' ';
+                    boldText += prefix + (it.bold ? it.str : ' '.repeat(it.str.length)) + ' ';
+                    lastY = it.transform[5];
+                });
+            };
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const vp = page.getViewport({ scale: 1.0 });
+                const tc = await page.getTextContent();
+                const styles = tc.styles || {};
+                const midX = vp.width / 2;
+                let left = [], right = [], full = [];
+
+                tc.items.forEach(item => {
+                    if (!item.str.trim()) return;
+                    const fn = item.fontName || '';
+                    const ff = (styles[fn] || {}).fontFamily || '';
+                    const enriched = { ...item, bold: /bold/i.test(fn) || /bold/i.test(ff) };
+                    if (item.width > vp.width * 0.7) full.push(enriched);
+                    else if (item.transform[4] < midX) left.push(enriched);
+                    else right.push(enriched);
+                });
+
+                const sortY = (a, b) => {
+                    const dy = b.transform[5] - a.transform[5];
+                    return Math.abs(dy) > 5 ? dy : a.transform[4] - b.transform[4];
+                };
+                full.sort(sortY); left.sort(sortY); right.sort(sortY);
+
+                // Full-width row
+                full.forEach(it => {
+                    fullText += it.str + ' ';
+                    boldText += (it.bold ? it.str : ' '.repeat(it.str.length)) + ' ';
+                });
+                fullText += '\n'; boldText += '\n';
+
+                appendItems(left); fullText += '\n\n'; boldText += '\n\n';
+                appendItems(right); fullText += '\n\n'; boldText += '\n\n';
+                fullText += '--PAGE_BREAK--\n\n';
+                boldText += '--PAGE_BREAK--\n\n';
+            }
+
+            log(`Extraction done. full=${fullText.length} chars, bold=${boldText.length} chars (should match)`);
+            log(`Bold sample (first 400):\n${boldText.substring(0, 400).replace(/ +/g, ' ')}`);
+            return { fullText, boldText };
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        //  PARSER
+        // ════════════════════════════════════════════════════════════════════════════════
+
+        /* Lines we NEVER want in any structured field */
+        function isJunk(line) {
+            const s = line.trim();
+            return (
+                !s || s.length < 2 ||
+                /^\d{1,2}\/\d{1,2}\/\d{2,4}/.test(s) ||   // timestamp: 3/10/26
+                /^https?:\/\//.test(s) ||                    // URL
+                /Teacher Notes/i.test(s) ||                  // page-header echo
+                /^Frontrunner/i.test(s) ||
+                /^Book \d+/i.test(s)
+            );
+        }
+
+        /*
+         * Anchors that mark the start of a new structured field in the module header.
+         * Ordered so that "In this section" always terminates language/grammar blocks.
+         */
+        const ANCHORS = [
+            'Target Language:',
+            'Target Grammar:',
+            'Materials:',
+            'Preparation:',
+            'In this section'
+        ];
+
+        /*
+         * Where does body/instruction prose begin?
+         * We look for lines that start with known activity-instruction phrases.
+         */
+        const BODY_RE = /\n[ \t]*(?=(?:Setting the Context|Pre-?reading|Post-?reading|Pre-?speaking|Post-?speaking|Pre-?writing|Post-?writing|Pre-?listening|Post-?listening|Introducing |Using |Listening: |Speaking: |Reading: |Writing: |Tell the |Have the |Use slide|Use Presentation|Discuss |Divide |Distribute |Ask the|Open Presentation|Display |Inform |Show the))/;
+
+        /* Split a module chunk into structured header + body prose */
+        function splitChunk(chunk) {
+            const m = BODY_RE.exec(chunk);
+            if (m) return { header: chunk.slice(0, m.index), body: chunk.slice(m.index) };
+            // Fallback: everything is header, no body
+            return { header: chunk, body: '' };
+        }
+
+        /* Extract a named field from the HEADER block only */
+        function extractField(key, header) {
+            const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const stopPat = ANCHORS.filter(a => a !== key).map(esc).join('|');
+            const re = new RegExp(`${esc(key)}[^\\n]*\\n([\\s\\S]*?)(?=${stopPat}|$)`, 'i');
+            const m = re.exec(header);
+            if (!m) return [];
+            return m[1]
+                .split('\n')
+                .map(s => s.replace(/^[-•…]\s*/, '').trim())
+                .filter(s => !isJunk(s));
+        }
+
+        /* Expand "1-3" → ["1","2","3"], "32–33" → ["32","33"], handles commas & "and" */
+        function expandNums(str) {
+            const out = new Set();
+            str.replace(/\band\b/gi, ',').split(/[,\s]+/).forEach(p => {
+                const r = p.match(/^(\d+)[-–](\d+)$/);
+                if (r) {
+                    const lo = +r[1], hi = +r[2];
+                    if (hi - lo <= 20) for (let i = lo; i <= hi; i++) out.add(String(i));
+                    else out.add(p);               // keep "32–33" for large ranges (pages)
+                } else if (/^\d+$/.test(p)) out.add(p);
+            });
+            return [...out].filter(Boolean);
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        //  REFERENCE STATE MACHINE
+        //
+        //  Rather than matching specific phrases, we:
+        //    1. Collapse the bold stream into a clean flat string (only bold words remain)
+        //    2. Tokenize it — find every "Presentation N", "slide(s) N", "page(s) N"
+        //       and record each as a typed token with a position
+        //    3. Run a state machine over the sorted token list:
+        //         - "pres" tokens register a presentation as a named state node
+        //         - "slide" tokens attach to the NEAREST pres token (by char distance)
+        //           — direction doesn't matter: slide can appear before or after pres
+        //         - "page" tokens are collected independently into a flat set
+        //
+        //  This works because the COLLAPSED bold stream is tiny (only bold words) so
+        //  "slide 1  Presentation 1  slides 2-3  slide 4  pages 32-33" is what we
+        //  actually parse — distances between related tokens are always small.
+        // ════════════════════════════════════════════════════════════════════════════════
+
+        // Reduce the parallel bold stream to just the bold words (spaces collapse away)
+        function collapseBold(boldChunk) {
+            return boldChunk.replace(/\n+/g, ' ').replace(/\s{2,}/g, ' ').trim();
+        }
+
+        // Tokenize any flat text into typed reference tokens sorted by position.
+        // Each token: { type: 'pres'|'slide'|'page', value: string, pos: number }
+        function tokenizeRefs(text) {
+            const flat = text.replace(/[\r\n]+/g, ' ').replace(/\s{2,}/g, ' ');
+            const tokens = [];
+            let m;
+
+            // Presentation N
+            const rP = /\bPresentation\s+(\d+)/gi;
+            while ((m = rP.exec(flat)) !== null)
+                tokens.push({ type: 'pres', value: m[1], pos: m.index });
+
+            // slide(s) N  or  slides N–M
+            const rS = /\bslides?\s+(\d[\d,\s\-–]*)/gi;
+            while ((m = rS.exec(flat)) !== null)
+                tokens.push({ type: 'slide', value: m[1].trim(), pos: m.index });
+
+            // page(s) N  or  p. N
+            const rPg = /\b(?:pages?|p\.)\s+(\d[\d,\s\-–]*)/gi;
+            while ((m = rPg.exec(flat)) !== null)
+                tokens.push({ type: 'page', value: m[1].trim(), pos: m.index });
+
+            return tokens.sort((a, b) => a.pos - b.pos);
+        }
+
+        // State machine: build { pres: {N: Set<slideNum>}, pages: [pageNum] } from tokens.
+        function buildRefsState(tokens) {
+            const pres = {};
+            const pages = new Set();
+
+            // Register every Presentation as an empty state node first
+            const presTokens = tokens.filter(t => t.type === 'pres');
+            presTokens.forEach(pt => { if (!pres[pt.value]) pres[pt.value] = new Set(); });
+
+            log(`  [state] pres nodes: [${presTokens.map(p => 'P' + p.value + '@' + p.pos).join(', ')}]`);
+            log(`  [state] all tokens: ${tokens.map(t => t.type[0].toUpperCase() + ':' + t.value + '@' + t.pos).join(' | ')}`);
+
+            tokens.forEach(tok => {
+                if (tok.type === 'slide') {
+                    if (!presTokens.length) return; // no presentations in this module — skip
+                    // Nearest pres token by raw character distance (before OR after)
+                    let nearest = presTokens[0];
+                    let minDist = Math.abs(tok.pos - presTokens[0].pos);
+                    presTokens.forEach(pt => {
+                        const d = Math.abs(tok.pos - pt.pos);
+                        if (d < minDist) { minDist = d; nearest = pt; }
+                    });
+                    expandNums(tok.value).forEach(n => pres[nearest.value].add(n));
+                    log(`  [state] slide "${tok.value}" → Pres.${nearest.value} (dist ${minDist})`);
+                } else if (tok.type === 'page') {
+                    expandNums(tok.value).forEach(n => { if (+n >= 1 && +n <= 999) pages.add(n); });
+                }
+            });
+
+            return { pres, pages: [...pages].sort((a, b) => +a - +b) };
+        }
+
+        // ── Main parse entry ──────────────────────────────────────────────────────────
+        // rawBold may be '' (pasted text mode — no bold info available).
+        function parseExtractedText(rawFull, rawBold) {
+            const hasBold = rawBold && rawBold.length === rawFull.length;
+
+            // Normalise typography — applied to both strings equally so lengths stay matched
+            const norm = t => t
+                .replace(/\r/g, '')
+                .replace(/•/g, '-')
+                .replace(/[\u2013\u2014]/g, '-')
+                .replace(/[\u2018\u2019]/g, "'")
+                .replace(/[\u201c\u201d]/g, '"');
+
+            const fullText = norm(rawFull);
+            const boldText = hasBold ? norm(rawBold) : '';
+
+            // Sanity-check that normalisation preserved length parity
+            if (hasBold && boldText.length !== fullText.length) {
+                log(`⚠️ Length mismatch after normalise: full=${fullText.length} bold=${boldText.length} — falling back to full-text-only parsing`);
+            }
+            const boldOK = hasBold && boldText.length === fullText.length;
+
+            const modules = [];
+            const MOD_RE = /^([A-Z][A-Za-z0-9\s&:\-\/'"]+?)\s*\(\s*(\d+)\s*min\.?\s*\)/gm;
+            let match;
+            const idx = [];
+            while ((match = MOD_RE.exec(fullText)) !== null)
+                idx.push({ title: match[1].trim(), duration: match[2] + ' min.', pos: match.index });
+
+            log(`\nDetected ${idx.length} module headings:`);
+            idx.forEach((m, i) => log(`  ${i + 1}. ${m.title} (${m.duration})`));
+
+            for (let i = 0; i < idx.length; i++) {
+                const start = idx[i].pos;
+                const end = i + 1 < idx.length ? idx[i + 1].pos : fullText.length;
+                const fullChunk = fullText.slice(start, end);
+                // Same character slice on boldText — works because lengths match
+                const boldChunk = boldOK ? boldText.slice(start, end) : '';
+
+                const { header, body } = splitChunk(fullChunk);
+
+                // Get the bold version of just the body portion
+                const bodyOffset = fullChunk.length - body.length;
+                const boldBody = boldChunk ? boldChunk.slice(bodyOffset) : '';
+
+                log(`\n─── ${idx[i].title} ───`);
+                log(`Header (first 300): ${header.replace(/\n/g, '↵').substring(0, 300)}`);
+                log(`Body (first 200):   ${body.replace(/\n/g, '↵').substring(0, 200)}`);
+                log(`Bold body (collapsed 200): ${collapseBold(boldBody).substring(0, 200)}`);
+
+                const langLines = extractField('Target Language:', header);
+                const gramLines = extractField('Target Grammar:', header);
+                const matLines = extractField('Materials:', header);
+                const prepLines = extractField('Preparation:', header);
+
+                const willRaw = extractField('In this section', header);
+                const willLines = willRaw.filter(l =>
+                    !l.match(/^the students will/i) &&
+                    !l.match(/^[….]+$/) && l.length > 4
+                );
+
+                // ── Reference state machine ──────────────────────────────────────────
+                // Try bold stream first (most signal, least noise).
+                // Fall back to full body if bold stream has no content (paste mode).
+                let pres = {};
+                let pages = [];
+
+                const boldFlat = collapseBold(boldBody);
+                const hasBoldContent = boldFlat.replace(/\s/g, '').length > 3;
+
+                if (hasBoldContent) {
+                    log(`[bold stream] "${boldFlat.substring(0, 250)}"`);
+                    const boldTokens = tokenizeRefs(boldFlat);
+                    const boldRefs = buildRefsState(boldTokens);
+                    pres = boldRefs.pres;
+                    pages = boldRefs.pages;
+                    log(`[bold] pres: ${JSON.stringify(Object.fromEntries(Object.entries(pres).map(([k, v]) => [k, [...v]])))}`);
+                    log(`[bold] pages: ${pages.join(', ')}`);
+                }
+
+                // Fallback: full body text (pasted notes or bold gave nothing)
+                if (!Object.keys(pres).length) {
+                    const bodyTokens = tokenizeRefs(body);
+                    const bodyRefs = buildRefsState(bodyTokens);
+                    pres = bodyRefs.pres;
+                    if (!pages.length) pages = bodyRefs.pages;
+                    log(`[full fallback] pres: ${JSON.stringify(Object.fromEntries(Object.entries(pres).map(([k, v]) => [k, [...v]])))}`);
+                    log(`[full fallback] pages: ${pages.join(', ')}`);
+                }
+
+                log(`Lang: ${langLines.join(' | ')}`);
+                log(`Gram: ${gramLines.join(' | ')}`);
+                log(`Mat:  ${matLines.join(', ')}`);
+                log(`Prep: ${prepLines.join(', ')}`);
+                log(`Will: ${willLines.join(' | ')}`);
+
+                modules.push({
+                    title: idx[i].title,
+                    duration: idx[i].duration,
+                    data: {
+                        lang: langLines,
+                        gram: gramLines,
+                        materials: matLines.length ? matLines : ['Check textbook.'],
+                        prep: prepLines.length ? prepLines : ['None'],
+                        will: willLines,
+                        presentations: pres,
+                        pages
+                    }
+                });
+            }
+
+            return modules;
+        }
+
+        // ════════════════════════════════════════════════════════════════════════════════
+        //  RENDERER
+        // ════════════════════════════════════════════════════════════════════════════════
+        const ACCENTS = ['#FF6B95', '#FF8C42', '#2979FF', '#00E676'];
+        const TXT_ON = ['#1e293b', '#1e293b', '#ffffff', '#1e293b'];
+
+        function listHTML(items, empty = 'N/A') {
+            if (!items || !items.length) return `<span class="text-slate-400 dark:text-slate-500 text-sm italic">${empty}</span>`;
+            if (items.length === 1) return `<span class="text-sm text-dark dark:text-slate-200 leading-snug">${items[0]}</span>`;
+            return `<ul class="space-y-1">${items.map(item =>
+                `<li class="flex items-start gap-1.5 text-sm text-dark dark:text-slate-200 leading-snug">
+            <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500 shrink-0"></span>
+            <span>${item}</span>
+        </li>`
+            ).join('')}</ul>`;
+        }
+
+        function presHTML(presentations) {
+            const keys = Object.keys(presentations).sort((a, b) => +a - +b);
+            if (!keys.length) return `<span class="text-slate-400 dark:text-slate-500 text-sm italic">See Presentation</span>`;
+            return `<div class="flex flex-wrap gap-1.5">${keys.map(pk => {
+                const slides = [...presentations[pk]].sort((a, b) => +a - +b);
+                return `<span class="pres-chip"><i data-lucide="monitor" class="w-3 h-3 stroke-[2.5]"></i>Pres.${pk}: <strong>${slides.join(', ')}</strong></span>`;
+            }).join('')}</div>`;
+        }
+
+        function pagesHTML(pages) {
+            if (!pages || !pages.length) return `<span class="text-slate-400 dark:text-slate-500 text-sm italic">See Teacher Notes</span>`;
+            // Compress sequential numbers back into ranges for display
+            const ranges = [];
+            let s = null, p = null;
+            pages.forEach(n => {
+                const v = +n;
+                if (s === null) { s = v; p = v; }
+                else if (v === p + 1) { p = v; }
+                else { ranges.push(s === p ? String(s) : `${s}–${p}`); s = v; p = v; }
+            });
+            if (s !== null) ranges.push(s === p ? String(s) : `${s}–${p}`);
+            return `<span class="text-sm text-dark dark:text-slate-200">${ranges.join(', ')}</span>`;
+        }
+
+        function renderModules(modules) {
+            container.innerHTML = '';
+            if (!modules.length) {
+                container.innerHTML = `
+        <div class="card flex flex-col items-center justify-center p-12 text-center gap-4">
+            <div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-2xl border-2 border-dark dark:border-slate-500 flex items-center justify-center" style="box-shadow:3px 3px 0 #1e293b;">
+                <i data-lucide="folder-search" class="w-8 h-8 text-slate-400 stroke-[2]"></i>
+            </div>
+            <div>
+                <h3 class="font-heading text-xl text-dark dark:text-white">No Modules Yet</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Upload a PDF or paste your teacher notes above.</p>
+            </div>
+        </div>`;
+                lucide.createIcons(); return;
+            }
+
+            modules.forEach((mod, i) => {
+                const id = `mod-${i}`;
+                const accent = ACCENTS[i % ACCENTS.length];
+                const txtcol = TXT_ON[i % TXT_ON.length];
+                const d = mod.data;
+
+                const html = `
+        <article class="card" id="${id}" style="animation-delay:${i * 60}ms;">
+
+            <!-- Header bar -->
+            <div class="flex items-center justify-between gap-3 px-4 py-3 border-b-2 border-dark dark:border-slate-600" style="background:${accent};">
+                <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-7 h-7 bg-white/30 rounded-lg border-2 border-dark flex items-center justify-center shrink-0 font-heading font-bold text-sm text-dark leading-none">${i + 1}</span>
+                    <h2 class="font-heading text-lg leading-tight truncate" style="color:${txtcol};">${mod.title}</h2>
+                </div>
+                <span class="badge shrink-0" style="background:rgba(255,255,255,.85);">
+                    <i data-lucide="clock" class="w-3 h-3 stroke-[2.5]"></i>${mod.duration}
+                </span>
+            </div>
+
+            <!-- Body -->
+            <div class="p-4 flex flex-col gap-4">
+
+                <!-- Target Focus -->
+                <div class="section-stripe" style="border-color:${accent};">
+                    <h3 class="font-heading text-base text-dark dark:text-white mb-2 flex items-center gap-1.5">
+                        <i data-lucide="target" class="w-4 h-4 stroke-[2.5]"></i> Target Focus
+                    </h3>
+                    <div class="flex flex-col gap-2">
+                        <div>
+                            <span class="font-heading text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">Language</span>
+                            <div class="mt-1">${listHTML(d.lang)}</div>
+                        </div>
+                        ${d.gram.length ? `<div>
+                            <span class="font-heading text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">Grammar</span>
+                            <div class="mt-1">${listHTML(d.gram)}</div>
+                        </div>` : ''}
+                    </div>
+                </div>
+
+                <!-- Requirements -->
+                <div class="section-stripe border-slate-300 dark:border-slate-600">
+                    <h3 class="font-heading text-base text-dark dark:text-white mb-2 flex items-center gap-1.5">
+                        <i data-lucide="package" class="w-4 h-4 stroke-[2.5]"></i> Requirements
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <span class="font-heading text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">Materials</span>
+                            <div class="mt-1">${listHTML(d.materials)}</div>
+                        </div>
+                        <div>
+                            <span class="font-heading text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">Preparation</span>
+                            <div class="mt-1">${listHTML(d.prep)}</div>
+                        </div>
+                    </div>
+                </div>
+
+                ${d.will.length ? `
+                <!-- Students Will (collapsible) -->
+                <div class="section-stripe border-green dark:border-green">
+                    <button class="w-full flex items-center justify-between text-left gap-2" onclick="toggleWill(${i})">
+                        <h3 class="font-heading text-base text-dark dark:text-white flex items-center gap-1.5">
+                            <i data-lucide="graduation-cap" class="w-4 h-4 stroke-[2.5]"></i> Students Will…
+                        </h3>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 stroke-[2.5] chevron-icon" id="chev-${i}"></i>
+                    </button>
+                    <div class="will-content mt-2" id="will-${i}">
+                        ${listHTML(d.will)}
+                    </div>
+                </div>` : ''}
+
+                <!-- References -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="info-chip">
+                        <p class="font-heading text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-2">Presentations</p>
+                        ${presHTML(d.presentations)}
+                    </div>
+                    <div class="info-chip">
+                        <p class="font-heading text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-1.5">Pages</p>
+                        ${pagesHTML(d.pages)}
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="px-4 pb-4">
+                <button onclick="copyCard('${id}')" class="btn btn-dark w-full">
+                    <i data-lucide="clipboard-copy" class="w-4 h-4 stroke-[2.5]"></i> Copy Details
+                </button>
+            </div>
+
+        </article>`;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+            lucide.createIcons();
+        }
+
+        function toggleWill(i) {
+            const el = document.getElementById(`will-${i}`);
+            const chv = document.getElementById(`chev-${i}`);
+            el.classList.toggle('open');
+            chv && chv.classList.toggle('open');
+        }
+
+        // ── Copy to clipboard ─────────────────────────────────────────────────────────
+        function copyCard(id) {
+            const card = document.getElementById(id);
+            if (!card) return;
+            const title = card.querySelector('h2')?.innerText || '';
+            const dur = card.querySelector('.badge')?.innerText?.trim() || '';
+
+            // Grab each section's text by heading label
+            const secs = card.querySelectorAll('.section-stripe');
+            let focus = '', reqs = '', will = '';
+            secs.forEach(sec => {
+                const h = sec.querySelector('h3')?.innerText || '';
+                const body = sec.innerText.replace(h, '').trim();
+                if (h.includes('Focus')) focus = body;
+                else if (h.includes('Require')) reqs = body;
+                else if (h.includes('Will')) will = body;
+            });
+
+            const chips = [...card.querySelectorAll('.pres-chip')].map(c => c.innerText.trim()).join(' | ') || 'See Presentation';
+            const pages = card.querySelectorAll('.info-chip')[1]?.innerText.replace(/Pages/i, '').trim() || 'See Teacher Notes';
+
+            const out = [
+                `📋 ${title} (${dur})`,
+                '═══════════════════════════════',
+                '',
+                '🎯 TARGET FOCUS',
+                focus,
+                '',
+                '📦 REQUIREMENTS',
+                reqs,
+                will ? `\n🎓 STUDENTS WILL…\n${will}` : '',
+                '',
+                '📊 REFERENCES',
+                `Presentations: ${chips}`,
+                `Pages: ${pages}`,
+            ].join('\n');
+
+            navigator.clipboard?.writeText(out).catch(() => {
+                const t = document.createElement('textarea');
+                t.value = out; document.body.appendChild(t); t.select();
+                document.execCommand('copy'); document.body.removeChild(t);
+            });
+            showToast('📋 Details copied!');
+        }
+    </script>
+</body>
+
+</html>
