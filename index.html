@@ -19,33 +19,47 @@
     <!-- 3. ICONS -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- 4. DESIGN SYSTEM CONFIG -->
+    <!-- 4. THEME INITIALIZATION -->
+    <script>
+        // Prevent Flash of Light Mode
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
+    <!-- 5. DESIGN SYSTEM CONFIG -->
+
     <script>
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "e1-pink": "#FF6B95",
-                        "e1-orange": "#FF8C42",
-                        "e1-green": "#00E676",
-                        "e1-blue": "#2979FF",
-                        "e1-dark": "#1e293b",
-                        "e1-chalk": "#f8fafc",
+                        "e1-pink": "#ff4785",
+                        "e1-orange": "#ff7e33",
+                        "e1-green": "#00d063",
+                        "e1-blue": "#1ea7fd",
+                        "e1-dark": "#0f172a",
+                        "e1-slate": "#f8fafc",
                     },
                     fontFamily: {
                         headings: ["Fredoka", "sans-serif"],
                         body: ["Nunito", "sans-serif"],
                     },
                     boxShadow: {
-                        neo: "4px 4px 0px 0px rgba(30, 41, 59, 1)",
-                        "neo-lg": "8px 8px 0px 0px rgba(30, 41, 59, 1)",
-                        "neo-xl": "12px 12px 0px 0px rgba(30, 41, 59, 1)",
+                        neo: "4px 4px 0px 0px rgba(15, 23, 42, 1)",
+                        "neo-lg": "8px 8px 0px 0px rgba(15, 23, 42, 1)",
+                        "neo-xl": "12px 12px 0px 0px rgba(15, 23, 42, 1)",
+                        "neo-dark": "4px 4px 0px 0px rgba(255, 255, 255, 0.2)",
+                        "neo-lg-dark": "8px 8px 0px 0px rgba(255, 255, 255, 0.2)",
                     },
                     borderWidth: { 3: "3px", 4: "4px", 6: "6px" },
                 },
             },
         };
+
     </script>
 
     <style>
@@ -117,12 +131,15 @@
     </style>
 </head>
 
-<body class="font-body text-e1-dark transition-colors duration-200 min-h-screen flex flex-col">
+<body
+    class="font-body text-e1-dark dark:text-e1-slate transition-colors duration-200 min-h-screen flex flex-col dark:bg-[#020617]">
     <!-- HEADER / NAVBAR -->
-    <nav class="w-full bg-white border-b-4 border-e1-dark p-4 sticky top-0 z-50">
+    <nav
+        class="w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b-4 border-e1-dark dark:border-slate-800 p-4 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center px-4">
             <div class="flex items-center gap-4">
-                <div class="bg-e1-pink p-2 rounded-xl border-3 border-e1-dark shadow-neo">
+                <div
+                    class="bg-e1-pink p-2 rounded-xl border-3 border-e1-dark dark:border-slate-800 shadow-neo dark:shadow-neo-dark">
                     <i data-lucide="wrench" class="text-white w-6 h-6"></i>
                 </div>
                 <h1 class="font-headings text-2xl font-bold tracking-tight">
@@ -136,13 +153,15 @@
                     <a href="#" class="hover:text-e1-pink transition-colors">Debate Hub</a>
                     <a href="#" class="hover:text-e1-green transition-colors">Teaching</a>
                 </div>
-                <button onclick="toggleDarkMode()"
-                    class="bg-e1-dark text-white p-2.5 rounded-xl border-3 border-e1-dark shadow-neo-sm btn-neo">
-                    <i data-lucide="moon" class="w-5 h-5"></i>
+                <button onclick="toggleDarkMode()" id="theme-toggle"
+                    class="bg-e1-dark dark:bg-slate-800 text-white p-2.5 rounded-xl border-3 border-e1-dark dark:border-slate-800 shadow-neo dark:shadow-neo-dark btn-neo">
+                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
                 </button>
             </div>
         </div>
     </nav>
+
 
     <!-- HERO SECTION -->
     <header class="w-full py-16 px-6 text-center">
@@ -151,36 +170,39 @@
                 Work hard. <br />
                 <span class="text-e1-pink">Debate</span> harder.
             </h2>
-            <p class="text-xl md:text-2xl font-bold text-slate-500 mb-10 max-w-2xl mx-auto">
+            <p class="text-xl md:text-2xl font-bold text-slate-500 dark:text-slate-400 mb-10 max-w-2xl mx-auto">
                 A custom collection of digital tools built for the modern
                 English teacher and competitive debater.
             </p>
+
 
             <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
                 <div class="relative w-full max-w-md">
                     <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"></i>
                     <input type="text" id="toolSearch" oninput="filterTools()"
-                        class="w-full bg-white border-4 border-e1-dark rounded-2xl p-4 pl-12 font-bold shadow-neo outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all"
+                        class="w-full bg-white dark:bg-slate-800 border-4 border-e1-dark dark:border-slate-800 rounded-2xl p-4 pl-12 font-bold shadow-neo dark:shadow-neo-dark outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all dark:text-white"
                         placeholder="Search for a tool..." />
                 </div>
+
                 <div class="flex gap-2">
                     <button onclick="setSetupFormat('All')"
-                        class="filter-btn bg-e1-dark text-white border-3 border-e1-dark px-4 py-2 rounded-xl font-headings font-bold shadow-neo-sm hover:translate-y-[-2px] transition active:translate-y-[1px]">
+                        class="filter-btn bg-e1-dark dark:bg-e1-blue text-white border-3 border-e1-dark dark:border-slate-800 px-4 py-2 rounded-xl font-headings font-bold shadow-neo dark:shadow-neo-dark hover:translate-y-[-2px] transition active:translate-y-[1px]">
                         All
                     </button>
                     <button onclick="setSetupFormat('Debate')"
-                        class="filter-btn bg-white border-3 border-e1-dark px-4 py-2 rounded-xl font-headings font-bold shadow-neo-sm hover:translate-y-[-2px] transition active:translate-y-[1px]">
+                        class="filter-btn bg-white dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-800 px-4 py-2 rounded-xl font-headings font-bold shadow-neo dark:shadow-neo-dark hover:translate-y-[-2px] transition active:translate-y-[1px]">
                         Debate
                     </button>
                     <button onclick="setSetupFormat('Work')"
-                        class="filter-btn bg-white border-3 border-e1-dark px-4 py-2 rounded-xl font-headings font-bold shadow-neo-sm hover:translate-y-[-2px] transition active:translate-y-[1px]">
+                        class="filter-btn bg-white dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-800 px-4 py-2 rounded-xl font-headings font-bold shadow-neo dark:shadow-neo-dark hover:translate-y-[-2px] transition active:translate-y-[1px]">
                         Work
                     </button>
                     <button onclick="setSetupFormat('D&D')"
-                        class="filter-btn bg-white border-3 border-e1-dark px-4 py-2 rounded-xl font-headings font-bold shadow-neo-sm hover:translate-y-[-2px] transition active:translate-y-[1px]">
+                        class="filter-btn bg-white dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-800 px-4 py-2 rounded-xl font-headings font-bold shadow-neo dark:shadow-neo-dark hover:translate-y-[-2px] transition active:translate-y-[1px]">
                         D&D
                     </button>
                 </div>
+
             </div>
         </div>
     </header>
@@ -199,18 +221,20 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="w-full bg-white border-t-4 border-e1-dark p-8 mt-auto">
+    <footer class="w-full bg-white dark:bg-slate-900 border-t-4 border-e1-dark dark:border-slate-800 p-8 mt-auto">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="flex gap-4">
                 <a href="https://github.com/pod-III"
-                    class="bg-white border-3 border-e1-dark p-2 rounded-lg shadow-neo-sm hover:bg-slate-50 transition"><i
+                    class="bg-white dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-700 p-2 rounded-lg shadow-neo dark:shadow-neo-dark hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i
                         data-lucide="github"></i></a>
                 <a href="mailto:fahyandp@gmail.com"
-                    class="bg-white border-3 border-e1-dark p-2 rounded-lg shadow-neo-sm hover:bg-slate-50 transition"><i
+                    class="bg-white dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-700 p-2 rounded-lg shadow-neo dark:shadow-neo-dark hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i
                         data-lucide="mail"></i></a>
             </div>
+            <p class="text-sm font-bold text-slate-400">© 2026 Mr.Fahrul. Built for teachers.</p>
         </div>
     </footer>
+
 
     <script>
         lucide.createIcons();
@@ -263,30 +287,31 @@
                 const card = document.createElement("a");
                 card.href = tool.route;
                 card.className =
-                    "tool-card bg-white border-4 border-e1-dark rounded-[2rem] p-8 shadow-neo-lg flex flex-col group";
+                    "tool-card bg-white dark:bg-slate-800 border-4 border-e1-dark dark:border-slate-800 rounded-[2rem] p-8 shadow-neo-lg dark:shadow-neo-lg-dark flex flex-col group";
 
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-6">
-                    <div class="p-4 rounded-2xl border-3 border-e1-dark shadow-neo ${colorMap[tool.color] || tool.color || "bg-e1-blue border-e1-blue"} text-white group-hover:rotate-6 transition-transform">
+                    <div class="p-4 rounded-2xl border-3 border-e1-dark dark:border-slate-800 shadow-neo dark:shadow-neo-dark ${colorMap[tool.color] || tool.color || "bg-e1-blue border-e1-blue"} text-white group-hover:rotate-6 transition-transform">
                             <i data-lucide="${tool.icon || "box"}" class="w-8 h-8"></i>
                         </div>
 
-                        <span class="bg-slate-100 border-2 border-e1-dark rounded-full px-4 py-1 text-[10px] font-bold uppercase tracking-widest">${tool.category}</span>
+                        <span class="bg-slate-100 dark:bg-slate-700 border-2 border-e1-dark dark:border-slate-800 dark:text-slate-300 rounded-full px-4 py-1 text-[10px] font-bold uppercase tracking-widest">${tool.category}</span>
                     </div>
 
-                    <h3 class="font-headings text-2xl font-bold mb-3 group-hover:text-e1-blue transition-colors">${tool.name}</h3>
-                    <p class="text-slate-500 font-bold text-sm mb-6 flex-grow leading-relaxed">
+                    <h3 class="font-headings text-2xl font-bold mb-3 group-hover:text-e1-blue transition-colors dark:text-white">${tool.name}</h3>
+                    <p class="text-slate-500 dark:text-slate-400 font-bold text-sm mb-6 flex-grow leading-relaxed">
                         ${tool.description}
                     </p>
 
                     <div class="flex flex-wrap gap-2 mb-8">
-                        ${tool.tags.map((tag) => `<span class="text-[9px] font-black uppercase text-slate-400">#${tag}</span>`).join("")}
+                        ${tool.tags.map((tag) => `<span class="text-[9px] font-black uppercase text-slate-400 dark:text-slate-500">#${tag}</span>`).join("")}
                     </div>
 
-                    <div class="w-full bg-e1-dark text-white font-headings font-bold py-3 rounded-xl text-center border-2 border-e1-dark shadow-neo-sm group-hover:bg-e1-blue transition-colors">
+                    <div class="w-full bg-e1-dark dark:bg-slate-700 text-white font-headings font-bold py-3 rounded-xl text-center border-2 border-e1-dark dark:border-slate-800 shadow-neo-sm dark:shadow-neo-dark group-hover:bg-e1-blue transition-colors">
                         Open Tool
                     </div>
                 `;
+
                 grid.appendChild(card);
             });
             lucide.createIcons();
@@ -313,21 +338,26 @@
 
             // UI Updates
             document.querySelectorAll(".filter-btn").forEach((btn) => {
-                if (btn.innerText === category) {
+                const isSelected = btn.innerText === category;
+                if (isSelected) {
                     btn.classList.add("bg-e1-dark", "text-white");
-                    btn.classList.remove("bg-white");
+                    btn.classList.remove("bg-white", "dark:bg-slate-800");
                 } else {
                     btn.classList.remove("bg-e1-dark", "text-white");
-                    btn.classList.add("bg-white");
+                    btn.classList.add("bg-white", "dark:bg-slate-800");
                 }
             });
+
 
             filterTools();
         }
 
         function toggleDarkMode() {
-            document.documentElement.classList.toggle("dark");
+            const isDark = document.documentElement.classList.toggle("dark");
+            localStorage.setItem("theme", isDark ? "dark" : "light");
+            lucide.createIcons(); // Refresh icons if needed
         }
+
 
         // Initialize
         loadTools();
