@@ -28,6 +28,20 @@
     ]
   },
   {
+    "id": "webp-studio",
+    "name": "WebP Studio",
+    "description": "Convert images to WebP format with advanced compression settings.",
+    "category": "Work",
+    "route": "./webp-studio/index.html",
+    "icon": "image",
+    "color": "bg-e1-blue",
+    "tags": [
+      "Images",
+      "Utility",
+      "Work"
+    ]
+  },
+  {
     "id": "debate-timer",
     "name": "DebateTimer",
     "description": "A specialized countdown timer for competitive debate. Features presets for WSDC/Asian and BP speeches with automated bell alerts.",

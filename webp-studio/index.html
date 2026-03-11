@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebP Studio · neo‑brutalist editor</title>
+
+    <!-- Fonts & Tailwind -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "e1-pink": "#FF6B95",
+                        "e1-orange": "#FF8C42",
+                        "e1-green": "#00E676",
+                        "e1-blue": "#2979FF",
+                        "e1-dark": "#1e293b",
+                        "e1-chalk": "#f8fafc",
+                    },
+                    fontFamily: {
+                        headings: ["Fredoka", "sans-serif"],
+                        body: ["Nunito", "sans-serif"],
+                    },
+                    boxShadow: {
+                        neo: "4px 4px 0px 0px rgba(30, 41, 59, 1)",
+                        "neo-sm": "2px 2px 0px 0px rgba(30, 41, 59, 1)",
+                        "neo-pressed": "inset 2px 2px 0px 0px rgba(30, 41, 59, 1)",
+                    },
+                    borderWidth: { 3: "3px" },
+                },
+            },
+        };
+    </script>
+
+    <style>
+        /* Graph paper background */
+        body {
+            background-color: #f8fafc;
+            background-image:
+                linear-gradient(rgba(30, 41, 59, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30, 41, 59, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .dark body {
+            background-color: #0f172a;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        }
+
+        /* Custom sliders (same as MultiSplitter) */
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #1e293b;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 2px 2px 0px 0px rgba(30, 41, 59, 1);
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #cbd5e1;
+            border-radius: 4px;
+            border: 1px solid #1e293b;
+        }
+
+        /* Toggle button active state (for flip) */
+        .mode-active {
+            background-color: #1e293b !important;
+            color: #00e676 !important;
+            box-shadow: inset 2px 2px 0px 0px rgba(0, 0, 0, 0.5) !important;
+            transform: translate(1px, 1px);
+        }
+
+        /* Canvas container background (checkerboard for transparency) */
+        .canvas-checker {
+            background: repeating-conic-gradient(#cbd5e1 0% 25%, #e2e8f0 0% 50%) 50% / 20px 20px;
+            border: 2px solid #1e293b;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+
+<body class="font-body text-e1-dark flex flex-col min-h-screen transition-colors duration-200">
+
+    <!-- ========== HEADER ========== -->
+    <nav class="w-full bg-white border-b-4 border-e1-dark p-4 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="../index.html"
+                    class="bg-e1-dark text-white p-2 rounded-xl border-2 border-e1-dark shadow-neo-sm hover:translate-y-[-2px] transition-transform active:translate-y-[2px] active:shadow-none"
+                    title="Back to Hub">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                </a>
+                <div class="flex items-center gap-3">
+                    <div class="bg-e1-pink p-2 rounded-xl border-2 border-e1-dark shadow-neo-sm">
+                        <i data-lucide="image" class="text-white w-6 h-6"></i>
+                    </div>
+                    <h1 class="font-headings text-2xl font-bold tracking-wide">
+                        WebP<span class="text-e1-blue">Studio</span>
+                    </h1>
+                </div>
+            </div>
+            <button onclick="toggleDarkMode()"
+                class="bg-e1-dark text-white p-2 rounded-xl border-2 border-e1-dark shadow-neo-sm hover:translate-y-[-1px] transition-transform"
+                title="Toggle Dark Mode">
+                <i data-lucide="moon" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="flex-grow max-w-6xl mx-auto w-full p-4 lg:p-8 flex flex-col lg:flex-row gap-8">
+
+        <!-- LEFT SIDEBAR (CONTROLS) -->
+        <aside class="w-full lg:w-1/3 flex flex-col gap-6">
+
+            <!-- CARD: STEP 1 - UPLOAD -->
+            <div class="bg-white p-6 rounded-2xl border-4 border-e1-dark shadow-neo relative overflow-hidden">
+                <div
+                    class="absolute top-0 right-0 bg-e1-orange text-white text-xs font-bold px-3 py-1 border-l-2 border-b-2 border-e1-dark rounded-bl-xl font-headings">
+                    STEP 1
+                </div>
+                <h2 class="font-headings text-xl font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="upload-cloud" class="w-5 h-5 text-e1-orange"></i>
+                    Load Image
+                </h2>
+
+                <!-- Upload area (identical to MultiSplitter's) -->
+                <div
+                    class="border-3 border-dashed border-slate-300 rounded-xl bg-slate-50 h-24 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 hover:border-e1-blue transition-colors relative group">
+                    <input type="file" id="fileInput" accept="image/*"
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                    <div class="flex items-center gap-2 group-hover:scale-105 transition-transform">
+                        <i data-lucide="image-plus" class="w-6 h-6 text-e1-blue"></i>
+                        <span class="font-bold text-slate-500 text-sm">Select an image</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD: STEP 2 - EDIT & CONVERT (initially disabled) -->
+            <div class="bg-white p-6 rounded-2xl border-4 border-e1-dark shadow-neo relative opacity-50 pointer-events-none transition-all duration-300"
+                id="configCard">
+                <div
+                    class="absolute top-0 right-0 bg-e1-blue text-white text-xs font-bold px-3 py-1 border-l-2 border-b-2 border-e1-dark rounded-bl-xl font-headings">
+                    STEP 2
+                </div>
+                <h2 class="font-headings text-xl font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-5 h-5 text-e1-green"></i>
+                    Transform & Export
+                </h2>
+
+                <!-- ROTATION SECTION -->
+                <div class="mb-6">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="w-2 h-2 rounded-full bg-e1-pink"></span>
+                        <p class="text-xs text-slate-500 font-bold">ROTATION</p>
+                    </div>
+                    <!-- Quick angle buttons -->
+                    <div class="flex gap-2 mb-3 flex-wrap">
+                        <button id="rotateLeft"
+                            class="bg-slate-100 border-2 border-e1-dark px-3 py-1.5 rounded-lg text-sm font-bold shadow-neo-sm hover:translate-y-[-1px] active:translate-y-[2px] active:shadow-none transition-all flex items-center gap-1"><i
+                                data-lucide="rotate-ccw" class="w-4 h-4"></i>-90°</button>
+                        <button id="rotateRight"
+                            class="bg-slate-100 border-2 border-e1-dark px-3 py-1.5 rounded-lg text-sm font-bold shadow-neo-sm hover:translate-y-[-1px] active:translate-y-[2px] active:shadow-none transition-all flex items-center gap-1"><i
+                                data-lucide="rotate-cw" class="w-4 h-4"></i>+90°</button>
+                        <button id="rotate180"
+                            class="bg-slate-100 border-2 border-e1-dark px-3 py-1.5 rounded-lg text-sm font-bold shadow-neo-sm hover:translate-y-[-1px] active:translate-y-[2px] active:shadow-none transition-all flex items-center gap-1"><i
+                                data-lucide="rotate-3d" class="w-4 h-4"></i>180°</button>
+                        <button id="rotateReset"
+                            class="bg-slate-100 border-2 border-e1-dark px-3 py-1.5 rounded-lg text-sm font-bold shadow-neo-sm hover:translate-y-[-1px] active:translate-y-[2px] active:shadow-none transition-all flex items-center gap-1"><i
+                                data-lucide="x" class="w-4 h-4"></i>Reset</button>
+                    </div>
+                    <!-- Fine‑tune slider -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-e1-blue">0°</span>
+                        <input type="range" id="rotationSlider" min="0" max="360" value="0" step="1" class="w-full" />
+                        <span class="text-xs font-bold text-e1-pink">360°</span>
+                    </div>
+                    <p class="text-right text-sm font-bold mt-1" id="angleDisplay">0°</p>
+                </div>
+
+                <!-- FLIP SECTION (toggle buttons) -->
+                <div class="mb-6">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="w-2 h-2 rounded-full bg-e1-green"></span>
+                        <p class="text-xs text-slate-500 font-bold">FLIP</p>
+                    </div>
+                    <div class="bg-slate-100 p-1 rounded-xl border-2 border-e1-dark flex shadow-inner">
+                        <button id="flipH"
+                            class="flex-1 py-2 rounded-lg font-bold text-sm transition-all">Horizontal</button>
+                        <button id="flipV"
+                            class="flex-1 py-2 rounded-lg font-bold text-sm transition-all">Vertical</button>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1 italic">Click to toggle (active = dark)</p>
+                </div>
+
+                <!-- CROP SECTION (simple numeric inputs, styled like MultiSplitter) -->
+                <div class="mb-6">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="w-2 h-2 rounded-full bg-e1-orange"></span>
+                        <p class="text-xs text-slate-500 font-bold">CROP (px from original)</p>
+                    </div>
+                    <!-- CROP SLIDERS -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Left -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500">Left</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="cropXSlider" min="0" max="100" value="0" class="w-full" />
+                                <span id="cropXVal" class="text-sm font-bold w-10 text-right">0</span>
+                            </div>
+                        </div>
+                        <!-- Top -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500">Top</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="cropYSlider" min="0" max="100" value="0" class="w-full" />
+                                <span id="cropYVal" class="text-sm font-bold w-10 text-right">0</span>
+                            </div>
+                        </div>
+                        <!-- Width -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500">Width</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="cropWSlider" min="1" max="100" value="100" class="w-full" />
+                                <span id="cropWVal" class="text-sm font-bold w-10 text-right">100</span>
+                            </div>
+                        </div>
+                        <!-- Height -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500">Height</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="cropHSlider" min="1" max="100" value="100" class="w-full" />
+                                <span id="cropHVal" class="text-sm font-bold w-10 text-right">100</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="resetCrop"
+                        class="w-full mt-3 bg-slate-200 border-2 border-e1-dark py-2 rounded-lg font-bold text-sm shadow-neo-sm hover:translate-y-[-1px] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="maximize" class="w-4 h-4"></i>Full image
+                    </button>
+                </div>
+
+                <!-- RESIZE SECTION (checkbox + width/height) -->
+                <div class="mb-6">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="w-2 h-2 rounded-full bg-e1-blue"></span>
+                        <p class="text-xs text-slate-500 font-bold">RESIZE (maintains aspect)</p>
+                    </div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <input type="checkbox" id="resizeEnable"
+                            class="w-4 h-4 accent-e1-green border-2 border-e1-dark" />
+                        <span class="text-sm font-bold">Enable resize</span>
+                    </div>
+                    <!-- RESIZE SLIDERS -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500">Max Width</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="maxWidthSlider" min="100" max="2000" value="800"
+                                    class="w-full" />
+                                <span id="maxWidthVal" class="text-sm font-bold w-10 text-right">800</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500">Max Height</label>
+                            <div class="flex items-center gap-2">
+                                <input type="range" id="maxHeightSlider" min="100" max="2000" value="600"
+                                    class="w-full" />
+                                <span id="maxHeightVal" class="text-sm font-bold w-10 text-right">600</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DOWNLOAD BUTTON (green, like MultiSplitter) -->
+                <button id="downloadBtn"
+                    class="w-full mt-4 bg-e1-green text-e1-dark font-headings font-bold text-lg py-3 px-4 rounded-xl border-2 border-e1-dark shadow-neo hover:translate-y-[-2px] hover:shadow-lg active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-2 group"
+                    disabled>
+                    <i data-lucide="download" class="group-hover:animate-bounce"></i>
+                    Download WebP
+                </button>
+                <p id="statusMsg" class="text-center text-xs font-bold text-e1-blue mt-2 h-4"></p>
+            </div>
+        </aside>
+
+        <!-- RIGHT PREVIEW AREA -->
+        <section class="w-full lg:w-2/3">
+            <div
+                class="bg-white p-2 rounded-2xl border-4 border-e1-dark shadow-neo h-full min-h-[500px] flex flex-col relative">
+                <div
+                    class="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur border-2 border-e1-dark px-3 py-1 rounded-lg shadow-sm">
+                    <h2 class="font-headings text-sm font-bold flex items-center gap-2">
+                        <i data-lucide="eye" class="text-e1-blue w-4 h-4"></i>
+                        Live Preview
+                    </h2>
+                </div>
+
+                <!-- Canvas container with checkerboard background -->
+                <div class="flex-grow canvas-checker flex items-center justify-center overflow-hidden relative m-1 p-4"
+                    id="previewContainer">
+                    <div id="emptyState" class="text-center p-6 animate-pulse">
+                        <div class="inline-block bg-white p-4 rounded-full border-2 border-e1-dark shadow-neo mb-4">
+                            <i data-lucide="layout-grid" class="w-12 h-12 text-slate-300"></i>
+                        </div>
+                        <p class="text-slate-400 font-bold font-headings text-lg">Waiting for image...</p>
+                    </div>
+                    <canvas id="mainCanvas"
+                        class="hidden shadow-2xl border-2 border-e1-dark relative z-10 max-w-full max-h-full object-contain"></canvas>
+                </div>
+
+                <!-- Dimensions info (like MultiSplitter had) -->
+                <div class="flex justify-between text-sm text-slate-500 font-bold mt-2 px-2">
+                    <span>Original: <span id="origDim">—</span></span>
+                    <span>Output: <span id="outDim">—</span></span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        (function () {
+            lucide.createIcons();
+
+            // ----- DOM elements -----
+            const fileInput = document.getElementById('fileInput');
+            const configCard = document.getElementById('configCard');
+            const emptyState = document.getElementById('emptyState');
+            const mainCanvas = document.getElementById('mainCanvas');
+            const previewContainer = document.getElementById('previewContainer');
+            const ctx = mainCanvas.getContext('2d');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const statusMsg = document.getElementById('statusMsg');
+            const origDim = document.getElementById('origDim');
+            const outDim = document.getElementById('outDim');
+
+            // Rotation controls
+            const rotateLeft = document.getElementById('rotateLeft');
+            const rotateRight = document.getElementById('rotateRight');
+            const rotate180 = document.getElementById('rotate180');
+            const rotateReset = document.getElementById('rotateReset');
+            const rotationSlider = document.getElementById('rotationSlider');
+            const angleDisplay = document.getElementById('angleDisplay');
+
+            // Flip toggle buttons
+            const flipH = document.getElementById('flipH');
+            const flipV = document.getElementById('flipV');
+
+            // Crop sliders
+            const cropXSlider = document.getElementById('cropXSlider');
+            const cropYSlider = document.getElementById('cropYSlider');
+            const cropWSlider = document.getElementById('cropWSlider');
+            const cropHSlider = document.getElementById('cropHSlider');
+            const cropXVal = document.getElementById('cropXVal');
+            const cropYVal = document.getElementById('cropYVal');
+            const cropWVal = document.getElementById('cropWVal');
+            const cropHVal = document.getElementById('cropHVal');
+            const resetCrop = document.getElementById('resetCrop');
+
+            // Resize controls
+            const resizeEnable = document.getElementById('resizeEnable');
+            const maxWidthSlider = document.getElementById('maxWidthSlider');
+            const maxHeightSlider = document.getElementById('maxHeightSlider');
+            const maxWidthVal = document.getElementById('maxWidthVal');
+            const maxHeightVal = document.getElementById('maxHeightVal');
+
+            // ----- State -----
+            let originalImage = null;
+            let originalWidth = 0, originalHeight = 0;
+            let rotation = 0;          // degrees
+            let flipHorizontal = false;
+            let flipVertical = false;
+
+            // ----- Helper: update rotation UI -----
+            function updateRotationUI() {
+                angleDisplay.textContent = rotation + '°';
+                rotationSlider.value = rotation;
+            }
+
+            // ----- Update crop slider max values based on image & current left/top -----
+            function updateCropSliderRanges() {
+                if (!originalImage) return;
+                cropXSlider.max = originalWidth;
+                cropYSlider.max = originalHeight;
+                // Adjust width/height max based on current left/top
+                cropWSlider.max = originalWidth - parseInt(cropXSlider.value);
+                cropHSlider.max = originalHeight - parseInt(cropYSlider.value);
+                // Ensure width/height don't exceed new max
+                if (parseInt(cropWSlider.value) > cropWSlider.max) cropWSlider.value = cropWSlider.max;
+                if (parseInt(cropHSlider.value) > cropHSlider.max) cropHSlider.value = cropHSlider.max;
+            }
+
+            // ----- Sync displayed values with sliders -----
+            function syncCropSliders() {
+                cropXVal.textContent = cropXSlider.value;
+                cropYVal.textContent = cropYSlider.value;
+                cropWVal.textContent = cropWSlider.value;
+                cropHVal.textContent = cropHSlider.value;
+            }
+
+            function syncResizeSliders() {
+                maxWidthVal.textContent = maxWidthSlider.value;
+                maxHeightVal.textContent = maxHeightSlider.value;
+            }
+
+            // ----- Main render function -----
+            function renderPreview() {
+                if (!originalImage) return;
+
+                // Read current crop values
+                let srcX = parseInt(cropXSlider.value);
+                let srcY = parseInt(cropYSlider.value);
+                let srcW = parseInt(cropWSlider.value);
+                let srcH = parseInt(cropHSlider.value);
+
+                // Clamp to image bounds (should already be limited by sliders, but just in case)
+                srcX = Math.max(0, Math.min(srcX, originalWidth - 1));
+                srcY = Math.max(0, Math.min(srcY, originalHeight - 1));
+                srcW = Math.max(1, Math.min(srcW, originalWidth - srcX));
+                srcH = Math.max(1, Math.min(srcH, originalHeight - srcY));
+
+                // Dimensions after rotation
+                let baseW, baseH;
+                if (rotation === 90 || rotation === 270) {
+                    baseW = srcH;
+                    baseH = srcW;
+                } else {
+                    baseW = srcW;
+                    baseH = srcH;
+                }
+
+                let outW = baseW, outH = baseH;
+
+                // Resize if enabled
+                if (resizeEnable.checked) {
+                    const maxW = parseInt(maxWidthSlider.value);
+                    const maxH = parseInt(maxHeightSlider.value);
+                    const scale = Math.min(maxW / baseW, maxH / baseH, 1); // never enlarge
+                    outW = Math.round(baseW * scale);
+                    outH = Math.round(baseH * scale);
+                }
+
+                // Set canvas size
+                mainCanvas.width = outW;
+                mainCanvas.height = outH;
+
+                // Draw with transformations
+                ctx.clearRect(0, 0, outW, outH);
+                ctx.save();
+                ctx.translate(outW / 2, outH / 2);
+                ctx.rotate(rotation * Math.PI / 180);
+                ctx.scale(flipHorizontal ? -1 : 1, flipVertical ? -1 : 1);
+                ctx.drawImage(
+                    originalImage,
+                    srcX, srcY, srcW, srcH,
+                    -outW / 2, -outH / 2, outW, outH
+                );
+                ctx.restore();
+
+                outDim.textContent = `${outW} x ${outH}`;
+            }
+
+            // ----- Load image from file -----
+            function handleUpload(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        originalImage = img;
+                        originalWidth = img.width;
+                        originalHeight = img.height;
+                        origDim.textContent = `${originalWidth} x ${originalHeight}`;
+
+                        // Enable UI
+                        configCard.classList.remove('opacity-50', 'pointer-events-none');
+                        emptyState.classList.add('hidden');
+                        mainCanvas.classList.remove('hidden');
+                        downloadBtn.disabled = false;
+
+                        // Reset controls
+                        rotation = 0;
+                        flipHorizontal = false;
+                        flipVertical = false;
+                        flipH.classList.remove('mode-active');
+                        flipV.classList.remove('mode-active');
+                        updateRotationUI();
+
+                        // Set crop sliders to full image
+                        cropXSlider.value = 0;
+                        cropYSlider.value = 0;
+                        cropWSlider.value = originalWidth;
+                        cropHSlider.value = originalHeight;
+                        // Set resize slider maxes (e.g., up to 2x original, but at least 2000)
+                        maxWidthSlider.max = Math.max(2000, originalWidth * 2);
+                        maxHeightSlider.max = Math.max(2000, originalHeight * 2);
+                        maxWidthSlider.value = 800;
+                        maxHeightSlider.value = 600;
+                        resizeEnable.checked = false;
+
+                        // Update ranges and display
+                        updateCropSliderRanges();
+                        syncCropSliders();
+                        syncResizeSliders();
+                        renderPreview();
+                    };
+                    img.src = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // ----- Event listeners -----
+            fileInput.addEventListener('change', handleUpload);
+
+            // Rotation buttons
+            rotateLeft.addEventListener('click', () => {
+                rotation = (rotation - 90 + 360) % 360;
+                updateRotationUI();
+                renderPreview();
+            });
+            rotateRight.addEventListener('click', () => {
+                rotation = (rotation + 90) % 360;
+                updateRotationUI();
+                renderPreview();
+            });
+            rotate180.addEventListener('click', () => {
+                rotation = (rotation + 180) % 360;
+                updateRotationUI();
+                renderPreview();
+            });
+            rotateReset.addEventListener('click', () => {
+                rotation = 0;
+                updateRotationUI();
+                renderPreview();
+            });
+            rotationSlider.addEventListener('input', (e) => {
+                rotation = parseInt(e.target.value);
+                angleDisplay.textContent = rotation + '°';
+                renderPreview();
+            });
+
+            // Flip toggles (mode-active class)
+            flipH.addEventListener('click', () => {
+                flipHorizontal = !flipHorizontal;
+                flipH.classList.toggle('mode-active', flipHorizontal);
+                renderPreview();
+            });
+            flipV.addEventListener('click', () => {
+                flipVertical = !flipVertical;
+                flipV.classList.toggle('mode-active', flipVertical);
+                renderPreview();
+            });
+
+            // Crop sliders
+            cropXSlider.addEventListener('input', () => {
+                // When left changes, width max decreases
+                cropWSlider.max = originalWidth - parseInt(cropXSlider.value);
+                if (parseInt(cropWSlider.value) > cropWSlider.max) cropWSlider.value = cropWSlider.max;
+                syncCropSliders();
+                renderPreview();
+            });
+            cropYSlider.addEventListener('input', () => {
+                cropHSlider.max = originalHeight - parseInt(cropYSlider.value);
+                if (parseInt(cropHSlider.value) > cropHSlider.max) cropHSlider.value = cropHSlider.max;
+                syncCropSliders();
+                renderPreview();
+            });
+            cropWSlider.addEventListener('input', () => {
+                cropWVal.textContent = cropWSlider.value;
+                renderPreview();
+            });
+            cropHSlider.addEventListener('input', () => {
+                cropHVal.textContent = cropHSlider.value;
+                renderPreview();
+            });
+
+            // Reset crop button
+            resetCrop.addEventListener('click', () => {
+                cropXSlider.value = 0;
+                cropYSlider.value = 0;
+                cropWSlider.value = originalWidth;
+                cropHSlider.value = originalHeight;
+                // Recalculate maxes
+                cropWSlider.max = originalWidth;
+                cropHSlider.max = originalHeight;
+                syncCropSliders();
+                renderPreview();
+            });
+
+            // Resize controls
+            resizeEnable.addEventListener('change', renderPreview);
+            maxWidthSlider.addEventListener('input', () => {
+                syncResizeSliders();
+                renderPreview();
+            });
+            maxHeightSlider.addEventListener('input', () => {
+                syncResizeSliders();
+                renderPreview();
+            });
+
+            // Download as WebP
+            downloadBtn.addEventListener('click', () => {
+                if (!originalImage) return;
+
+                statusMsg.innerText = 'Generating WebP...';
+                downloadBtn.disabled = true;
+
+                // Ensure canvas is up to date
+                renderPreview();
+
+                mainCanvas.toBlob((blob) => {
+                    if (!blob) {
+                        alert('WebP conversion failed. Your browser may not support WebP.');
+                        statusMsg.innerText = '';
+                        downloadBtn.disabled = false;
+                        return;
+                    }
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'webp-studio-image.webp';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    statusMsg.innerText = 'Download ready!';
+                    downloadBtn.disabled = false;
+                    setTimeout(() => (statusMsg.innerText = ''), 3000);
+                }, 'image/webp', 0.92);
+            });
+
+            // Dark mode toggle (copied from MultiSplitter)
+            window.toggleDarkMode = function () {
+                document.documentElement.classList.toggle('dark');
+            };
+
+            // Resize handler to keep preview scaled inside container
+            window.addEventListener('resize', () => {
+                if (originalImage) renderPreview();
+            });
+        })();
+    </script>
+</body>
+
+</html>
