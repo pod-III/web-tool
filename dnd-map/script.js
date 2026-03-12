@@ -76,7 +76,10 @@ const state = {
     historyIndex: -1,
 
     // Token library
-    tokenLibrary: []
+    tokenLibrary: [],
+
+    // Player mode tool: 'move' | 'pan' | 'fog'
+    playerTool: 'move'
 };
 
 // ==================== DOM CACHE ====================
@@ -730,6 +733,35 @@ function setTool(tool) {
     if (btnId) $(btnId)?.classList.add('ring-2', 'ring-amber-500');
 }
 
+// ==================== PLAYER TOOL SELECTION ====================
+const playerToolButtons = {
+    move: 'player-tool-move',
+    pan: 'player-tool-pan',
+    fog: 'player-tool-fog'
+};
+
+function setPlayerTool(tool) {
+    state.playerTool = tool;
+    Object.values(playerToolButtons).forEach(id => {
+        const el = $(id);
+        if (!el) return;
+        el.classList.remove('ring-2', 'ring-amber-400', 'bg-amber-700', 'text-stone-100', 'border-amber-700/60');
+        el.classList.add('bg-stone-800', 'text-stone-300', 'border-stone-600');
+    });
+    const activeEl = $(playerToolButtons[tool]);
+    if (activeEl) {
+        activeEl.classList.remove('bg-stone-800', 'text-stone-300', 'border-stone-600');
+        activeEl.classList.add('ring-2', 'ring-amber-400', 'bg-amber-700', 'text-stone-100', 'border-amber-700/60');
+    }
+    const hints = {
+        move: 'Drag tokens to move them',
+        pan: 'Drag the map to explore',
+        fog: 'Tap a dark area to reveal it'
+    };
+    const hintEl = $('player-tool-hint');
+    if (hintEl) hintEl.textContent = hints[tool] || '';
+}
+
 // ==================== POINTER EVENT HANDLERS ====================
 function onPointerDown(e) {
     if (e.button === 2) return; // Right click handled by contextmenu
@@ -757,15 +789,18 @@ function onPointerDown(e) {
     const pos = getPointerPos(e);
     state.lastPointerCenter = { x: e.clientX, y: e.clientY };
 
-    // Pan with middle mouse button or pan tool
-    if (e.button === 1 || state.currentTool === TOOLS.PAN) {
+    // Pan with middle mouse button, pan tool, or player pan mode
+    if (e.button === 1 || state.currentTool === TOOLS.PAN ||
+        (!state.isDMMode && state.playerTool === 'pan')) {
         state.isPanning = true;
         return;
     }
 
-    // Token detection for drag tool (DM mode) or any mode? Only DM can drag
+    // Token detection: DM drag tool OR player move tool
+    const canMoveTokens = (state.isDMMode && state.currentTool === TOOLS.DRAG) ||
+                          (!state.isDMMode && state.playerTool === 'move');
     let tokenHit = null;
-    if (state.isDMMode && state.currentTool === TOOLS.DRAG) {
+    if (canMoveTokens) {
         for (let i = state.tokens.length - 1; i >= 0; i--) {
             const t = state.tokens[i];
             const radius = ((t.size || 1) * state.gridSize) / 2;
@@ -777,8 +812,8 @@ function onPointerDown(e) {
         }
     }
 
-    // If no token hit and in drag mode, fallback to pan
-    if (!tokenHit && state.currentTool === TOOLS.DRAG && e.button !== 2) {
+    // If no token hit and in move/drag mode, fallback to pan
+    if (!tokenHit && canMoveTokens && e.button !== 2) {
         state.isPanning = true;
         return;
     }
@@ -957,8 +992,8 @@ function onPointerUp(e) {
         }
         state.currentDrawPoints = [];
         renderFog();
-    } else if (!state.isDMMode && wasTap) {
-        // Player tap to reveal fog
+    } else if (!state.isDMMode && wasTap && state.playerTool === 'fog') {
+        // Player tap to reveal fog (only in fog tool mode)
         const pos = getPointerPos(e);
         processFogTapPlayer(pos);
     }
@@ -1055,20 +1090,29 @@ function initUI() {
         state.isDMMode = !state.isDMMode;
         const btn = dom.modeToggle;
         btn.classList.remove('bg-amber-700', 'hover:bg-amber-600', 'bg-stone-700', 'hover:bg-stone-600');
+        const playerToolbar = $('player-toolbar');
 
         if (state.isDMMode) {
             dom.sidebar.style.display = 'flex';
             btn.innerHTML = `<i data-lucide="user" class="w-4 h-4"></i> Enter Player View`;
             btn.classList.add('bg-amber-700', 'hover:bg-amber-600');
+            if (playerToolbar) playerToolbar.classList.add('hidden');
         } else {
             dom.sidebar.style.display = 'none';
             btn.innerHTML = `<i data-lucide="shield" class="w-4 h-4"></i> Enter DM View`;
             btn.classList.add('bg-stone-700', 'hover:bg-stone-600');
             fitMapToScreen(); // Auto-center when entering player view
+            if (playerToolbar) playerToolbar.classList.remove('hidden');
+            setPlayerTool('move'); // Reset to move tool on entering player view
         }
         lucide.createIcons();
         renderFog();
     });
+
+    // Player tool buttons
+    $('player-tool-move')?.addEventListener('click', () => setPlayerTool('move'));
+    $('player-tool-pan')?.addEventListener('click', () => setPlayerTool('pan'));
+    $('player-tool-fog')?.addEventListener('click', () => setPlayerTool('fog'));
 
     // Tool buttons
     $('tool-drag').addEventListener('click', () => setTool(TOOLS.DRAG));
