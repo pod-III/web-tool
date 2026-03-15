@@ -421,40 +421,31 @@
 
     <main class="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
 
-        <div class="seg-track max-w-xs mx-auto w-full">
-            <button class="seg-btn active" id="tab-upload" onclick="switchTab('upload')">📄 Upload PDF</button>
-            <button class="seg-btn" id="tab-paste" onclick="switchTab('paste')">✏️ Paste Text</button>
+        <div class="seg-track max-w-sm mx-auto w-full">
+            <button class="seg-btn active" id="tab-paste" onclick="switchTab('paste')">✏️ Paste Text</button>
+            <button class="seg-btn" id="tab-overview" onclick="switchTab('overview')">📊 Overview</button>
         </div>
 
-        <!-- Upload -->
-        <div id="view-upload">
-            <label for="pdf-upload" class="upload-zone flex flex-col items-center justify-center text-center p-10 gap-3"
-                id="drop-zone">
-                <input type="file" id="pdf-upload" accept="application/pdf" class="hidden">
-                <div class="w-16 h-16 bg-orange rounded-2xl border-2 border-dark flex items-center justify-center"
-                    style="box-shadow:4px 4px 0 #1e293b;">
-                    <i data-lucide="file-text" class="w-8 h-8 text-dark stroke-[2.5]"></i>
-                </div>
-                <div>
-                    <h2 class="font-heading text-2xl text-dark dark:text-white">Upload Teacher Notes</h2>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1 max-w-xs">Tap to browse or drag & drop
-                        your English 1 PDF here.</p>
-                </div>
-                <span class="badge" style="background:#FF8C42;"><i data-lucide="file-badge"
-                        class="w-3.5 h-3.5 stroke-[2.5]"></i> PDF Only</span>
-                <div id="loading-indicator"
-                    class="hidden absolute inset-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-[14px] flex flex-col items-center justify-center gap-3 z-10">
-                    <div class="w-12 h-12 bg-blue rounded-2xl border-2 border-dark flex items-center justify-center"
-                        style="box-shadow:4px 4px 0 #1e293b;">
-                        <i data-lucide="loader" class="w-6 h-6 text-white spin stroke-[2.5]"></i>
-                    </div>
-                    <span class="font-heading text-lg text-dark dark:text-white">Extracting Modules...</span>
-                </div>
-            </label>
+        <!-- Unit Metadata -->
+        <div id="unit-metadata" class="card p-4 flex flex-col gap-4 bg-slate-50 dark:bg-slate-800/50">
+            <div class="flex flex-col gap-2">
+                <label class="font-heading text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">Unit
+                    Title</label>
+                <input type="text" id="unit-title-input" oninput="updateUnitMetadata()"
+                    class="bg-white dark:bg-slate-900 border-2 border-dark dark:border-slate-600 rounded-xl px-4 py-2 text-dark dark:text-white focus:outline-none focus:border-blue transition-colors"
+                    placeholder="e.g. Book 1, Unit 5">
+            </div>
+            <div class="flex flex-col gap-2">
+                <label class="font-heading text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">Unit Aims
+                    / Objectives</label>
+                <textarea id="unit-aims-input" oninput="updateUnitMetadata()"
+                    class="bg-white dark:bg-slate-900 border-2 border-dark dark:border-slate-600 rounded-xl px-4 py-2 text-dark dark:text-white focus:outline-none focus:border-blue transition-colors h-24 resize-none"
+                    placeholder="What should students achieve by the end of this unit?"></textarea>
+            </div>
         </div>
 
         <!-- Paste -->
-        <div id="view-paste" class="hidden">
+        <div id="view-paste">
             <div class="card">
                 <div class="p-4 border-b-2 border-dark dark:border-slate-600 flex items-center gap-2 bg-blue">
                     <i data-lucide="clipboard-paste" class="w-5 h-5 text-white stroke-[2.5]"></i>
@@ -474,6 +465,11 @@
 
         <!-- Debug -->
         <div id="debug-panel" class="hidden"></div>
+
+        <!-- Overview -->
+        <div id="view-overview" class="hidden flex flex-col gap-6">
+            <div id="overview-content"></div>
+        </div>
 
         <!-- Cards -->
         <div class="flex flex-col gap-5" id="modules-container"></div>
@@ -525,11 +521,11 @@
                 };
             });
         }
-        async function saveToDB(title, modules) {
+        async function saveToDB(title, unitAims, modules) {
             if (!db) await initDB();
             return new Promise(res => {
                 const tx = db.transaction('lessons', 'readwrite');
-                tx.objectStore('lessons').put({ id: 'current', title, modules });
+                tx.objectStore('lessons').put({ id: 'current', title, unitAims, modules });
                 tx.oncomplete = () => res();
             });
         }
@@ -548,8 +544,11 @@
             tx.objectStore('lessons').delete('current');
             tx.oncomplete = () => {
                 document.getElementById('doc-title').innerText = 'Lesson Extractor';
+                document.getElementById('unit-title-input').value = '';
+                document.getElementById('unit-aims-input').value = '';
                 debugLines = [];
                 renderModules([]);
+                renderOverview([]);
                 showToast('🗑️ Saved data cleared');
             };
         }
@@ -557,8 +556,18 @@
             await initDB();
             lucide.createIcons();
             const data = await loadFromDB();
-            if (data?.modules) { document.getElementById('doc-title').innerText = data.title; renderModules(data.modules); }
-            else renderModules([]);
+            if (data) {
+                document.getElementById('doc-title').innerText = data.title || 'Lesson Extractor';
+                document.getElementById('unit-title-input').value = data.title || '';
+                document.getElementById('unit-aims-input').value = data.unitAims || '';
+                if (data.modules) {
+                    renderModules(data.modules);
+                    renderOverview(data.modules);
+                }
+            } else {
+                renderModules([]);
+                renderOverview([]);
+            }
         });
 
         // ── Toast ─────────────────────────────────────────────────────────────────────
@@ -574,126 +583,57 @@
 
         // ── Tabs ──────────────────────────────────────────────────────────────────────
         function switchTab(tab) {
-            ['upload', 'paste'].forEach(t => {
+            ['paste', 'overview'].forEach(t => {
                 document.getElementById('tab-' + t).classList.remove('active');
-                document.getElementById('view-' + t).classList.add('hidden');
+                const view = document.getElementById('view-' + t);
+                if (view) view.classList.add('hidden');
             });
             document.getElementById('tab-' + tab).classList.add('active');
-            document.getElementById('view-' + tab).classList.remove('hidden');
+            const targetView = document.getElementById('view-' + tab);
+            if (targetView) targetView.classList.remove('hidden');
+
+            const container = document.getElementById('modules-container');
+            const metadata = document.getElementById('unit-metadata');
+            if (tab === 'overview') {
+                container.classList.add('hidden');
+                metadata.classList.add('hidden');
+            } else {
+                container.classList.remove('hidden');
+                metadata.classList.remove('hidden');
+            }
         }
 
-        // ── File/Paste entry points ───────────────────────────────────────────────────
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('pdf-upload');
-        const loadingEl = document.getElementById('loading-indicator');
-        const container = document.getElementById('modules-container');
-
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); }));
-        ['dragenter', 'dragover'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.add('dragover')));
-        ['dragleave', 'drop'].forEach(e => dropZone.addEventListener(e, () => dropZone.classList.remove('dragover')));
-        dropZone.addEventListener('drop', e => { if (e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]); });
-        fileInput.addEventListener('change', e => { if (e.target.files.length) processFile(e.target.files[0]); });
-
-        async function processFile(file) {
-            if (file.type !== 'application/pdf') { showToast('⚠️ Please upload a PDF file.'); return; }
-            loadingEl.classList.remove('hidden'); container.innerHTML = ''; debugLines = [];
-            try {
-                const buf = await file.arrayBuffer();
-                const { fullText, boldText } = await extractTextWithColumns(buf);
-                log('── FULL TEXT (first 3000) ──\n' + fullText.substring(0, 3000));
-                let title = 'Teacher Notes';
-                const tm = fullText.match(/(Book\s+\d+,\s+Unit\s+\d+)/i);
-                if (tm) { title = tm[1]; document.getElementById('doc-title').innerText = title; }
-                const modules = parseExtractedText(fullText, boldText);
-                await saveToDB(title, modules);
-                renderModules(modules);
-                showToast(`✅ ${modules.length} module${modules.length !== 1 ? 's' : ''} extracted!`);
-                switchTab('upload');
-            } catch (err) {
-                console.error(err); log('ERROR: ' + err);
-                showToast('⚠️ Error parsing PDF — try pasting text.');
-            } finally {
-                loadingEl.classList.add('hidden'); fileInput.value = '';
-            }
+        async function updateUnitMetadata() {
+            const title = document.getElementById('unit-title-input').value;
+            const aims = document.getElementById('unit-aims-input').value;
+            document.getElementById('doc-title').innerText = title || 'Lesson Extractor';
+            const data = await loadFromDB();
+            await saveToDB(title, aims, data?.modules || []);
+            renderOverview(data?.modules || []);
         }
         async function processPastedText() {
             const text = document.getElementById('raw-text-input').value;
             if (!text.trim()) { showToast('⚠️ Nothing to extract!'); return; }
+            const container = document.getElementById('modules-container');
             container.innerHTML = ''; debugLines = [];
             log('── PASTED TEXT (first 3000) ──\n' + text.substring(0, 3000));
-            // No bold info available for pasted text — pass empty boldText string
-            // so parsers fall back to full-text regex matching automatically.
+
+            let title = document.getElementById('unit-title-input').value || 'Lesson Extractor';
+            const tm = text.match(/(Book\s+\d+,\s+Unit\s+\d+)/i);
+            if (tm && !document.getElementById('unit-title-input').value) {
+                title = tm[1];
+                document.getElementById('unit-title-input').value = title;
+                document.getElementById('doc-title').innerText = title;
+            }
+
             const modules = parseExtractedText(text, '');
-            await saveToDB(document.getElementById('doc-title').innerText, modules);
+            const aims = document.getElementById('unit-aims-input').value;
+            await saveToDB(title, aims, modules);
             renderModules(modules);
+            renderOverview(modules);
             showToast(`✅ ${modules.length} module${modules.length !== 1 ? 's' : ''} extracted!`);
         }
 
-        // ── PDF Extraction ─────────────────────────────────────────────────────────────
-        // Returns { fullText, boldText } where:
-        //   fullText  = full extracted text (unchanged behaviour)
-        //   boldText  = PARALLEL string, SAME LENGTH as fullText:
-        //               bold characters kept as-is,
-        //               non-bold characters replaced with a space (1-for-1).
-        // Because lengths always match, any slice [start:end] on fullText
-        // can be applied identically to boldText to get the bold content for that chunk.
-        async function extractTextWithColumns(buf) {
-            const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-            let fullText = '';
-            let boldText = '';
-
-            const appendItems = (items) => {
-                let lastY = null;
-                items.forEach(it => {
-                    const nl = lastY !== null && Math.abs(lastY - it.transform[5]) > 10;
-                    const prefix = nl ? '\n' : '';
-                    fullText += prefix + it.str + ' ';
-                    boldText += prefix + (it.bold ? it.str : ' '.repeat(it.str.length)) + ' ';
-                    lastY = it.transform[5];
-                });
-            };
-
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const vp = page.getViewport({ scale: 1.0 });
-                const tc = await page.getTextContent();
-                const styles = tc.styles || {};
-                const midX = vp.width / 2;
-                let left = [], right = [], full = [];
-
-                tc.items.forEach(item => {
-                    if (!item.str.trim()) return;
-                    const fn = item.fontName || '';
-                    const ff = (styles[fn] || {}).fontFamily || '';
-                    const enriched = { ...item, bold: /bold/i.test(fn) || /bold/i.test(ff) };
-                    if (item.width > vp.width * 0.7) full.push(enriched);
-                    else if (item.transform[4] < midX) left.push(enriched);
-                    else right.push(enriched);
-                });
-
-                const sortY = (a, b) => {
-                    const dy = b.transform[5] - a.transform[5];
-                    return Math.abs(dy) > 5 ? dy : a.transform[4] - b.transform[4];
-                };
-                full.sort(sortY); left.sort(sortY); right.sort(sortY);
-
-                // Full-width row
-                full.forEach(it => {
-                    fullText += it.str + ' ';
-                    boldText += (it.bold ? it.str : ' '.repeat(it.str.length)) + ' ';
-                });
-                fullText += '\n'; boldText += '\n';
-
-                appendItems(left); fullText += '\n\n'; boldText += '\n\n';
-                appendItems(right); fullText += '\n\n'; boldText += '\n\n';
-                fullText += '--PAGE_BREAK--\n\n';
-                boldText += '--PAGE_BREAK--\n\n';
-            }
-
-            log(`Extraction done. full=${fullText.length} chars, bold=${boldText.length} chars (should match)`);
-            log(`Bold sample (first 400):\n${boldText.substring(0, 400).replace(/ +/g, ' ')}`);
-            return { fullText, boldText };
-        }
 
         // ════════════════════════════════════════════════════════════════════════════════
         //  PARSER
@@ -742,12 +682,14 @@
         function extractField(key, header) {
             const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             const stopPat = ANCHORS.filter(a => a !== key).map(esc).join('|');
-            const re = new RegExp(`${esc(key)}[^\\n]*\\n([\\s\\S]*?)(?=${stopPat}|$)`, 'i');
+            // Improved regex: Captures content even if it starts on the same line as the label
+            const re = new RegExp(`${esc(key)}\\s*(.*?)(?=\\n\\s*(?:${stopPat}|$))`, 'is');
             const m = re.exec(header);
             if (!m) return [];
+            
             return m[1]
                 .split('\n')
-                .map(s => s.replace(/^[-•…]\s*/, '').trim())
+                .map(s => s.replace(/^[-•…*]\s*/, '').trim())
                 .filter(s => !isJunk(s));
         }
 
@@ -1001,6 +943,8 @@
         }
 
         function renderModules(modules) {
+            const container = document.getElementById('modules-container');
+            if (!container) return;
             container.innerHTML = '';
             if (!modules.length) {
                 container.innerHTML = `
@@ -1010,7 +954,7 @@
             </div>
             <div>
                 <h3 class="font-heading text-xl text-dark dark:text-white">No Modules Yet</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Upload a PDF or paste your teacher notes above.</p>
+                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Paste your teacher notes above.</p>
             </div>
         </div>`;
                 lucide.createIcons(); return;
@@ -1111,6 +1055,101 @@
         </article>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
+            lucide.createIcons();
+        }
+
+        function renderOverview(modules) {
+            const container = document.getElementById('overview-content');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const title = document.getElementById('unit-title-input').value || 'Unit Overview';
+            const aims = document.getElementById('unit-aims-input').value || 'No unit aims defined.';
+
+            // Aggregation and Deduplication
+            function getUnique(items) {
+                const seen = new Set();
+                return items.filter(item => {
+                    const normalized = item.toLowerCase().replace(/[.,!?;:]/g, '').trim();
+                    if (seen.has(normalized)) return false;
+                    seen.add(normalized);
+                    return true;
+                });
+            }
+
+            const rawLang = [];
+            const rawGram = [];
+            modules.forEach(m => {
+                m.data.lang.forEach(l => rawLang.push(l));
+                m.data.gram.forEach(g => rawGram.push(g));
+            });
+
+            const uniqueLang = getUnique(rawLang);
+            const uniqueGram = getUnique(rawGram);
+
+            const html = `
+                <div class="flex flex-col gap-8">
+                    <!-- Unit Header -->
+                    <div class="card p-6 bg-blue relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                        <h2 class="font-heading text-3xl text-white relative z-10">${title}</h2>
+                        <div class="mt-4 p-4 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 relative z-10">
+                            <h3 class="font-heading text-xs uppercase tracking-widest text-white/80 mb-2">Unit Aims & Objectives</h3>
+                            <p class="text-white text-lg leading-relaxed font-semibold">${aims.replace(/\n/g, '<br>')}</p>
+                        </div>
+                    </div>
+
+                    <!-- Target Focus Summary -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="card p-5 border-pink">
+                            <h3 class="font-heading text-base text-pink-600 dark:text-pink mb-3 flex items-center gap-2">
+                                <i data-lucide="languages" class="w-5 h-5"></i> All Target Language
+                            </h3>
+                            ${listHTML(uniqueLang, 'No language extracted.')}
+                        </div>
+                        <div class="card p-5 border-orange">
+                            <h3 class="font-heading text-base text-orange-600 dark:text-orange mb-3 flex items-center gap-2">
+                                <i data-lucide="binary" class="w-5 h-5"></i> All Target Grammar
+                            </h3>
+                            ${listHTML(uniqueGram, 'No grammar extracted.')}
+                        </div>
+                    </div>
+
+                    <!-- Resource Mapping Table -->
+                    <div class="card overflow-hidden">
+                        <div class="p-4 bg-dark text-white font-heading text-lg flex items-center gap-2">
+                            <i data-lucide="map" class="w-5 h-5 text-green"></i> Resource Navigator
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 dark:bg-slate-800 border-b-2 border-dark dark:border-slate-600">
+                                        <th class="p-4 font-heading text-sm uppercase tracking-wider text-slate-500">Module</th>
+                                        <th class="p-4 font-heading text-sm uppercase tracking-wider text-slate-500">Slides</th>
+                                        <th class="p-4 font-heading text-sm uppercase tracking-wider text-slate-500">Pages</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${modules.map((m, i) => `
+                                        <tr class="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                            <td class="p-4">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="w-6 h-6 flex items-center justify-center bg-slate-200 dark:bg-slate-700 rounded-lg text-xs font-bold">${i + 1}</span>
+                                                    <span class="font-semibold text-dark dark:text-white">${m.title}</span>
+                                                </div>
+                                            </td>
+                                            <td class="p-4">${presHTML(m.data.presentations)}</td>
+                                            <td class="p-4 font-bold text-blue">${pagesHTML(m.data.pages)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
             lucide.createIcons();
         }
 
