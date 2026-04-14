@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Generator - English 1 Batam</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Core E1 Palette
+                        'e1-pink': '#FF6B95',
+                        'e1-orange': '#FF8C42',
+                        'e1-green': '#00E676',
+                        'e1-blue': '#2979FF',
+                        'e1-purple': '#9C27B0',
+                        'e1-dark': '#1e293b',
+                        'e1-chalk': '#f8fafc',
+                        // Aliases to support your existing comments.json
+                        'kk-pink': '#FF6B95',
+                        'kk-orange': '#FF8C42',
+                        'kk-green': '#00E676',
+                        'kk-blue': '#2979FF',
+                        'kk-purple': '#9C27B0',
+                    },
+                    fontFamily: {
+                        headings: ['Fredoka', 'sans-serif'],
+                        body: ['Nunito', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'neo': '4px 4px 0px 0px rgba(30, 41, 59, 1)',
+                        'neo-sm': '2px 2px 0px 0px rgba(30, 41, 59, 1)',
+                        'neo-hover': '6px 6px 0px 0px rgba(30, 41, 59, 1)',
+                    },
+                    borderWidth: { '3': '3px', '4': '4px' }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f8fafc;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        
+        /* Satisfying Neo-Brutalist Buttons */
+        .btn-neo { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-neo:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px 0px rgba(30, 41, 59, 1); }
+        .btn-neo:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px rgba(30, 41, 59, 1); }
+
+        /* Option Card States */
+        .option-card { transition: all 0.15s ease-in-out; }
+        .option-card:hover:not(.selected) { transform: translate(-2px, -2px); box-shadow: 4px 4px 0px 0px rgba(30, 41, 59, 1); border-color: #2979FF; }
+        .option-card.selected { 
+            background-color: #1e293b; 
+            color: white; 
+            border-color: #1e293b;
+            transform: translate(2px, 2px); 
+            box-shadow: 0px 0px 0px 0px rgba(30, 41, 59, 1);
+        }
+
+        /* Level Tabs */
+        .level-tab { transition: all 0.15s ease; }
+        .level-tab.active { background-color: #1e293b; color: white; border-color: #1e293b; box-shadow: none; }
+        .level-tab:not(.active):hover { background-color: #e2e8f0; color: #1e293b; }
+
+        /* Smooth Accordion */
+        .accordion-content {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .accordion-content.open { grid-template-rows: 1fr; }
+        .accordion-inner { overflow: hidden; }
+        
+        .chevron { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .chevron.open { transform: rotate(180deg); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: transparent; border-left: 3px solid #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #2979FF; border: 3px solid #1e293b; border-right: none; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF6B95; }
+    </style>
+</head>
+
+<body class="font-body text-e1-dark h-screen flex flex-col overflow-hidden">
+
+    <header class="w-full bg-white/90 backdrop-blur-sm border-b-4 border-e1-dark p-4 shadow-sm z-20 flex justify-between items-center shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-e1-dark text-white p-2 rounded-lg shadow-neo-sm">
+                <i data-lucide="file-text" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="font-headings text-2xl font-bold tracking-tight">KlassKit <span class="text-e1-blue">Report Gen</span></h1>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">English 1 Batam</p>
+            </div>
+        </div>
+        
+        <div class="flex gap-3 items-center bg-e1-chalk p-2 rounded-xl border-3 border-e1-dark shadow-neo-sm">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
+                </div>
+                <input type="text" id="studentName" class="w-48 pl-9 pr-3 py-2 bg-white border-2 border-e1-dark rounded-lg font-bold placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all" placeholder="Student Name" oninput="compileReport()">
+            </div>
+            
+            <select id="pronoun" class="py-2 px-3 bg-white border-2 border-e1-dark rounded-lg font-bold cursor-pointer focus:outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all" onchange="compileReport()">
+                <option value="he">He / His</option>
+                <option value="she">She / Her</option>
+                <option value="they">They / Their</option>
+            </select>
+        </div>
+    </header>
+
+    <div class="flex flex-row h-full overflow-hidden">
+        
+        <div class="w-[55%] overflow-y-auto p-6 border-r-4 border-e1-dark bg-white/50 pb-32" id="optionsContainer">
+            <div id="loadingMsg" class="font-headings font-bold text-xl text-center text-slate-500 mt-20 flex flex-col items-center gap-4">
+                <i data-lucide="loader-2" class="w-10 h-10 animate-spin text-e1-blue"></i>
+                Loading comments.json...
+            </div>
+        </div>
+
+        <div class="w-[45%] bg-e1-pink p-6 flex flex-col relative h-full">
+            <div class="bg-white border-4 border-e1-dark rounded-2xl p-6 shadow-neo flex flex-col h-full relative">
+                
+                <div class="flex justify-between items-center mb-4 pb-4 border-b-3 border-e1-dark/10">
+                    <h2 class="font-headings font-bold text-xl flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-e1-orange"></i> Compiled Report
+                    </h2>
+                    <div class="flex gap-2">
+                        <button onclick="clearAll()" class="btn-neo bg-e1-chalk border-3 border-e1-dark rounded-xl px-3 py-2 font-bold text-sm shadow-neo-sm flex items-center gap-2 text-slate-600 hover:text-e1-pink">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i> Clear
+                        </button>
+                        <button onclick="copyReport()" id="copyBtn" class="btn-neo bg-e1-green border-3 border-e1-dark rounded-xl px-4 py-2 font-bold text-sm shadow-neo-sm flex items-center gap-2 text-e1-dark">
+                            <i data-lucide="copy" class="w-4 h-4"></i> Copy Text
+                        </button>
+                    </div>
+                </div>
+
+                <textarea id="outputReport" readonly class="w-full flex-grow bg-e1-chalk border-3 border-e1-dark rounded-xl p-5 font-body text-lg font-medium leading-relaxed text-slate-700 focus:outline-none resize-none shadow-inner transition-colors" placeholder="Select a skill level and sentence from the left panel to begin building the report..."></textarea>
+                
+                <div class="absolute bottom-4 right-8 bg-white border-2 border-e1-dark px-3 py-1 rounded-full text-xs font-bold text-slate-500 shadow-neo-sm flex items-center gap-1">
+                    <i data-lucide="bar-chart-2" class="w-3 h-3"></i>
+                    <span id="wordCount">0</span> words
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let commentBank = [];
+        let state = {};
+        let activeAccordion = 'general';
+
+        const pronouns = {
+            she: { subject: 'she', object: 'her', possessive: 'her', CapSubject: 'She', CapPossessive: 'Her' },
+            he: { subject: 'he', object: 'him', possessive: 'his', CapSubject: 'He', CapPossessive: 'His' },
+            they: { subject: 'they', object: 'them', possessive: 'their', CapSubject: 'They', CapPossessive: 'Their' }
+        };
+
+        async function fetchComments() {
+            try {
+                const response = await fetch('comments.json');
+                if (!response.ok) throw new Error('Network response was not ok');
+                commentBank = await response.json();
+                
+                commentBank.forEach(cat => {
+                    state[cat.id] = { level: 'good', selectionIndex: null };
+                });
+
+                document.getElementById('loadingMsg').style.display = 'none';
+                renderAccordions();
+                compileReport();
+            } catch (error) {
+                document.getElementById('loadingMsg').innerHTML = `
+                    <div class="bg-red-100 border-3 border-red-500 p-4 rounded-xl text-red-700 shadow-neo">
+                        <i data-lucide="alert-triangle" class="w-8 h-8 mx-auto mb-2"></i>
+                        Failed to load comments.json.<br>
+                        <span class="text-sm font-normal">Please run via Live Server.</span>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+        }
+
+        function parseText(text, nameStr, pronounObj) {
+            if(!text) return "";
+            return text
+                .replace(/\[Name\]/g, nameStr)
+                .replace(/\[CapSubject\]/g, pronounObj.CapSubject)
+                .replace(/\[subject\]/g, pronounObj.subject)
+                .replace(/\[CapPossessive\]/g, pronounObj.CapPossessive)
+                .replace(/\[possessive\]/g, pronounObj.possessive)
+                .replace(/\[object\]/g, pronounObj.object);
+        }
+
+        function renderAccordions() {
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = ""; 
+
+            commentBank.forEach((category, idx) => {
+                const catState = state[category.id];
+                const isOpen = activeAccordion === category.id;
+                const hasSelection = catState.selectionIndex !== null;
+                const numberPrefix = idx + 1;
+
+                const section = document.createElement('div');
+                // Use the theme color from JSON for the left border accent
+                section.className = `bg-white border-4 border-e1-dark rounded-2xl mb-5 shadow-neo border-l-8 border-l-${category.theme.replace('kk-', 'e1-')} overflow-hidden`;
+
+                const header = document.createElement('button');
+                header.className = `w-full p-4 flex justify-between items-center text-left hover:bg-slate-50 transition-colors ${hasSelection && !isOpen ? 'bg-slate-50' : ''}`;
+                header.onclick = () => {
+                    activeAccordion = isOpen ? null : category.id; 
+                    renderAccordions(); 
+                };
+
+                const titleWrapper = document.createElement('div');
+                titleWrapper.className = "flex items-center gap-3";
+                
+                // Fancy Number Badge
+                const numBadge = document.createElement('div');
+                numBadge.className = `w-8 h-8 rounded-full flex items-center justify-center font-headings font-bold text-sm border-2 border-e1-dark ${hasSelection ? 'bg-e1-green text-e1-dark' : 'bg-e1-chalk text-slate-500'}`;
+                numBadge.innerHTML = hasSelection ? `<i data-lucide="check" class="w-4 h-4"></i>` : numberPrefix;
+                titleWrapper.appendChild(numBadge);
+                
+                const titleText = document.createElement('h3');
+                titleText.className = `font-headings font-bold text-xl ${hasSelection ? 'text-e1-dark' : 'text-slate-600'}`;
+                // Strip the number from the JSON title since we made a fancy badge
+                titleText.innerText = category.title.replace(/^\d+\.\s*/, '');
+                titleWrapper.appendChild(titleText);
+                
+                header.appendChild(titleWrapper);
+
+                const chevron = document.createElement('div');
+                chevron.innerHTML = `<i data-lucide="chevron-down" class="w-6 h-6 text-slate-400 chevron ${isOpen ? 'open' : ''}"></i>`;
+                header.appendChild(chevron);
+                section.appendChild(header);
+
+                const bodyWrapper = document.createElement('div');
+                bodyWrapper.className = `accordion-content ${isOpen ? 'open' : ''}`;
+                
+                const bodyInner = document.createElement('div');
+                bodyInner.className = "accordion-inner px-4 pb-4 flex flex-col gap-4";
+
+                const levelNav = document.createElement('div');
+                levelNav.className = "flex gap-2 bg-e1-chalk p-1.5 rounded-xl border-3 border-e1-dark w-fit mt-2";
+                
+                const levels = [
+                    { key: 'support', label: 'Needs Support' },
+                    { key: 'good', label: 'Developing/Good' },
+                    { key: 'excellent', label: 'Excellent' }
+                ];
+
+                levels.forEach(lvl => {
+                    const btn = document.createElement('button');
+                    btn.className = `level-tab px-4 py-1.5 rounded-lg text-sm font-bold font-headings border-2 border-transparent text-slate-500 cursor-pointer ${catState.level === lvl.key ? 'active' : ''}`;
+                    btn.innerText = lvl.label;
+                    
+                    btn.onclick = (e) => {
+                        e.stopPropagation(); 
+                        state[category.id].level = lvl.key;
+                        state[category.id].selectionIndex = null; 
+                        renderAccordions();
+                        compileReport();
+                    };
+                    levelNav.appendChild(btn);
+                });
+                bodyInner.appendChild(levelNav);
+
+                const optionsGrid = document.createElement('div');
+                optionsGrid.className = "flex flex-col gap-2.5";
+                
+                const optionsArray = category.levels[catState.level];
+                optionsArray.forEach((optText, index) => {
+                    const btn = document.createElement('button');
+                    const previewText = parseText(optText, "Student", pronouns.he);
+                    
+                    btn.className = `option-card text-left p-3.5 border-3 border-e1-dark rounded-xl bg-e1-chalk font-semibold text-sm cursor-pointer leading-relaxed ${catState.selectionIndex === index ? 'selected' : 'text-slate-600'}`;
+                    btn.innerText = previewText;
+                    
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        state[category.id].selectionIndex = index;
+                        
+                        if (idx < commentBank.length - 1) {
+                            activeAccordion = commentBank[idx + 1].id;
+                        } else {
+                            activeAccordion = null; 
+                        }
+                        
+                        renderAccordions(); 
+                        compileReport();
+                    };
+                    
+                    optionsGrid.appendChild(btn);
+                });
+
+                bodyInner.appendChild(optionsGrid);
+                bodyWrapper.appendChild(bodyInner);
+                section.appendChild(bodyWrapper);
+                
+                container.appendChild(section);
+            });
+            
+            lucide.createIcons();
+        }
+
+        function compileReport() {
+            let nameInput = document.getElementById('studentName').value.trim();
+            if (!nameInput) nameInput = "[Name]";
+            
+            const pData = pronouns[document.getElementById('pronoun').value];
+            let finalReportParts = [];
+
+            commentBank.forEach(category => {
+                const catState = state[category.id];
+                if (catState && catState.selectionIndex !== null) {
+                    const rawSentence = category.levels[catState.level][catState.selectionIndex];
+                    const parsedSentence = parseText(rawSentence, nameInput, pData);
+                    finalReportParts.push(parsedSentence);
+                }
+            });
+
+            const finalText = finalReportParts.join(" ");
+            const outputArea = document.getElementById('outputReport');
+            
+            outputArea.value = finalText;
+            
+            // Visual feedback if fully compiled
+            if (finalReportParts.length === commentBank.length) {
+                outputArea.classList.add('bg-white', 'text-e1-dark');
+                outputArea.classList.remove('bg-e1-chalk', 'text-slate-700');
+            } else {
+                outputArea.classList.add('bg-e1-chalk', 'text-slate-700');
+                outputArea.classList.remove('bg-white', 'text-e1-dark');
+            }
+
+            // Word Count
+            const words = finalText.trim() ? finalText.trim().split(/\s+/).length : 0;
+            document.getElementById('wordCount').innerText = words;
+        }
+
+        function clearAll() {
+            // Reset Name
+            document.getElementById('studentName').value = '';
+            
+            // Reset State selections
+            commentBank.forEach(cat => {
+                state[cat.id].selectionIndex = null;
+            });
+            
+            // Open first accordion
+            activeAccordion = 'general';
+            
+            renderAccordions();
+            compileReport();
+            
+            // Focus back on name input for fast workflow
+            document.getElementById('studentName').focus();
+        }
+
+        function copyReport() {
+            const output = document.getElementById('outputReport');
+            if (!output.value) return;
+            
+            output.select();
+            document.execCommand('copy');
+            
+            const btn = document.getElementById('copyBtn');
+            const originalHTML = btn.innerHTML;
+            
+            btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Copied!`;
+            btn.classList.replace('bg-e1-green', 'bg-e1-blue');
+            btn.classList.replace('text-e1-dark', 'text-white');
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.replace('bg-e1-blue', 'bg-e1-green');
+                btn.classList.replace('text-white', 'text-e1-dark');
+                lucide.createIcons();
+            }, 1500);
+        }
+
+        window.onload = () => {
+            lucide.createIcons();
+            fetchComments();
+            document.getElementById('studentName').focus();
+        };
+    </script>
+</body>
+</html>

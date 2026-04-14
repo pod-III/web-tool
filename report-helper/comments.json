@@ -1,0 +1,217 @@
+[
+  {
+    "id": "general",
+    "title": "1. General Overview",
+    "theme": "kk-pink",
+    "levels": {
+      "support": [
+        "[Name] is a quiet but observant student who takes time to process new information.",
+        "[Name] is working on adapting to our classroom routines and requires gentle encouragement.",
+        "[Name] can sometimes appear distracted during longer tasks, but [subject] responds well to 1-on-1 redirection.",
+        "While [Name] is initially shy, [subject] is slowly starting to show glimpses of [possessive] true personality.",
+        "[Name] is taking time to build [possessive] confidence in the English classroom environment.",
+        "It takes [Name] a little while to warm up to new activities, but [subject] is showing gradual improvement.",
+        "[Name] benefits from clear, step-by-step instructions to help [object] stay focused on the task at hand.",
+        "[CapSubject] is a sweet student who sometimes needs extra reassurance to tackle challenging exercises.",
+        "[Name] is learning to manage [possessive] energy and focus during our longer sessions.",
+        "Although [Name] can be hesitant to join in, [subject] is making small, positive steps each week."
+      ],
+      "good": [
+        "[Name] has shown steady and noticeable growth this term, bringing a positive attitude to lessons.",
+        "[Name] is a diligent student who consistently applies [possessive] best effort in class.",
+        "[CapSubject] is a reliable and polite student who brings a calm, focused energy to our classroom.",
+        "[Name] consistently comes to class prepared and ready to engage with the day's material.",
+        "It is a pleasure to teach [Name], as [subject] always maintains a respectful and attentive demeanor.",
+        "[Name] balances a fun sense of humor with a strong work ethic during our lessons.",
+        "[CapSubject] has settled wonderfully into the class dynamic and shows a genuine interest in learning English.",
+        "[Name] is an adaptable student who handles transitions between different classroom activities with ease.",
+        "I appreciate [Name]'s consistent attendance and the steady focus [subject] brings to [possessive] studies.",
+        "[Name] is a thoughtful student who tackles [possessive] assignments with care and determination."
+      ],
+      "excellent": [
+        "[Name] is a bright and energetic presence, consistently setting a great example for the class.",
+        "[Name] is highly motivated and consistently exceeds expectations in daily tasks.",
+        "[CapSubject] is an outstanding student who brings natural curiosity and enthusiasm to every single lesson.",
+        "[Name] is a joy to have in class; [possessive] positive energy and eagerness to learn are truly infectious.",
+        "I am consistently impressed by [Name]'s dedication and the high standard [subject] sets for [reflexive].",
+        "[Name] tackles every English challenge with a fantastic 'can-do' attitude.",
+        "[CapSubject] stands out as a highly focused, driven, and mature learner.",
+        "Not only is [Name] academically strong, but [possessive] overall attitude makes [object] an absolute pleasure to teach.",
+        "[Name] consistently demonstrates a level of focus and engagement that goes above and beyond.",
+        "[CapSubject] is a star student whose proactive approach to learning makes a real difference in the classroom."
+      ]
+    }
+  },
+  {
+    "id": "social",
+    "title": "2. Social & Classroom Behavior",
+    "theme": "kk-orange",
+    "levels": {
+      "support": [
+        "During class, [Name] can be easily distracted and occasionally needs reminders to stay on task.",
+        "[CapSubject] is polite but reluctant to participate in group work, preferring to work alone.",
+        "[Name] is still learning how to share speaking time and listen attentively when classmates are sharing.",
+        "We are working on helping [Name] feel more comfortable speaking up during pair-work activities.",
+        "[CapSubject] occasionally struggles with classroom boundaries and needs gentle reminders to respect the learning environment.",
+        "[Name] can be quite talkative in [possessive] native language, so we are encouraging more English use with peers.",
+        "Group activities can overwhelm [Name], so [subject] often requires teacher support to integrate with [possessive] peers.",
+        "We are encouraging [Name] to raise [possessive] hand rather than shouting out answers during discussions.",
+        "[CapSubject] is very shy around new classmates and is taking time to build social connections.",
+        "[Name] is working on accepting constructive feedback without getting frustrated."
+      ],
+      "good": [
+        "[CapSubject] works well in pairs and is respectful, though [subject] can occasionally be shy in larger groups.",
+        "[Name] is sociable and enjoys class, but we are working on balancing chat times with focus times.",
+        "[Name] is a friendly classmate who generally collaborates well during group projects.",
+        "[CapSubject] is always polite to peers and teachers, creating a positive atmosphere around [object].",
+        "During discussions, [Name] listens well to others, though I'd love to see [object] volunteer [possessive] own opinions more.",
+        "[Name] has formed good friendships in class and interacts comfortably during free-speaking activities.",
+        "[CapSubject] is a supportive partner in pair-work and helps keep the conversation moving in English.",
+        "[Name] follows classroom rules consistently and treats everyone with respect.",
+        "While naturally quiet, [Name] participates willingly when placed in smaller, focused groups.",
+        "[CapSubject] has a great sense of humor that [subject] shares appropriately with [possessive] classmates."
+      ],
+      "excellent": [
+        "[CapSubject] interacts exceptionally well with peers, frequently helping others and leading activities.",
+        "[Name] is a natural leader in group work, ensuring everyone feels included and heard.",
+        "[Name] goes out of [possessive] way to help struggling classmates, showing wonderful empathy and maturity.",
+        "During debates and discussions, [Name] communicates [possessive] ideas respectfully and articulately.",
+        "[CapSubject] is the glue in group projects, consistently organizing tasks and motivating [possessive] peers.",
+        "[Name] creates a welcoming environment for everyone and is highly respected by [possessive] classmates.",
+        "I am highly impressed by how [Name] handles disagreements in class; [subject] is always diplomatic and fair.",
+        "[CapSubject] actively encourages quieter students to speak up during team games.",
+        "[Name] uses English almost exclusively when chatting with friends in class, setting a brilliant standard.",
+        "[CapSubject] is incredibly collaborative and brings out the best in whoever [subject] is partnered with."
+      ]
+    }
+  },
+  {
+    "id": "academic",
+    "title": "3. Academic Performance",
+    "theme": "kk-blue",
+    "levels": {
+      "support": [
+        "Academically, [subject] requires extra support to retain new vocabulary and grasp complex grammar.",
+        "[Name] is working hard, but [subject] currently struggles with reading comprehension tasks.",
+        "Spelling accuracy is a current challenge for [Name], requiring consistent review of weekly word lists.",
+        "[CapSubject] finds it difficult to construct full sentences independently and often relies on teacher prompts.",
+        "Listening exercises can be tricky for [Name]; [subject] often needs audio to be repeated multiple times.",
+        "We are focusing heavily on basic phonics and pronunciation, as [Name] finds some English sounds challenging.",
+        "[Name] understands the concepts but struggles to apply grammar rules consistently in written assignments.",
+        "Speaking fluency is a hurdle for [Name], as [subject] often translates directly from [possessive] native language.",
+        "[CapSubject] frequently forgets previously learned material, indicating a need for more spaced repetition at home.",
+        "[Name] needs to focus more carefully on instructions, as [subject] often misinterprets task requirements."
+      ],
+      "good": [
+        "[CapSubject] is making solid progress, showing a firm understanding of the core target vocabulary.",
+        "[Name] performs well in listening activities, but we are currently working on improving writing accuracy.",
+        "Grammar application is improving steadily; [Name] is making fewer errors in [possessive] daily work.",
+        "[Name] reads aloud with good pronunciation, though [subject] sometimes reads too quickly to fully comprehend the text.",
+        "[CapSubject] has a good grasp of conversational English and can communicate [possessive] basic needs clearly.",
+        "Written assignments are generally well-structured, though [Name] could use a wider variety of adjectives.",
+        "[Name] scores consistently well on vocabulary quizzes, showing good memorization skills.",
+        "[CapSubject] is able to follow complex listening tracks and pick out the key information accurately.",
+        "Speaking skills are developing nicely; [Name] is becoming more comfortable with longer conversational turns.",
+        "[Name] shows a strong foundational understanding of this term's core grammar points."
+      ],
+      "excellent": [
+        "Academically, [subject] grasps new concepts instantly and applies complex grammar effortlessly.",
+        "[CapSubject] consistently produces high-quality written work and speaks with excellent fluency.",
+        "[Name] possesses a highly advanced vocabulary for [possessive] level and uses idioms naturally.",
+        "Reading comprehension is a massive strength; [Name] easily infers meaning from complex, authentic texts.",
+        "[CapSubject] speaks with near-native rhythm and intonation, making [possessive] presentations a joy to listen to.",
+        "In written essays, [Name] organizes [possessive] thoughts logically and uses sophisticated transition words.",
+        "[Name] absorbs new grammar rules immediately and rarely makes the same mistake twice.",
+        "[CapSubject] excels in listening tasks, effortlessly understanding different accents and rapid speech.",
+        "[Name] demonstrates exceptional critical thinking skills during our reading analysis sessions.",
+        "Academically, [Name] is at the top of the class, consistently delivering flawless assignments and test results."
+      ]
+    }
+  },
+  {
+    "id": "suggestion",
+    "title": "4. Suggestions for Next Term",
+    "theme": "kk-purple",
+    "levels": {
+      "support": [
+        "Moving forward, daily 5-minute reviews of basic spelling and phonics at home are highly recommended.",
+        "My suggestion is to encourage [object] to speak aloud at home to build foundational confidence.",
+        "Consistent review of the teacher's lesson notes will help [Name] retain the grammar rules we cover.",
+        "I suggest using flashcards at home to help [Name] memorize the weekly target vocabulary.",
+        "Reading simple English storybooks aloud with a parent will greatly help [possessive] pronunciation.",
+        "Encouraging [Name] to watch [possessive] favorite cartoons in English will help tune [possessive] ear to the language.",
+        "Next term, we will focus heavily on sentence structure; practicing basic writing exercises at home will help.",
+        "I recommend setting aside a quiet, distraction-free time for [Name] to complete [possessive] English homework.",
+        "We need to focus on building [possessive] confidence, so praising [possessive] small victories at home is crucial.",
+        "Regular, short bursts of English practice will be much more effective for [Name] than long, tiring study sessions."
+      ],
+      "good": [
+        "Reviewing the weekly vocabulary lists at home will help solidify [possessive] steady progress.",
+        "Continuing to practice reading aloud outside of class will help smooth out [possessive] fluency.",
+        "I recommend [Name] starts keeping a short daily diary in English to practice [possessive] writing flow.",
+        "To push [possessive] listening skills, I suggest [Name] tries watching English videos without subtitles.",
+        "Next term, [Name] should focus on using more complex conjunctions (like 'although' and 'however') in [possessive] speech.",
+        "Encouraging [Name] to read short news articles in English will help expand [possessive] worldly vocabulary.",
+        "I'd love to see [Name] take more risks in class next term by volunteering answers even when [subject] isn't 100% sure.",
+        "Practicing past-tense verbs specifically will help clear up some of [possessive] minor speaking errors.",
+        "I suggest [Name] tries thinking in English for five minutes a day to improve [possessive] conversational speed.",
+        "Continuing to read graded readers at home will perfectly support [Name]'s current learning trajectory."
+      ],
+      "excellent": [
+        "I suggest challenging [object] with native English media, like short storybooks, podcasts, or debates.",
+        "Encouraging [object] to write short journal entries or creative stories at home will push [possessive] advanced skills further.",
+        "To maintain this high level, [Name] should begin reading young adult novels originally written in English.",
+        "I recommend [Name] looks into joining an English debate or public speaking club to challenge [possessive] fluency.",
+        "Next term, [Name] should focus on mastering subtle nuances in tone and advanced idioms.",
+        "I suggest [Name] starts watching academic TED Talks to expose [reflexive] to higher-level, formal vocabulary.",
+        "[Name] is ready to start analyzing texts rather than just reading them; asking [object] 'why' questions at home will help.",
+        "To challenge [reflexive], [Name] should practice writing persuasive essays on topics [subject] is passionate about.",
+        "I highly recommend [Name] finds a language exchange partner online to practice unstructured, authentic conversation.",
+        "There are no limits for [Name]; [subject] should continue immersing [reflexive] in English media as much as possible."
+      ]
+    }
+  },
+  {
+    "id": "congratulation",
+    "title": "5. Sign-off / Congratulation",
+    "theme": "kk-green",
+    "levels": {
+      "support": [
+        "Thank you for your continued support this term. Let's keep working hard!",
+        "I appreciate [possessive] perseverance this term. Enjoy the break!",
+        "[Name] has worked hard to overcome challenges this term, and I am proud of [possessive] resilience.",
+        "It has been a term of learning and adapting, and I look forward to seeing [Name] grow further.",
+        "Thank you for partnering with me to support [Name]'s English journey this term.",
+        "I am confident that with continued effort, [Name] will make great strides next term.",
+        "Have a wonderful holiday, and I look forward to a fresh and focused start next term!",
+        "I appreciate the effort [Name] has put in. Wishing you a restful and happy holiday.",
+        "Keep practicing, stay positive, and enjoy a well-deserved break!",
+        "We are making steps in the right direction. Thank you for a good term!"
+      ],
+      "good": [
+        "Great effort this term, keep up the good work!",
+        "Well done on completing this level successfully!",
+        "It has been an absolute pleasure teaching [Name] this term. Have a great holiday!",
+        "Congratulations on a solid term of hard work and steady improvement.",
+        "I am very pleased with [Name]'s progress. Enjoy the upcoming break!",
+        "[Name] should be proud of what [subject] has achieved over these past months.",
+        "Thank you for a wonderful term of active participation and good energy.",
+        "Keep up the great momentum! Wishing [object] a fantastic holiday.",
+        "A very successful term all around. See you after the break!",
+        "Excellent job this term. Take some time to rest and recharge!"
+      ],
+      "excellent": [
+        "Congratulations on a truly fantastic term!",
+        "Outstanding work this term. Have a wonderful break!",
+        "[Name] has been an absolute superstar. I couldn't be prouder of [possessive] achievements.",
+        "A flawless term! [Name] should be incredibly proud of [possessive] dedication and results.",
+        "It is a privilege to teach such a brilliant student. Congratulations on finishing at the top!",
+        "Phenomenal effort and exceptional results. Enjoy a very well-deserved holiday!",
+        "Thank you for bringing such excellence to my classroom every day this term.",
+        "[Name] has set a brilliant standard for the class. Have an amazing break!",
+        "Words cannot express how impressed I am with [Name]'s growth. Congratulations!",
+        "An absolutely stellar performance this term. Keep shining, [Name]!"
+      ]
+    }
+  }
+]

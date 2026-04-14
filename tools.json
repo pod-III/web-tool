@@ -138,5 +138,19 @@
       "Utility",
       "Helper"
     ]
+  },
+  {
+    "id": "report-generator",
+    "name": "Report Generator",
+    "description": "Dynamic student progress report builder. Features tiered comments, pronoun handling, and a JSON-powered accordion layout.",
+    "category": "Work",
+    "route": "./report-helper/index.html",
+    "icon": "file-text",
+    "color": "bg-e1-green border-e1-green",
+    "tags": [
+      "Teaching",
+      "Utility",
+      "Reports"
+    ]
   }
 ]
