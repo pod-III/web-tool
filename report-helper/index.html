@@ -14,10 +14,10 @@
 
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        // Core E1 Palette
                         'e1-pink': '#FF6B95',
                         'e1-orange': '#FF8C42',
                         'e1-green': '#00E676',
@@ -25,12 +25,6 @@
                         'e1-purple': '#9C27B0',
                         'e1-dark': '#1e293b',
                         'e1-chalk': '#f8fafc',
-                        // Aliases to support your existing comments.json
-                        'kk-pink': '#FF6B95',
-                        'kk-orange': '#FF8C42',
-                        'kk-green': '#00E676',
-                        'kk-blue': '#2979FF',
-                        'kk-purple': '#9C27B0',
                     },
                     fontFamily: {
                         headings: ['Fredoka', 'sans-serif'],
@@ -39,7 +33,6 @@
                     boxShadow: {
                         'neo': '4px 4px 0px 0px rgba(30, 41, 59, 1)',
                         'neo-sm': '2px 2px 0px 0px rgba(30, 41, 59, 1)',
-                        'neo-hover': '6px 6px 0px 0px rgba(30, 41, 59, 1)',
                     },
                     borderWidth: { '3': '3px', '4': '4px' }
                 }
@@ -52,16 +45,26 @@
             background-color: #f8fafc;
             background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
             background-size: 24px 24px;
+            transition: background-color 0.3s ease;
         }
         
-        /* Satisfying Neo-Brutalist Buttons */
-        .btn-neo { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
-        .btn-neo:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px 0px rgba(30, 41, 59, 1); }
-        .btn-neo:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px rgba(30, 41, 59, 1); }
+        /* Dark Mode Body Override */
+        .dark body {
+            background-color: #0f172a; /* slate-900 */
+            background-image: radial-gradient(#334155 1px, transparent 1px);
+        }
 
-        /* Option Card States */
+        .btn-neo { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-neo:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: 4px 4px 0px 0px rgba(30, 41, 59, 1); }
+        .btn-neo:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px rgba(30, 41, 59, 1); }
+        
+        .dark .btn-neo:hover:not(:disabled) { box-shadow: 4px 4px 0px 0px #000000; }
+        .dark .btn-neo:active:not(:disabled) { box-shadow: 0px 0px 0px 0px #000000; }
+
         .option-card { transition: all 0.15s ease-in-out; }
         .option-card:hover:not(.selected) { transform: translate(-2px, -2px); box-shadow: 4px 4px 0px 0px rgba(30, 41, 59, 1); border-color: #2979FF; }
+        .dark .option-card:hover:not(.selected) { box-shadow: 4px 4px 0px 0px #000000; border-color: #2979FF; }
+        
         .option-card.selected { 
             background-color: #1e293b; 
             color: white; 
@@ -69,13 +72,18 @@
             transform: translate(2px, 2px); 
             box-shadow: 0px 0px 0px 0px rgba(30, 41, 59, 1);
         }
+        .dark .option-card.selected {
+            background-color: #334155;
+            border-color: #475569;
+        }
 
-        /* Level Tabs */
         .level-tab { transition: all 0.15s ease; }
         .level-tab.active { background-color: #1e293b; color: white; border-color: #1e293b; box-shadow: none; }
+        .dark .level-tab.active { background-color: #334155; border-color: #475569; }
+        
         .level-tab:not(.active):hover { background-color: #e2e8f0; color: #1e293b; }
+        .dark .level-tab:not(.active):hover { background-color: #475569; color: white; }
 
-        /* Smooth Accordion */
         .accordion-content {
             display: grid;
             grid-template-rows: 0fr;
@@ -87,36 +95,64 @@
         .chevron { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
         .chevron.open { transform: rotate(180deg); }
 
-        /* Custom Scrollbar */
+        /* Smooth Scrollbar */
         ::-webkit-scrollbar { width: 12px; }
         ::-webkit-scrollbar-track { background: transparent; border-left: 3px solid #1e293b; }
+        .dark ::-webkit-scrollbar-track { border-left-color: #334155; }
         ::-webkit-scrollbar-thumb { background: #2979FF; border: 3px solid #1e293b; border-right: none; }
+        .dark ::-webkit-scrollbar-thumb { border-color: #334155; }
         ::-webkit-scrollbar-thumb:hover { background: #FF6B95; }
+        
+        /* Utility class to keep shadows solid black even in dark mode for contrast */
+        .dark .shadow-neo { box-shadow: 4px 4px 0px 0px #000000; }
+        .dark .shadow-neo-sm { box-shadow: 2px 2px 0px 0px #000000; }
     </style>
+    
+    <script>
+        // Check local storage for dark mode preference before page load to prevent flash
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 </head>
 
-<body class="font-body text-e1-dark h-screen flex flex-col overflow-hidden">
+<body class="font-body text-e1-dark dark:text-slate-200 h-screen flex flex-col overflow-hidden transition-colors duration-300">
 
-    <header class="w-full bg-white/90 backdrop-blur-sm border-b-4 border-e1-dark p-4 shadow-sm z-20 flex justify-between items-center shrink-0">
-        <div class="flex items-center gap-3">
-            <div class="bg-e1-dark text-white p-2 rounded-lg shadow-neo-sm">
-                <i data-lucide="file-text" class="w-6 h-6"></i>
+    <header class="w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm border-b-4 border-e1-dark dark:border-slate-800 p-4 shadow-sm z-20 flex justify-between items-center shrink-0">
+        <div class="flex items-center gap-4">
+            <div class="flex gap-2">
+                <a href="../index.html" class="btn-neo bg-white dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-700 rounded-xl p-2.5 text-slate-700 dark:text-slate-300 hover:text-e1-pink dark:hover:text-e1-pink shadow-neo-sm flex items-center justify-center group" title="Back to Dashboard">
+                    <i data-lucide="arrow-left" class="w-5 h-5 group-hover:-translate-x-1 transition-transform"></i>
+                </a>
+                
+                <button onclick="toggleTheme()" class="btn-neo bg-white dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-700 rounded-xl p-2.5 text-slate-700 dark:text-slate-300 hover:text-e1-blue dark:hover:text-e1-blue shadow-neo-sm flex items-center justify-center" title="Toggle Theme">
+                    <i data-lucide="sun" id="theme-icon-light" class="w-5 h-5 hidden dark:block"></i>
+                    <i data-lucide="moon" id="theme-icon-dark" class="w-5 h-5 block dark:hidden"></i>
+                </button>
             </div>
-            <div>
-                <h1 class="font-headings text-2xl font-bold tracking-tight">KlassKit <span class="text-e1-blue">Report Gen</span></h1>
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">English 1 Batam</p>
+
+            <div class="h-10 w-1 bg-e1-dark/10 dark:bg-slate-700 rounded-full mx-1"></div> <div class="flex items-center gap-3">
+                <div class="bg-e1-dark dark:bg-slate-800 text-white p-2 rounded-lg shadow-neo-sm border-2 border-transparent dark:border-slate-700">
+                    <i data-lucide="file-check-2" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-headings text-2xl font-bold tracking-tight leading-none text-e1-dark dark:text-white">KlassKit <span class="text-e1-blue">Report Gen</span></h1>
+                    <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">English 1 Batam</p>
+                </div>
             </div>
         </div>
         
-        <div class="flex gap-3 items-center bg-e1-chalk p-2 rounded-xl border-3 border-e1-dark shadow-neo-sm">
+        <div class="flex gap-3 items-center bg-e1-chalk dark:bg-slate-800 p-2 rounded-xl border-3 border-e1-dark dark:border-slate-700 shadow-neo-sm">
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
                 </div>
-                <input type="text" id="studentName" class="w-48 pl-9 pr-3 py-2 bg-white border-2 border-e1-dark rounded-lg font-bold placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all" placeholder="Student Name" oninput="compileReport()">
+                <input type="text" id="studentName" class="w-48 pl-9 pr-3 py-2.5 bg-white dark:bg-slate-900 border-2 border-e1-dark dark:border-slate-600 rounded-lg font-bold placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all text-sm text-e1-dark dark:text-white" placeholder="Student Name" oninput="compileReport()">
             </div>
             
-            <select id="pronoun" class="py-2 px-3 bg-white border-2 border-e1-dark rounded-lg font-bold cursor-pointer focus:outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all" onchange="compileReport()">
+            <select id="pronoun" class="py-2.5 px-3 bg-white dark:bg-slate-900 border-2 border-e1-dark dark:border-slate-600 rounded-lg font-bold cursor-pointer focus:outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all text-sm text-e1-dark dark:text-white" onchange="compileReport()">
                 <option value="he">He / His</option>
                 <option value="she">She / Her</option>
                 <option value="they">They / Their</option>
@@ -126,35 +162,42 @@
 
     <div class="flex flex-row h-full overflow-hidden">
         
-        <div class="w-[55%] overflow-y-auto p-6 border-r-4 border-e1-dark bg-white/50 pb-32" id="optionsContainer">
+        <div class="w-[55%] overflow-y-auto p-6 border-r-4 border-e1-dark dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 pb-32" id="optionsContainer">
             <div id="loadingMsg" class="font-headings font-bold text-xl text-center text-slate-500 mt-20 flex flex-col items-center gap-4">
                 <i data-lucide="loader-2" class="w-10 h-10 animate-spin text-e1-blue"></i>
                 Loading comments.json...
             </div>
         </div>
 
-        <div class="w-[45%] bg-e1-pink p-6 flex flex-col relative h-full">
-            <div class="bg-white border-4 border-e1-dark rounded-2xl p-6 shadow-neo flex flex-col h-full relative">
+        <div class="w-[45%] bg-e1-pink dark:bg-slate-800/80 p-6 flex flex-col relative h-full transition-colors">
+            <div class="bg-white dark:bg-slate-900 border-4 border-e1-dark dark:border-slate-700 rounded-2xl p-6 shadow-neo flex flex-col h-full relative">
                 
-                <div class="flex justify-between items-center mb-4 pb-4 border-b-3 border-e1-dark/10">
-                    <h2 class="font-headings font-bold text-xl flex items-center gap-2">
-                        <i data-lucide="sparkles" class="w-5 h-5 text-e1-orange"></i> Compiled Report
+                <div class="flex justify-between items-center mb-4 pb-4 border-b-3 border-e1-dark/10 dark:border-slate-700">
+                    <h2 class="font-headings font-bold text-xl flex items-center gap-2 text-e1-dark dark:text-white">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-e1-orange"></i> Compiled Text
                     </h2>
                     <div class="flex gap-2">
-                        <button onclick="clearAll()" class="btn-neo bg-e1-chalk border-3 border-e1-dark rounded-xl px-3 py-2 font-bold text-sm shadow-neo-sm flex items-center gap-2 text-slate-600 hover:text-e1-pink">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i> Clear
+                        <button onclick="clearAll()" class="btn-neo bg-e1-chalk dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-600 rounded-xl px-3 py-2 font-bold text-sm shadow-neo-sm flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-e1-pink dark:hover:text-e1-pink">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset
                         </button>
-                        <button onclick="copyReport()" id="copyBtn" class="btn-neo bg-e1-green border-3 border-e1-dark rounded-xl px-4 py-2 font-bold text-sm shadow-neo-sm flex items-center gap-2 text-e1-dark">
+                        <button onclick="copyReport()" id="copyBtn" class="btn-neo bg-e1-green border-3 border-e1-dark dark:border-slate-600 rounded-xl px-4 py-2 font-bold text-sm shadow-neo-sm flex items-center gap-2 text-e1-dark">
                             <i data-lucide="copy" class="w-4 h-4"></i> Copy Text
                         </button>
                     </div>
                 </div>
 
-                <textarea id="outputReport" readonly class="w-full flex-grow bg-e1-chalk border-3 border-e1-dark rounded-xl p-5 font-body text-lg font-medium leading-relaxed text-slate-700 focus:outline-none resize-none shadow-inner transition-colors" placeholder="Select a skill level and sentence from the left panel to begin building the report..."></textarea>
+                <textarea id="outputReport" readonly class="w-full flex-grow bg-e1-chalk dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-600 rounded-xl p-5 font-body text-[1.1rem] font-medium leading-relaxed text-slate-700 dark:text-slate-300 focus:outline-none resize-none shadow-inner transition-colors" placeholder="Select a skill level and sentence from the left panel to begin building the report..."></textarea>
                 
-                <div class="absolute bottom-4 right-8 bg-white border-2 border-e1-dark px-3 py-1 rounded-full text-xs font-bold text-slate-500 shadow-neo-sm flex items-center gap-1">
-                    <i data-lucide="bar-chart-2" class="w-3 h-3"></i>
-                    <span id="wordCount">0</span> words
+                <div class="absolute bottom-4 right-8 bg-white dark:bg-slate-900 border-2 border-e1-dark dark:border-slate-600 px-4 py-1.5 rounded-full text-xs font-bold text-slate-500 dark:text-slate-400 shadow-neo-sm flex items-center gap-3">
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
+                        <span id="wordCount" class="text-e1-dark dark:text-white text-sm">0</span> words
+                    </div>
+                    <div class="w-px h-3.5 bg-slate-300 dark:bg-slate-600"></div>
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="type" class="w-3.5 h-3.5"></i>
+                        <span id="charCount" class="text-e1-dark dark:text-white text-sm">0</span> chars
+                    </div>
                 </div>
             </div>
         </div>
@@ -172,10 +215,18 @@
             they: { subject: 'they', object: 'them', possessive: 'their', CapSubject: 'They', CapPossessive: 'Their' }
         };
 
+        // Theme Toggle Logic
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
         async function fetchComments() {
             try {
                 const response = await fetch('comments.json');
-                if (!response.ok) throw new Error('Network response was not ok');
+                if (!response.ok) throw new Error('Network error');
                 commentBank = await response.json();
                 
                 commentBank.forEach(cat => {
@@ -186,14 +237,7 @@
                 renderAccordions();
                 compileReport();
             } catch (error) {
-                document.getElementById('loadingMsg').innerHTML = `
-                    <div class="bg-red-100 border-3 border-red-500 p-4 rounded-xl text-red-700 shadow-neo">
-                        <i data-lucide="alert-triangle" class="w-8 h-8 mx-auto mb-2"></i>
-                        Failed to load comments.json.<br>
-                        <span class="text-sm font-normal">Please run via Live Server.</span>
-                    </div>
-                `;
-                lucide.createIcons();
+                document.getElementById('loadingMsg').innerHTML = `<div class="text-red-500">Failed to load comments.json</div>`;
             }
         }
 
@@ -208,6 +252,15 @@
                 .replace(/\[object\]/g, pronounObj.object);
         }
 
+        function getTagColor(tag) {
+            const colors = {
+                'Grammar': 'bg-e1-purple', 'Vocab': 'bg-e1-pink', 'Speaking': 'bg-e1-orange', 
+                'Listening': 'bg-e1-blue', 'Reading': 'bg-emerald-500', 'Writing': 'bg-teal-500', 
+                'Phonics': 'bg-amber-400 text-e1-dark', 'Default': 'bg-slate-700'
+            };
+            return colors[tag] || colors['Default'];
+        }
+
         function renderAccordions() {
             const container = document.getElementById('optionsContainer');
             container.innerHTML = ""; 
@@ -219,11 +272,10 @@
                 const numberPrefix = idx + 1;
 
                 const section = document.createElement('div');
-                // Use the theme color from JSON for the left border accent
-                section.className = `bg-white border-4 border-e1-dark rounded-2xl mb-5 shadow-neo border-l-8 border-l-${category.theme.replace('kk-', 'e1-')} overflow-hidden`;
+                section.className = `bg-white dark:bg-slate-800 border-4 border-e1-dark dark:border-slate-700 rounded-2xl mb-5 shadow-neo border-l-8 border-l-${category.theme.replace('kk-', 'e1-')} overflow-hidden`;
 
                 const header = document.createElement('button');
-                header.className = `w-full p-4 flex justify-between items-center text-left hover:bg-slate-50 transition-colors ${hasSelection && !isOpen ? 'bg-slate-50' : ''}`;
+                header.className = `w-full p-4 flex justify-between items-center text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${hasSelection && !isOpen ? 'bg-slate-50 dark:bg-slate-800/80' : ''}`;
                 header.onclick = () => {
                     activeAccordion = isOpen ? null : category.id; 
                     renderAccordions(); 
@@ -232,15 +284,13 @@
                 const titleWrapper = document.createElement('div');
                 titleWrapper.className = "flex items-center gap-3";
                 
-                // Fancy Number Badge
                 const numBadge = document.createElement('div');
-                numBadge.className = `w-8 h-8 rounded-full flex items-center justify-center font-headings font-bold text-sm border-2 border-e1-dark ${hasSelection ? 'bg-e1-green text-e1-dark' : 'bg-e1-chalk text-slate-500'}`;
+                numBadge.className = `w-8 h-8 rounded-full flex items-center justify-center font-headings font-bold text-sm border-2 border-e1-dark dark:border-slate-600 transition-colors ${hasSelection ? 'bg-e1-green text-e1-dark dark:border-transparent' : 'bg-e1-chalk dark:bg-slate-900 text-slate-500 dark:text-slate-400'}`;
                 numBadge.innerHTML = hasSelection ? `<i data-lucide="check" class="w-4 h-4"></i>` : numberPrefix;
                 titleWrapper.appendChild(numBadge);
                 
                 const titleText = document.createElement('h3');
-                titleText.className = `font-headings font-bold text-xl ${hasSelection ? 'text-e1-dark' : 'text-slate-600'}`;
-                // Strip the number from the JSON title since we made a fancy badge
+                titleText.className = `font-headings font-bold text-xl ${hasSelection ? 'text-e1-dark dark:text-white' : 'text-slate-600 dark:text-slate-300'}`;
                 titleText.innerText = category.title.replace(/^\d+\.\s*/, '');
                 titleWrapper.appendChild(titleText);
                 
@@ -258,7 +308,7 @@
                 bodyInner.className = "accordion-inner px-4 pb-4 flex flex-col gap-4";
 
                 const levelNav = document.createElement('div');
-                levelNav.className = "flex gap-2 bg-e1-chalk p-1.5 rounded-xl border-3 border-e1-dark w-fit mt-2";
+                levelNav.className = "flex gap-2 bg-e1-chalk dark:bg-slate-900 p-1.5 rounded-xl border-3 border-e1-dark dark:border-slate-600 w-fit mt-2";
                 
                 const levels = [
                     { key: 'support', label: 'Needs Support' },
@@ -268,7 +318,7 @@
 
                 levels.forEach(lvl => {
                     const btn = document.createElement('button');
-                    btn.className = `level-tab px-4 py-1.5 rounded-lg text-sm font-bold font-headings border-2 border-transparent text-slate-500 cursor-pointer ${catState.level === lvl.key ? 'active' : ''}`;
+                    btn.className = `level-tab px-4 py-1.5 rounded-lg text-sm font-bold font-headings border-2 border-transparent text-slate-500 dark:text-slate-400 cursor-pointer ${catState.level === lvl.key ? 'active' : ''}`;
                     btn.innerText = lvl.label;
                     
                     btn.onclick = (e) => {
@@ -283,15 +333,32 @@
                 bodyInner.appendChild(levelNav);
 
                 const optionsGrid = document.createElement('div');
-                optionsGrid.className = "flex flex-col gap-2.5";
+                optionsGrid.className = "flex flex-col gap-3";
                 
                 const optionsArray = category.levels[catState.level];
-                optionsArray.forEach((optText, index) => {
+                optionsArray.forEach((optItem, index) => {
+                    let tag = null;
+                    let rawText = optItem;
+
+                    if (typeof optItem === 'string' && optItem.includes(' | ')) {
+                        const parts = optItem.split(' | ');
+                        tag = parts[0].trim();
+                        rawText = parts[1].trim();
+                    }
+
                     const btn = document.createElement('button');
-                    const previewText = parseText(optText, "Student", pronouns.he);
+                    const isSelected = catState.selectionIndex === index;
+                    btn.className = `option-card text-left p-4 border-3 border-e1-dark dark:border-slate-600 rounded-xl bg-e1-chalk dark:bg-slate-900 font-semibold text-[0.95rem] cursor-pointer leading-relaxed flex flex-col gap-2 ${isSelected ? 'selected' : 'text-slate-600 dark:text-slate-300'}`;
                     
-                    btn.className = `option-card text-left p-3.5 border-3 border-e1-dark rounded-xl bg-e1-chalk font-semibold text-sm cursor-pointer leading-relaxed ${catState.selectionIndex === index ? 'selected' : 'text-slate-600'}`;
-                    btn.innerText = previewText;
+                    if (tag) {
+                        const badgeColor = isSelected ? 'bg-white/20 text-white border-white/30' : `${getTagColor(tag)} text-white border-transparent`;
+                        const tagHtml = `<span class="inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border-2 ${badgeColor}">${tag}</span>`;
+                        btn.innerHTML = tagHtml;
+                    }
+
+                    const textSpan = document.createElement('span');
+                    textSpan.innerText = parseText(rawText, "Student", pronouns.he);
+                    btn.appendChild(textSpan);
                     
                     btn.onclick = (e) => {
                         e.stopPropagation();
@@ -330,8 +397,13 @@
             commentBank.forEach(category => {
                 const catState = state[category.id];
                 if (catState && catState.selectionIndex !== null) {
-                    const rawSentence = category.levels[catState.level][catState.selectionIndex];
-                    const parsedSentence = parseText(rawSentence, nameInput, pData);
+                    let rawItem = category.levels[catState.level][catState.selectionIndex];
+                    
+                    if (typeof rawItem === 'string' && rawItem.includes(' | ')) {
+                        rawItem = rawItem.split(' | ')[1].trim();
+                    }
+                    
+                    const parsedSentence = parseText(rawItem, nameInput, pData);
                     finalReportParts.push(parsedSentence);
                 }
             });
@@ -341,36 +413,29 @@
             
             outputArea.value = finalText;
             
-            // Visual feedback if fully compiled
-            if (finalReportParts.length === commentBank.length) {
-                outputArea.classList.add('bg-white', 'text-e1-dark');
-                outputArea.classList.remove('bg-e1-chalk', 'text-slate-700');
+            if (finalReportParts.length === commentBank.length && finalReportParts.length > 0) {
+                outputArea.classList.add('bg-white', 'text-e1-dark', 'dark:bg-slate-700', 'dark:text-white');
+                outputArea.classList.remove('bg-e1-chalk', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-300');
             } else {
-                outputArea.classList.add('bg-e1-chalk', 'text-slate-700');
-                outputArea.classList.remove('bg-white', 'text-e1-dark');
+                outputArea.classList.add('bg-e1-chalk', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-300');
+                outputArea.classList.remove('bg-white', 'text-e1-dark', 'dark:bg-slate-700', 'dark:text-white');
             }
 
-            // Word Count
-            const words = finalText.trim() ? finalText.trim().split(/\s+/).length : 0;
+            // Word & Character Count Update
+            const textToCount = finalText.trim();
+            const words = textToCount ? textToCount.split(/\s+/).length : 0;
+            const chars = textToCount.length;
+            
             document.getElementById('wordCount').innerText = words;
+            document.getElementById('charCount').innerText = chars;
         }
 
         function clearAll() {
-            // Reset Name
             document.getElementById('studentName').value = '';
-            
-            // Reset State selections
-            commentBank.forEach(cat => {
-                state[cat.id].selectionIndex = null;
-            });
-            
-            // Open first accordion
+            commentBank.forEach(cat => { state[cat.id].selectionIndex = null; });
             activeAccordion = 'general';
-            
             renderAccordions();
             compileReport();
-            
-            // Focus back on name input for fast workflow
             document.getElementById('studentName').focus();
         }
 
