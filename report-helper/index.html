@@ -254,22 +254,22 @@
 
         const tagColorMap = {
             // General
-            'Confidence': 'bg-violet-500', 'Attitude': 'bg-rose-500', 'Progress': 'bg-cyan-500',
-            'Engagement': 'bg-indigo-500', 'Character': 'bg-fuchsia-500',
+            'Confidence': 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300', 'Attitude': 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300', 'Progress': 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300',
+            'Engagement': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300', 'Character': 'bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-900/40 dark:text-fuchsia-300',
             // Social
-            'Teamwork': 'bg-sky-500', 'Participation': 'bg-lime-500 text-e1-dark', 'Respect': 'bg-pink-500',
-            'Communication': 'bg-orange-500', 'Leadership': 'bg-yellow-500 text-e1-dark',
+            'Teamwork': 'bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300', 'Participation': 'bg-lime-100 text-lime-800 dark:bg-lime-900/40 dark:text-lime-300', 'Respect': 'bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300',
+            'Communication': 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300', 'Leadership': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
             // Effort
-            'Motivation': 'bg-red-500', 'Perseverance': 'bg-emerald-600', 'Initiative': 'bg-blue-500',
-            'Focus': 'bg-purple-500', 'Resilience': 'bg-teal-600',
+            'Motivation': 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300', 'Perseverance': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300', 'Initiative': 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
+            'Focus': 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300', 'Resilience': 'bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300',
             // Academic
-            'Grammar': 'bg-violet-600', 'Vocabulary': 'bg-e1-pink', 'Speaking': 'bg-e1-orange',
-            'Listening': 'bg-e1-blue', 'Reading': 'bg-emerald-500', 'Writing': 'bg-teal-500',
-            'Phonics': 'bg-amber-400 text-e1-dark',
+            'Grammar': 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300', 'Vocabulary': 'bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300', 'Speaking': 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
+            'Listening': 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300', 'Reading': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300', 'Writing': 'bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300',
+            'Phonics': 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
             // Sign-off
-            'Encouragement': 'bg-green-500', 'Celebration': 'bg-amber-500 text-e1-dark',
-            'Gratitude': 'bg-rose-400', 'Growth': 'bg-cyan-600',
-            'Default': 'bg-slate-700'
+            'Encouragement': 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300', 'Celebration': 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+            'Gratitude': 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300', 'Growth': 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300',
+            'Default': 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300'
         };
 
         function toggleTheme() {
@@ -421,53 +421,40 @@
 
             commentBank.forEach((category, idx) => {
                 const catState = state[category.id];
-                const isOpen = activeAccordion === category.id;
-                const hasSelection = catState.selectionIndex !== null;
+                if (activeAccordion !== category.id) return;
+
                 const colorClass = themeColorMap[category.theme] || 'e1-blue';
 
                 const section = document.createElement('div');
-                section.className = `bg-white dark:bg-slate-800 border-4 border-e1-dark dark:border-slate-700 rounded-2xl mb-5 shadow-neo border-l-8 border-l-${colorClass} overflow-hidden`;
+                section.className = `bg-white dark:bg-slate-800 border-4 border-e1-dark dark:border-slate-700 rounded-2xl mb-5 shadow-neo border-t-8 border-t-${colorClass} overflow-hidden`;
 
                 // Header
-                const header = document.createElement('button');
-                header.className = `w-full p-4 flex justify-between items-center text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${hasSelection && !isOpen ? 'bg-slate-50 dark:bg-slate-800/80' : ''}`;
-                header.onclick = () => {
-                    activeAccordion = isOpen ? null : category.id; 
-                    renderStepper();
-                    renderAccordions();
-                    saveState();
-                };
+                const header = document.createElement('div');
+                header.className = `w-full px-5 py-4 flex justify-between items-center text-left bg-slate-50 dark:bg-slate-800/80 border-b-2 border-slate-100 dark:border-slate-700`;
 
                 const titleWrapper = document.createElement('div');
                 titleWrapper.className = "flex items-center gap-3";
                 
                 const numBadge = document.createElement('div');
-                numBadge.className = `w-8 h-8 rounded-full flex items-center justify-center font-headings font-bold text-sm border-2 border-e1-dark dark:border-slate-600 transition-colors ${hasSelection ? 'bg-e1-green text-e1-dark dark:border-transparent' : 'bg-e1-chalk dark:bg-slate-900 text-slate-500 dark:text-slate-400'}`;
-                numBadge.innerHTML = hasSelection ? `<i data-lucide="check" class="w-4 h-4"></i>` : (idx + 1);
+                numBadge.className = `w-8 h-8 rounded-full flex items-center justify-center font-headings font-bold text-sm bg-e1-dark text-white border-2 border-transparent shadow-neo-sm`;
+                numBadge.innerText = idx + 1;
                 titleWrapper.appendChild(numBadge);
                 
                 const titleText = document.createElement('h3');
-                titleText.className = `font-headings font-bold text-xl ${hasSelection ? 'text-e1-dark dark:text-white' : 'text-slate-600 dark:text-slate-300'}`;
+                titleText.className = `font-headings font-bold text-xl text-e1-dark dark:text-white tracking-tight`;
                 titleText.innerText = category.title.replace(/^\d+\.\s*/, '');
                 titleWrapper.appendChild(titleText);
                 
                 header.appendChild(titleWrapper);
-
-                const chevron = document.createElement('div');
-                chevron.innerHTML = `<i data-lucide="chevron-down" class="w-6 h-6 text-slate-400 chevron ${isOpen ? 'open' : ''}"></i>`;
-                header.appendChild(chevron);
                 section.appendChild(header);
 
                 // Body
-                const bodyWrapper = document.createElement('div');
-                bodyWrapper.className = `accordion-content ${isOpen ? 'open' : ''}`;
-                
                 const bodyInner = document.createElement('div');
-                bodyInner.className = "accordion-inner px-4 pb-4 flex flex-col gap-4";
+                bodyInner.className = "p-5 flex flex-col gap-4";
 
                 // Level tabs
                 const levelNav = document.createElement('div');
-                levelNav.className = "flex gap-2 bg-e1-chalk dark:bg-slate-900 p-1.5 rounded-xl border-3 border-e1-dark dark:border-slate-600 w-fit mt-2";
+                levelNav.className = "flex gap-2 bg-e1-chalk dark:bg-slate-900 p-1.5 rounded-xl border-3 border-e1-dark dark:border-slate-600 w-fit";
                 
                 const levels = [
                     { key: 'support', label: 'Needs Support' },
@@ -554,7 +541,7 @@
                     btn.className = `option-card text-left p-4 border-3 border-e1-dark dark:border-slate-600 rounded-xl bg-e1-chalk dark:bg-slate-900 font-semibold text-[0.95rem] cursor-pointer leading-relaxed flex flex-col gap-2 ${isSelected ? 'selected' : 'text-slate-600 dark:text-slate-300'}`;
                     
                     if (tag) {
-                        const badgeColor = isSelected ? 'bg-white/20 text-white border-white/30' : `${getTagColor(tag)} text-white border-transparent`;
+                        const badgeColor = isSelected ? 'bg-white/20 text-white border-white/30' : `${getTagColor(tag)} border-transparent`;
                         btn.innerHTML = `<span class="inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border-2 ${badgeColor}">${tag}</span>`;
                     }
 
@@ -582,8 +569,7 @@
                 });
 
                 bodyInner.appendChild(optionsGrid);
-                bodyWrapper.appendChild(bodyInner);
-                section.appendChild(bodyWrapper);
+                section.appendChild(bodyInner);
                 container.appendChild(section);
             });
             
