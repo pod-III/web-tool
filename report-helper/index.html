@@ -255,9 +255,15 @@
                 <h2 class="font-headings font-bold text-xl text-e1-dark flex items-center gap-2">
                     <i data-lucide="database" class="w-5 h-5"></i> Saved Reports Archive
                 </h2>
-                <button onclick="closeDatabaseModal()" class="btn-neo bg-white border-3 border-e1-dark rounded-lg p-1.5 text-e1-dark shadow-neo-sm">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+                <div class="flex items-center gap-2">
+                    <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+                    <button onclick="triggerImport()" class="btn-neo bg-white border-3 border-e1-dark rounded-lg px-3 py-1.5 text-sm font-bold text-e1-dark shadow-neo-sm flex items-center gap-2" title="Import Class JSON">
+                        <i data-lucide="download-cloud" class="w-4 h-4"></i> <span class="hidden sm:inline">Import</span>
+                    </button>
+                    <button onclick="closeDatabaseModal()" class="btn-neo bg-white border-3 border-e1-dark rounded-lg p-1.5 text-e1-dark shadow-neo-sm">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
             </div>
             <div class="p-6 overflow-y-auto flex-grow" id="dbModalContent">
                 </div>
@@ -349,14 +355,13 @@
                 className,
                 studentName,
                 pronoun,
-                state: JSON.parse(JSON.stringify(state)), // Deep copy state
+                state: JSON.parse(JSON.stringify(state)), 
                 timestamp: new Date().getTime()
             };
 
             const tx = db.transaction("reports", "readwrite");
             const store = tx.objectStore("reports");
 
-            // Look up to update existing, or add new
             const request = store.index("className").getAll(className);
             request.onsuccess = () => {
                 const existing = request.result.find(r => r.studentName.toLowerCase() === studentName.toLowerCase());
@@ -368,6 +373,101 @@
                 }
                 showToast("Saved to Archive!");
             };
+        }
+
+        // Action Functions
+        function deleteReport(id, e) {
+            if (e) e.stopPropagation();
+            if (!confirm("Are you sure you want to delete this report?")) return;
+            const tx = db.transaction("reports", "readwrite");
+            tx.objectStore("reports").delete(id);
+            tx.oncomplete = () => { 
+                showToast("Report deleted"); 
+                openDatabaseModal(); 
+            };
+        }
+
+        function duplicateReport(report, e) {
+            if (e) e.stopPropagation();
+            const copy = JSON.parse(JSON.stringify(report));
+            delete copy.id;
+            copy.studentName = copy.studentName + " (Copy)";
+            copy.timestamp = new Date().getTime();
+            const tx = db.transaction("reports", "readwrite");
+            tx.objectStore("reports").add(copy);
+            tx.oncomplete = () => { 
+                showToast("Report duplicated"); 
+                openDatabaseModal(); 
+            };
+        }
+
+        function deleteClass(className) {
+            if (!confirm(`Are you sure you want to delete ALL reports for class ${className}?`)) return;
+            const tx = db.transaction("reports", "readwrite");
+            const store = tx.objectStore("reports");
+            const request = store.index("className").getAllKeys(className);
+            request.onsuccess = () => {
+                request.result.forEach(id => store.delete(id));
+            };
+            tx.oncomplete = () => {
+                showToast(`Deleted class ${className}`);
+                openDatabaseModal();
+            };
+        }
+
+        function exportClass(className) {
+            const tx = db.transaction("reports", "readonly");
+            const store = tx.objectStore("reports");
+            const request = store.index("className").getAll(className);
+            request.onsuccess = () => {
+                const dataStr = JSON.stringify(request.result, null, 2);
+                const blob = new Blob([dataStr], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `KlassKit_${className}_Backup.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast(`Exported ${className} successfully`);
+            };
+        }
+
+        function triggerImport() {
+            document.getElementById('importFile').click();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!Array.isArray(data)) throw new Error("Invalid format: Expected an array.");
+                    
+                    const tx = db.transaction("reports", "readwrite");
+                    const store = tx.objectStore("reports");
+                    let count = 0;
+                    
+                    data.forEach(item => {
+                        if (item.className && item.studentName && item.state) {
+                            delete item.id; // Prevent collision
+                            item.timestamp = new Date().getTime();
+                            store.add(item);
+                            count++;
+                        }
+                    });
+                    
+                    tx.oncomplete = () => {
+                        showToast(`Imported ${count} reports!`);
+                        openDatabaseModal();
+                    };
+                } catch(err) {
+                    alert("Error importing file. Please ensure it is a valid KlassKit export.");
+                }
+                event.target.value = ''; // Reset input
+            };
+            reader.readAsText(file);
         }
 
         function openDatabaseModal() {
@@ -389,7 +489,6 @@
                     return;
                 }
 
-                // Group by Class
                 const grouped = {};
                 reports.forEach(r => {
                     if (!grouped[r.className]) grouped[r.className] = [];
@@ -401,9 +500,22 @@
                     const classBlock = document.createElement('div');
                     classBlock.className = 'mb-6';
                     
-                    const classTitle = document.createElement('h3');
-                    classTitle.className = 'font-headings font-bold text-lg text-e1-dark dark:text-white mb-3 border-b-2 border-slate-200 dark:border-slate-700 pb-1 flex items-center gap-2';
-                    classTitle.innerHTML = `<i data-lucide="users" class="w-5 h-5 text-e1-orange"></i> ${className} <span class="bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs px-2 py-0.5 rounded-full">${grouped[className].length}</span>`;
+                    const classTitle = document.createElement('div');
+                    classTitle.className = 'font-headings font-bold text-lg text-e1-dark dark:text-white mb-3 border-b-2 border-slate-200 dark:border-slate-700 pb-2 flex justify-between items-center';
+                    classTitle.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="users" class="w-5 h-5 text-e1-orange"></i> ${className} 
+                            <span class="bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs px-2 py-0.5 rounded-full border-2 border-slate-200 dark:border-slate-600">${grouped[className].length}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="exportClass('${className}')" class="btn-neo bg-white dark:bg-slate-800 border-2 border-e1-dark dark:border-slate-600 rounded px-2 py-1 text-xs font-bold text-slate-700 dark:text-slate-300 shadow-neo-sm flex items-center gap-1 hover:text-e1-blue transition-colors">
+                                <i data-lucide="upload-cloud" class="w-3 h-3"></i> Export
+                            </button>
+                            <button onclick="deleteClass('${className}')" class="btn-neo bg-rose-100 dark:bg-rose-900/30 border-2 border-rose-900 dark:border-rose-400 rounded px-2 py-1 text-xs font-bold text-rose-700 dark:text-rose-400 shadow-neo-sm flex items-center gap-1 hover:bg-rose-200 transition-colors">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i> Delete
+                            </button>
+                        </div>
+                    `;
                     classBlock.appendChild(classTitle);
 
                     const grid = document.createElement('div');
@@ -412,19 +524,39 @@
                     grouped[className].sort((a,b) => b.timestamp - a.timestamp).forEach(report => {
                         const dateStr = new Date(report.timestamp).toLocaleDateString();
                         const card = document.createElement('div');
-                        card.className = 'bg-slate-50 dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-600 rounded-xl p-3 flex justify-between items-center shadow-neo-sm hover:-translate-y-1 transition-transform cursor-pointer group';
+                        card.className = 'bg-slate-50 dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-600 rounded-xl p-3 flex justify-between items-center shadow-neo-sm hover:-translate-y-1 transition-transform group';
                         
-                        card.innerHTML = `
-                            <div>
-                                <p class="font-bold text-e1-dark dark:text-white">${report.studentName}</p>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 capitalize">${report.pronoun} • Edited ${dateStr}</p>
-                            </div>
-                            <button class="bg-e1-blue text-white p-2 rounded-lg border-2 border-e1-dark shadow-sm group-hover:bg-e1-dark transition-colors">
-                                <i data-lucide="download" class="w-4 h-4"></i>
-                            </button>
+                        const infoDiv = document.createElement('div');
+                        infoDiv.className = 'flex-grow cursor-pointer';
+                        infoDiv.onclick = () => loadReportFromDB(report);
+                        infoDiv.innerHTML = `
+                            <p class="font-bold text-e1-dark dark:text-white truncate pr-2">${report.studentName}</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 capitalize">${report.pronoun} • Edited ${dateStr}</p>
                         `;
-                        
-                        card.onclick = () => loadReportFromDB(report);
+
+                        const actionsDiv = document.createElement('div');
+                        actionsDiv.className = 'flex gap-1.5 shrink-0';
+
+                        const loadBtn = document.createElement('button');
+                        loadBtn.className = 'bg-e1-blue text-white p-2 rounded-lg border-2 border-e1-dark shadow-sm hover:bg-blue-600 transition-colors';
+                        loadBtn.title = 'Load';
+                        loadBtn.onclick = () => loadReportFromDB(report);
+                        loadBtn.innerHTML = '<i data-lucide="upload" class="w-4 h-4"></i>';
+
+                        const dupBtn = document.createElement('button');
+                        dupBtn.className = 'bg-e1-green text-e1-dark p-2 rounded-lg border-2 border-e1-dark shadow-sm hover:bg-green-400 transition-colors';
+                        dupBtn.title = 'Duplicate';
+                        dupBtn.onclick = (e) => duplicateReport(report, e);
+                        dupBtn.innerHTML = '<i data-lucide="copy" class="w-4 h-4"></i>';
+
+                        const delBtn = document.createElement('button');
+                        delBtn.className = 'bg-rose-500 text-white p-2 rounded-lg border-2 border-e1-dark shadow-sm hover:bg-rose-600 transition-colors';
+                        delBtn.title = 'Delete';
+                        delBtn.onclick = (e) => deleteReport(report.id, e);
+                        delBtn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i>';
+
+                        actionsDiv.append(loadBtn, dupBtn, delBtn);
+                        card.append(infoDiv, actionsDiv);
                         grid.appendChild(card);
                     });
 
@@ -444,7 +576,6 @@
             document.getElementById('studentName').value = report.studentName;
             document.getElementById('pronoun').value = report.pronoun;
             
-            // Merge loaded state with current commentBank requirements
             commentBank.forEach(cat => {
                 if (report.state && report.state[cat.id]) {
                     state[cat.id] = report.state[cat.id];
@@ -457,7 +588,7 @@
             renderStepper();
             renderAccordions();
             compileReport();
-            saveState(); // Update localStorage draft
+            saveState(); 
             showToast(`Loaded ${report.studentName}`);
         }
 
