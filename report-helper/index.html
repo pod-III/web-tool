@@ -120,6 +120,15 @@
         
         .dark .shadow-neo { box-shadow: 4px 4px 0px 0px #000000; }
         .dark .shadow-neo-sm { box-shadow: 2px 2px 0px 0px #000000; }
+
+        /* Toast Animation */
+        @keyframes slideUpFade {
+            0% { transform: translateY(100%); opacity: 0; }
+            10% { transform: translateY(0); opacity: 1; }
+            90% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(100%); opacity: 0; }
+        }
+        .toast-animate { animation: slideUpFade 3s ease-in-out forwards; }
     </style>
     
     <script>
@@ -143,10 +152,13 @@
                     <i data-lucide="sun" id="theme-icon-light" class="w-5 h-5 hidden dark:block"></i>
                     <i data-lucide="moon" id="theme-icon-dark" class="w-5 h-5 block dark:hidden"></i>
                 </button>
+                <button onclick="openDatabaseModal()" class="btn-neo bg-e1-orange border-3 border-e1-dark dark:border-slate-700 rounded-xl p-2.5 text-e1-dark shadow-neo-sm flex items-center justify-center" title="Saved Classes & Reports">
+                    <i data-lucide="database" class="w-5 h-5"></i>
+                </button>
             </div>
 
-            <div class="h-10 w-1 bg-e1-dark/10 dark:bg-slate-700 rounded-full mx-1"></div>
-            <div class="flex items-center gap-3">
+            <div class="h-10 w-1 bg-e1-dark/10 dark:bg-slate-700 rounded-full mx-1 hidden md:block"></div>
+            <div class="hidden md:flex items-center gap-3">
                 <div class="bg-e1-dark dark:bg-slate-800 text-white p-2 rounded-lg shadow-neo-sm border-2 border-transparent dark:border-slate-700">
                     <i data-lucide="file-check-2" class="w-6 h-6"></i>
                 </div>
@@ -160,9 +172,15 @@
         <div class="flex gap-3 items-center bg-e1-chalk dark:bg-slate-800 p-2 rounded-xl border-3 border-e1-dark dark:border-slate-700 shadow-neo-sm">
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i data-lucide="users" class="w-4 h-4 text-slate-400"></i>
+                </div>
+                <input type="text" id="className" class="w-32 pl-9 pr-3 py-2.5 bg-white dark:bg-slate-900 border-2 border-e1-dark dark:border-slate-600 rounded-lg font-bold placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-e1-orange/20 transition-all text-sm text-e1-dark dark:text-white" placeholder="Class (e.g. T3)" oninput="onInputChange()">
+            </div>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
                 </div>
-                <input type="text" id="studentName" class="w-48 pl-9 pr-3 py-2.5 bg-white dark:bg-slate-900 border-2 border-e1-dark dark:border-slate-600 rounded-lg font-bold placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all text-sm text-e1-dark dark:text-white" placeholder="Student Name" oninput="onInputChange()">
+                <input type="text" id="studentName" class="w-40 pl-9 pr-3 py-2.5 bg-white dark:bg-slate-900 border-2 border-e1-dark dark:border-slate-600 rounded-lg font-bold placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all text-sm text-e1-dark dark:text-white" placeholder="Student Name" oninput="onInputChange()">
             </div>
             <select id="pronoun" class="py-2.5 px-3 bg-white dark:bg-slate-900 border-2 border-e1-dark dark:border-slate-600 rounded-lg font-bold cursor-pointer focus:outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all text-sm text-e1-dark dark:text-white" onchange="onInputChange()">
                 <option value="he">He / His</option>
@@ -175,7 +193,6 @@
     <div class="flex flex-row h-full overflow-hidden">
         
         <div class="w-[55%] flex flex-col overflow-hidden border-r-4 border-e1-dark dark:border-slate-800 bg-white/50 dark:bg-slate-900/50">
-            <!-- Progress Stepper -->
             <div id="stepperBar" class="shrink-0 px-6 pt-5 pb-3">
                 <div class="flex items-center justify-between gap-0" id="stepperContainer"></div>
             </div>
@@ -199,13 +216,15 @@
                         <button onclick="clearAll()" class="btn-neo bg-e1-chalk dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-600 rounded-xl px-3 py-2 font-bold text-sm shadow-neo-sm flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-e1-pink dark:hover:text-e1-pink">
                             <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset
                         </button>
+                        <button onclick="saveReportToDB()" id="saveBtn" class="btn-neo bg-e1-blue border-3 border-e1-dark dark:border-slate-600 rounded-xl px-4 py-2 font-bold text-sm shadow-neo-sm flex items-center gap-2 text-white">
+                            <i data-lucide="save" class="w-4 h-4"></i> Save
+                        </button>
                         <button onclick="copyReport()" id="copyBtn" class="btn-neo bg-e1-green border-3 border-e1-dark dark:border-slate-600 rounded-xl px-4 py-2 font-bold text-sm shadow-neo-sm flex items-center gap-2 text-e1-dark">
                             <i data-lucide="copy" class="w-4 h-4"></i> Copy Text
                         </button>
                     </div>
                 </div>
 
-                <!-- Completion Badge -->
                 <div id="completionBadge" class="hidden mb-3 bg-e1-green/10 dark:bg-e1-green/5 border-2 border-e1-green rounded-xl px-4 py-2 text-center">
                     <span class="font-headings font-bold text-e1-green text-sm flex items-center justify-center gap-2">
                         <i data-lucide="check-circle-2" class="w-4 h-4"></i> Report Complete — All sections selected!
@@ -228,6 +247,25 @@
             </div>
         </div>
 
+    </div>
+
+    <div id="dbModal" class="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border-4 border-e1-dark dark:border-slate-700 rounded-2xl shadow-neo w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden">
+            <div class="bg-e1-orange border-b-4 border-e1-dark dark:border-slate-700 px-6 py-4 flex justify-between items-center">
+                <h2 class="font-headings font-bold text-xl text-e1-dark flex items-center gap-2">
+                    <i data-lucide="database" class="w-5 h-5"></i> Saved Reports Archive
+                </h2>
+                <button onclick="closeDatabaseModal()" class="btn-neo bg-white border-3 border-e1-dark rounded-lg p-1.5 text-e1-dark shadow-neo-sm">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-grow" id="dbModalContent">
+                </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-e1-dark dark:bg-slate-800 text-white px-6 py-3 rounded-full font-bold shadow-neo border-2 border-slate-700 opacity-0 pointer-events-none flex items-center gap-2">
+        <i data-lucide="check-circle-2" class="w-5 h-5 text-e1-green"></i> <span id="toastMsg">Saved successfully!</span>
     </div>
 
     <script>
@@ -253,34 +291,186 @@
         };
 
         const tagColorMap = {
-            // General
             'Confidence': 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300', 'Attitude': 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300', 'Progress': 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300',
             'Engagement': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300', 'Character': 'bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-900/40 dark:text-fuchsia-300',
-            // Social
             'Teamwork': 'bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300', 'Participation': 'bg-lime-100 text-lime-800 dark:bg-lime-900/40 dark:text-lime-300', 'Respect': 'bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300',
             'Communication': 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300', 'Leadership': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
-            // Effort
             'Motivation': 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300', 'Perseverance': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300', 'Initiative': 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
             'Focus': 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300', 'Resilience': 'bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300',
-            // Academic
             'Grammar': 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300', 'Vocabulary': 'bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300', 'Speaking': 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
             'Listening': 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300', 'Reading': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300', 'Writing': 'bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300',
             'Phonics': 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-            // Sign-off
             'Encouragement': 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300', 'Celebration': 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
             'Gratitude': 'bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300', 'Growth': 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300',
             'Default': 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300'
         };
 
+        // --- IndexedDB Logic ---
+        let db;
+        const dbName = "KlassKitReportsDB";
+        const dbVersion = 1;
+
+        function initDB() {
+            const request = indexedDB.open(dbName, dbVersion);
+            request.onerror = (event) => console.error("IndexedDB Error:", event);
+            request.onsuccess = (event) => { db = event.target.result; };
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains("reports")) {
+                    const store = db.createObjectStore("reports", { keyPath: "id", autoIncrement: true });
+                    store.createIndex("className", "className", { unique: false });
+                    store.createIndex("studentName", "studentName", { unique: false });
+                }
+            };
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = message;
+            toast.classList.remove('toast-animate');
+            void toast.offsetWidth; // Trigger reflow
+            toast.classList.add('toast-animate');
+        }
+
+        function saveReportToDB() {
+            if (!db) return alert("Database not initialized yet.");
+            
+            const studentName = document.getElementById('studentName').value.trim();
+            const className = document.getElementById('className').value.trim() || 'Uncategorized';
+            const pronoun = document.getElementById('pronoun').value;
+
+            if (!studentName) {
+                alert("Please enter a Student Name to save their report.");
+                document.getElementById('studentName').focus();
+                return;
+            }
+
+            const reportData = {
+                className,
+                studentName,
+                pronoun,
+                state: JSON.parse(JSON.stringify(state)), // Deep copy state
+                timestamp: new Date().getTime()
+            };
+
+            const tx = db.transaction("reports", "readwrite");
+            const store = tx.objectStore("reports");
+
+            // Look up to update existing, or add new
+            const request = store.index("className").getAll(className);
+            request.onsuccess = () => {
+                const existing = request.result.find(r => r.studentName.toLowerCase() === studentName.toLowerCase());
+                if (existing) {
+                    reportData.id = existing.id;
+                    store.put(reportData);
+                } else {
+                    store.add(reportData);
+                }
+                showToast("Saved to Archive!");
+            };
+        }
+
+        function openDatabaseModal() {
+            if (!db) return;
+            const modal = document.getElementById('dbModal');
+            const content = document.getElementById('dbModalContent');
+            content.innerHTML = '<div class="text-center py-10 text-slate-500"><i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-2"></i> Loading...</div>';
+            lucide.createIcons();
+            modal.classList.remove('hidden');
+
+            const tx = db.transaction("reports", "readonly");
+            const store = tx.objectStore("reports");
+            const request = store.getAll();
+
+            request.onsuccess = () => {
+                const reports = request.result;
+                if (reports.length === 0) {
+                    content.innerHTML = '<div class="text-center py-10 text-slate-500 font-bold">No saved reports yet.</div>';
+                    return;
+                }
+
+                // Group by Class
+                const grouped = {};
+                reports.forEach(r => {
+                    if (!grouped[r.className]) grouped[r.className] = [];
+                    grouped[r.className].push(r);
+                });
+
+                content.innerHTML = '';
+                Object.keys(grouped).sort().forEach(className => {
+                    const classBlock = document.createElement('div');
+                    classBlock.className = 'mb-6';
+                    
+                    const classTitle = document.createElement('h3');
+                    classTitle.className = 'font-headings font-bold text-lg text-e1-dark dark:text-white mb-3 border-b-2 border-slate-200 dark:border-slate-700 pb-1 flex items-center gap-2';
+                    classTitle.innerHTML = `<i data-lucide="users" class="w-5 h-5 text-e1-orange"></i> ${className} <span class="bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs px-2 py-0.5 rounded-full">${grouped[className].length}</span>`;
+                    classBlock.appendChild(classTitle);
+
+                    const grid = document.createElement('div');
+                    grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-3';
+
+                    grouped[className].sort((a,b) => b.timestamp - a.timestamp).forEach(report => {
+                        const dateStr = new Date(report.timestamp).toLocaleDateString();
+                        const card = document.createElement('div');
+                        card.className = 'bg-slate-50 dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-600 rounded-xl p-3 flex justify-between items-center shadow-neo-sm hover:-translate-y-1 transition-transform cursor-pointer group';
+                        
+                        card.innerHTML = `
+                            <div>
+                                <p class="font-bold text-e1-dark dark:text-white">${report.studentName}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 capitalize">${report.pronoun} • Edited ${dateStr}</p>
+                            </div>
+                            <button class="bg-e1-blue text-white p-2 rounded-lg border-2 border-e1-dark shadow-sm group-hover:bg-e1-dark transition-colors">
+                                <i data-lucide="download" class="w-4 h-4"></i>
+                            </button>
+                        `;
+                        
+                        card.onclick = () => loadReportFromDB(report);
+                        grid.appendChild(card);
+                    });
+
+                    classBlock.appendChild(grid);
+                    content.appendChild(classBlock);
+                });
+                lucide.createIcons();
+            };
+        }
+
+        function closeDatabaseModal() {
+            document.getElementById('dbModal').classList.add('hidden');
+        }
+
+        function loadReportFromDB(report) {
+            document.getElementById('className').value = report.className;
+            document.getElementById('studentName').value = report.studentName;
+            document.getElementById('pronoun').value = report.pronoun;
+            
+            // Merge loaded state with current commentBank requirements
+            commentBank.forEach(cat => {
+                if (report.state && report.state[cat.id]) {
+                    state[cat.id] = report.state[cat.id];
+                } else {
+                    state[cat.id] = { level: 'good', selectionIndex: null, activeTag: 'All' };
+                }
+            });
+
+            closeDatabaseModal();
+            renderStepper();
+            renderAccordions();
+            compileReport();
+            saveState(); // Update localStorage draft
+            showToast(`Loaded ${report.studentName}`);
+        }
+
+        // --- Core App Logic ---
         function toggleTheme() {
             const html = document.documentElement;
             html.classList.toggle('dark');
             localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
         }
 
-        // --- Persistence ---
         function saveState() {
             const data = {
+                className: document.getElementById('className').value,
                 studentName: document.getElementById('studentName').value,
                 pronoun: document.getElementById('pronoun').value,
                 state: state,
@@ -302,7 +492,6 @@
             saveState();
         }
 
-        // --- Data ---
         async function fetchComments() {
             try {
                 const response = await fetch('comments.json');
@@ -314,7 +503,6 @@
                 commentBank.forEach(cat => {
                     if (saved && saved.state && saved.state[cat.id]) {
                         state[cat.id] = saved.state[cat.id];
-                        // Ensure activeTag exists
                         if (!state[cat.id].activeTag) state[cat.id].activeTag = 'All';
                     } else {
                         state[cat.id] = { level: 'good', selectionIndex: null, activeTag: 'All' };
@@ -322,6 +510,7 @@
                 });
 
                 if (saved) {
+                    if (saved.className) document.getElementById('className').value = saved.className;
                     if (saved.studentName) document.getElementById('studentName').value = saved.studentName;
                     if (saved.pronoun) document.getElementById('pronoun').value = saved.pronoun;
                     if (saved.activeAccordion !== undefined) activeAccordion = saved.activeAccordion;
@@ -363,7 +552,6 @@
             return Array.from(tags);
         }
 
-        // --- Stepper ---
         function renderStepper() {
             const container = document.getElementById('stepperContainer');
             container.innerHTML = '';
@@ -374,7 +562,6 @@
                 const isActive = activeAccordion === cat.id;
                 const colorClass = themeColorMap[cat.theme] || 'e1-blue';
 
-                // Dot
                 const dotWrap = document.createElement('div');
                 dotWrap.className = 'flex flex-col items-center gap-1 cursor-pointer group relative';
                 dotWrap.style.zIndex = '2';
@@ -403,7 +590,6 @@
 
                 container.appendChild(dotWrap);
 
-                // Line between dots
                 if (idx < commentBank.length - 1) {
                     const line = document.createElement('div');
                     const prevCompleted = isCompleted;
@@ -414,7 +600,6 @@
             lucide.createIcons();
         }
 
-        // --- Accordions ---
         function renderAccordions() {
             const container = document.getElementById('optionsContainer');
             container.innerHTML = ""; 
@@ -428,7 +613,6 @@
                 const section = document.createElement('div');
                 section.className = `bg-white dark:bg-slate-800 border-4 border-e1-dark dark:border-slate-700 rounded-2xl mb-5 shadow-neo border-t-8 border-t-${colorClass} overflow-hidden`;
 
-                // Header
                 const header = document.createElement('div');
                 header.className = `w-full px-5 py-4 flex justify-between items-center text-left bg-slate-50 dark:bg-slate-800/80 border-b-2 border-slate-100 dark:border-slate-700`;
 
@@ -448,11 +632,9 @@
                 header.appendChild(titleWrapper);
                 section.appendChild(header);
 
-                // Body
                 const bodyInner = document.createElement('div');
                 bodyInner.className = "p-5 flex flex-col gap-4";
 
-                // Level tabs
                 const levelNav = document.createElement('div');
                 levelNav.className = "flex gap-2 bg-e1-chalk dark:bg-slate-900 p-1.5 rounded-xl border-3 border-e1-dark dark:border-slate-600 w-fit";
                 
@@ -480,13 +662,11 @@
                 });
                 bodyInner.appendChild(levelNav);
 
-                // Tag Filter Chips
                 const tags = extractTags(category, catState.level);
                 if (tags.length > 0) {
                     const chipRow = document.createElement('div');
                     chipRow.className = "flex flex-wrap gap-2";
 
-                    // "All" chip
                     const allChip = document.createElement('button');
                     const isAllActive = catState.activeTag === 'All';
                     allChip.className = `tag-chip px-3 py-1 rounded-lg text-xs font-bold border-2 cursor-pointer ${isAllActive ? 'active-chip bg-e1-dark dark:bg-slate-500 text-white border-transparent' : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-600'}`;
@@ -518,7 +698,6 @@
                     bodyInner.appendChild(chipRow);
                 }
 
-                // Options
                 const optionsGrid = document.createElement('div');
                 optionsGrid.className = "flex flex-col gap-3";
                 
@@ -533,7 +712,6 @@
                         rawText = parts[1].trim();
                     }
 
-                    // Filter by active tag
                     if (catState.activeTag !== 'All' && tag !== catState.activeTag) return;
 
                     const btn = document.createElement('button');
@@ -611,11 +789,9 @@
                 outputArea.classList.remove('bg-white', 'text-e1-dark', 'dark:bg-slate-700', 'dark:text-white');
             }
 
-            // Completion badge
             const badge = document.getElementById('completionBadge');
             if (isComplete) { badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
 
-            // Word & Character Count
             const textToCount = finalText.trim();
             const words = textToCount ? textToCount.split(/\s+/).length : 0;
             document.getElementById('wordCount').innerText = words;
@@ -662,6 +838,7 @@
         }
 
         window.onload = () => {
+            initDB();
             lucide.createIcons();
             fetchComments();
             document.getElementById('studentName').focus();
