@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fahrul's - Tool Hub</title>
+    <title>Mr. Fahrul | Digital Hub</title>
 
     <!-- 1. TYPOGRAPHY -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap"
         rel="stylesheet" />
 
     <!-- 2. TAILWIND CSS -->
@@ -21,7 +21,6 @@
 
     <!-- 4. THEME INITIALIZATION -->
     <script>
-        // Prevent Flash of Light Mode
         if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
@@ -30,88 +29,115 @@
     </script>
 
     <!-- 5. DESIGN SYSTEM CONFIG -->
-
     <script>
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "e1-pink": "#ff4785",
-                        "e1-orange": "#ff7e33",
-                        "e1-green": "#00d063",
-                        "e1-blue": "#1ea7fd",
-                        "e1-dark": "#0f172a",
-                        "e1-slate": "#f8fafc",
+                        "pink": "#ff4785",
+                        "orange": "#ff7e33",
+                        "green": "#00d063",
+                        "blue": "#1ea7fd",
+                        "slate-950": "#020617",
+                        "brand-dark": "#0f172a",
+                        "brand-light": "#f8fafc",
                     },
                     fontFamily: {
                         headings: ["Fredoka", "sans-serif"],
                         body: ["Nunito", "sans-serif"],
                     },
                     boxShadow: {
-                        neo: "4px 4px 0px 0px rgba(15, 23, 42, 1)",
-                        "neo-lg": "8px 8px 0px 0px rgba(15, 23, 42, 1)",
-                        "neo-xl": "12px 12px 0px 0px rgba(15, 23, 42, 1)",
-                        "neo-dark": "4px 4px 0px 0px rgba(255, 255, 255, 0.2)",
-                        "neo-lg-dark": "8px 8px 0px 0px rgba(255, 255, 255, 0.2)",
+                        'hard': '0 4px 0 0 var(--border-color, #0f172a)',
+                        'hard-lg': '0 8px 0 0 var(--border-color, #0f172a)',
+                        'hard-xl': '0 12px 0 0 var(--border-color, #0f172a)',
                     },
-                    borderWidth: { 3: "3px", 4: "4px", 6: "6px" },
+                    animation: {
+                        'pop-in': 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+                        'slide-down': 'slideDown 0.3s ease-out forwards',
+                    },
+                    keyframes: {
+                        popIn: {
+                            '0%': { transform: 'scale(0.8)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        },
+                        slideDown: {
+                            '0%': { transform: 'translateY(-20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    },
+                    borderWidth: {
+                        '3': '3px',
+                        '4': '4px',
+                    }
                 },
             },
         };
-
     </script>
 
     <style>
-        /* Consistent Grid Pattern Background */
+        :root {
+            --border-primary: #0f172a;
+            --border-width-medium: 3px;
+            --border-width-thick: 4px;
+            --radius-xl: 0.75rem;
+            --radius-2xl: 1rem;
+        }
+
+        .dark {
+            --border-primary: #334155;
+        }
+
         body {
             background-color: #f8fafc;
-            background-image:
-                linear-gradient(rgba(30, 41, 59, 0.05) 1px,
-                    transparent 1px),
-                linear-gradient(90deg,
-                    rgba(30, 41, 59, 0.05) 1px,
-                    transparent 1px);
-            background-size: 25px 25px;
+            background-image: radial-gradient(#0f172a11 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
         }
 
         .dark body {
-            background-color: #0f172a;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.05) 1px,
-                    transparent 1px),
-                linear-gradient(90deg,
-                    rgba(255, 255, 255, 0.05) 1px,
-                    transparent 1px);
+            background-color: #020617;
+            background-image: radial-gradient(#ffffff11 1.5px, transparent 1.5px);
         }
 
-        /* Hover Animation for Cards */
-        .tool-card {
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .btn-chunky {
+            @apply border-brand-dark dark:border-slate-500 transition-all duration-100 relative;
+            box-shadow: 0 4px 0 0 var(--border-primary);
         }
 
-        .tool-card:hover {
-            transform: translate(-4px, -4px);
-            box-shadow: 12px 12px 0px 0px rgba(30, 41, 59, 1);
+        .btn-chunky:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 0 var(--border-primary);
         }
 
-        .tool-card:active {
-            transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0px 0px rgba(30, 41, 59, 1);
+        .btn-chunky:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 0 var(--border-primary);
         }
 
-        .btn-neo {
-            transition: all 0.1s ease;
+        .glass-panel {
+            background-color: #ffffff !important;
+            border-color: var(--border-primary);
+            border-width: 1px;
         }
 
-        .btn-neo:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0px 0px rgba(30, 41, 59, 1);
+        .dark .glass-panel {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
         }
 
-        .btn-neo:active {
-            transform: translate(2px, 2px);
-            box-shadow: 0px 0px 0px 0px rgba(30, 41, 59, 1);
+        .card-neo {
+            @apply bg-white dark:bg-slate-800 border-4 border-brand-dark dark:border-slate-500 transition-all duration-300 relative overflow-hidden;
+            box-shadow: 0 8px 0 0 var(--border-primary);
+        }
+
+        .card-neo:hover {
+            transform: translate(2px, -6px);
+            box-shadow: -4px 14px 0 0 var(--border-primary);
+        }
+
+        .card-neo:active {
+            transform: translate(0, 0);
+            box-shadow: 0 2px 0 0 var(--border-primary);
         }
 
         /* Custom Scrollbar */
@@ -124,37 +150,88 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #1e293b;
+            background: #ff4785;
             border: 3px solid #f8fafc;
             border-radius: 10px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            border: 3px solid #020617;
+        }
+
+        .search-input {
+            @apply bg-white dark:bg-slate-800 border-4 border-brand-dark dark:border-slate-500 rounded-[2rem] p-5 pl-14 font-black uppercase text-sm tracking-widest focus:outline-none transition-all;
+            box-shadow: 0 8px 0 0 var(--border-primary);
+        }
+
+        .search-input:focus {
+            box-shadow: 0 4px 0 0 var(--border-primary);
+            @apply translate-y-1 border-blue;
+        }
+
+        .search-label {
+            @apply absolute -top-3 left-10 bg-orange text-white text-[10px] font-black px-3 py-1 border-2 border-brand-dark dark:border-slate-500 rounded-full shadow-hard z-20 uppercase tracking-widest;
+        }
+
+        /* Decorative "Staple" or "Tape" look */
+        .card-neo::before {
+            content: "";
+            position: absolute;
+            top: 15px;
+            right: -25px;
+            width: 100px;
+            height: 30px;
+            background: rgba(0,0,0,0.05);
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+
+        .dark .card-neo::before {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .animate-pop-in {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
 
-<body
-    class="font-body text-e1-dark dark:text-e1-slate transition-colors duration-200 min-h-screen flex flex-col dark:bg-[#020617]">
-    <!-- HEADER / NAVBAR -->
-    <nav
-        class="w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b-4 border-e1-dark dark:border-slate-800 p-4 sticky top-0 z-50">
+<body class="font-body text-brand-dark dark:text-white transition-colors duration-200 min-h-screen flex flex-col overflow-x-hidden">
+    
+    <!-- NAVBAR -->
+    <nav class="w-full glass-panel border-b-4 border-brand-dark dark:border-slate-800 p-4 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center px-4">
             <div class="flex items-center gap-4">
-                <div
-                    class="bg-e1-pink p-2 rounded-xl border-3 border-e1-dark dark:border-slate-800 shadow-neo dark:shadow-neo-dark">
-                    <i data-lucide="wrench" class="text-white w-6 h-6"></i>
+                <div class="bg-pink p-2 rounded-xl border-4 border-brand-dark dark:border-slate-500 shadow-hard rotate-[-3deg]">
+                    <i data-lucide="layout-grid" class="text-white w-6 h-6"></i>
                 </div>
-                <h1 class="font-headings text-2xl font-bold tracking-tight">
-                    Mr.Fahrul<span class="text-e1-blue underline decoration-4 underline-offset-4">Web Tools</span>
+                <h1 class="font-headings text-3xl font-bold tracking-tight uppercase">
+                    Mr. Fahrul <span class="text-blue">Hub</span>
                 </h1>
             </div>
 
-            <div class="flex items-center gap-4">
-                <div class="hidden md:flex gap-6 font-headings font-bold text-sm uppercase mr-6">
-                    <a href="#" class="hover:text-e1-blue transition-colors">Workspace</a>
-                    <a href="#" class="hover:text-e1-pink transition-colors">Debate Hub</a>
-                    <a href="#" class="hover:text-e1-green transition-colors">Teaching</a>
+            <div class="flex items-center gap-4 md:gap-8">
+                <div class="hidden lg:flex gap-8 font-headings font-bold text-xs uppercase tracking-widest">
+                    <a href="#" class="hover:text-pink transition-colors relative group">
+                        Workspace
+                        <span class="absolute -bottom-1 left-0 w-0 h-1 bg-pink transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="#" class="hover:text-blue transition-colors relative group">
+                        Debate Tools
+                        <span class="absolute -bottom-1 left-0 w-0 h-1 bg-blue transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="#" class="hover:text-green transition-colors relative group">
+                        Resources
+                        <span class="absolute -bottom-1 left-0 w-0 h-1 bg-green transition-all group-hover:w-full"></span>
+                    </a>
                 </div>
-                <button onclick="toggleDarkMode()" id="theme-toggle"
-                    class="bg-e1-dark dark:bg-slate-800 text-white p-2.5 rounded-xl border-3 border-e1-dark dark:border-slate-800 shadow-neo dark:shadow-neo-dark btn-neo">
+                <button onclick="toggleDarkMode()" 
+                    class="bg-orange text-brand-dark p-2.5 rounded-xl border-4 border-brand-dark dark:border-slate-500 shadow-hard btn-chunky">
                     <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
                     <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
                 </button>
@@ -162,85 +239,128 @@
         </div>
     </nav>
 
-
     <!-- HERO SECTION -->
-    <header class="w-full py-16 px-6 text-center">
-        <div class="max-w-4xl mx-auto">
-            <h2 class="font-headings text-5xl md:text-7xl font-bold mb-6 leading-tight">
-                Work hard. <br />
-                <span class="text-e1-pink">Debate</span> harder.
+    <header class="w-full py-20 px-6 relative overflow-hidden">
+        <!-- Floating Stickers -->
+        <div class="absolute top-10 left-[10%] rotate-[-12deg] opacity-20 dark:opacity-40 animate-pulse pointer-events-none">
+            <div class="bg-pink border-4 border-brand-dark dark:border-slate-500 p-4 rounded-2xl shadow-hard">
+                <i data-lucide="sparkles" class="w-12 h-12 text-white"></i>
+            </div>
+        </div>
+        <div class="absolute bottom-10 right-[15%] rotate-[15deg] opacity-20 dark:opacity-40 animate-pulse pointer-events-none hidden md:block">
+            <div class="bg-green border-4 border-brand-dark dark:border-slate-500 p-4 rounded-full shadow-hard">
+                <i data-lucide="award" class="w-16 h-16 text-white"></i>
+            </div>
+        </div>
+
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <div class="inline-block bg-orange font-headings font-bold text-xs uppercase tracking-[0.2em] px-4 py-1.5 border-3 border-brand-dark dark:border-slate-500 rounded-full mb-8 shadow-hard -rotate-2">
+                Digital Arsenal v2.0
+            </div>
+            
+            <h2 class="font-headings text-6xl md:text-8xl font-bold mb-8 leading-[0.9] uppercase tracking-tighter">
+                Crafted for <br />
+                <span class="text-pink inline-block hover:scale-110 transition-transform cursor-default">Teachers.</span> 
+                <span class="text-blue inline-block hover:scale-110 transition-transform cursor-default">Debaters.</span>
             </h2>
-            <p class="text-xl md:text-2xl font-bold text-slate-500 dark:text-slate-400 mb-10 max-w-2xl mx-auto">
-                A custom collection of digital tools built for the modern
-                English teacher and competitive debater.
+            
+            <p class="text-xl md:text-2xl font-bold text-slate-500 dark:text-slate-400 mb-12 max-w-2xl mx-auto font-body">
+                The ultimate collection of specialized tools designed to streamline your teaching workflow and sharpen your competitive edge.
             </p>
 
-
-            <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
-                <div class="relative w-full max-w-md">
-                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"></i>
+            <!-- Search & Filters Container -->
+            <div class="flex flex-col gap-6 max-w-3xl mx-auto p-2">
+                <!-- Search -->
+                <div class="relative w-full group">
+                    <div class="search-label">Central Terminal</div>
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-brand-dark dark:text-white w-6 h-6 z-10"></i>
                     <input type="text" id="toolSearch" oninput="filterTools()"
-                        class="w-full bg-white dark:bg-slate-800 border-4 border-e1-dark dark:border-slate-800 rounded-2xl p-4 pl-12 font-bold shadow-neo dark:shadow-neo-dark outline-none focus:ring-4 focus:ring-e1-blue/20 transition-all dark:text-white"
-                        placeholder="Search for a tool..." />
+                        class="search-input w-full dark:text-white"
+                        placeholder="IDENTIFY A TOOL..." />
                 </div>
 
-                <div class="flex gap-2">
-                    <button onclick="setSetupFormat('All')"
-                        class="filter-btn bg-e1-dark dark:bg-e1-blue text-white border-3 border-e1-dark dark:border-slate-800 px-4 py-2 rounded-xl font-headings font-bold shadow-neo dark:shadow-neo-dark hover:translate-y-[-2px] transition active:translate-y-[1px]">
-                        All
+                <!-- Category Filters -->
+                <div class="flex flex-wrap gap-4 justify-center">
+                    <button onclick="setSetupFormat('All')" id="filter-All"
+                        class="filter-btn btn-chunky px-8 py-3 rounded-2xl font-headings font-bold text-sm uppercase tracking-wider bg-brand-dark text-white dark:bg-blue dark:border-slate-500">
+                        All Tools
                     </button>
-                    <button onclick="setSetupFormat('Debate')"
-                        class="filter-btn bg-white dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-800 px-4 py-2 rounded-xl font-headings font-bold shadow-neo dark:shadow-neo-dark hover:translate-y-[-2px] transition active:translate-y-[1px]">
+                    <button onclick="setSetupFormat('Debate')" id="filter-Debate"
+                        class="filter-btn btn-chunky px-8 py-3 rounded-2xl font-headings font-bold text-sm uppercase tracking-wider bg-white dark:bg-slate-800">
                         Debate
                     </button>
-                    <button onclick="setSetupFormat('Work')"
-                        class="filter-btn bg-white dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-800 px-4 py-2 rounded-xl font-headings font-bold shadow-neo dark:shadow-neo-dark hover:translate-y-[-2px] transition active:translate-y-[1px]">
-                        Work
+                    <button onclick="setSetupFormat('Work')" id="filter-Work"
+                        class="filter-btn btn-chunky px-8 py-3 rounded-2xl font-headings font-bold text-sm uppercase tracking-wider bg-white dark:bg-slate-800">
+                        Teaching
                     </button>
-                    <button onclick="setSetupFormat('D&D')"
-                        class="filter-btn bg-white dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-800 px-4 py-2 rounded-xl font-headings font-bold shadow-neo dark:shadow-neo-dark hover:translate-y-[-2px] transition active:translate-y-[1px]">
-                        D&D
+                    <button onclick="setSetupFormat('D&D')" id="filter-D&D"
+                        class="filter-btn btn-chunky px-8 py-3 rounded-2xl font-headings font-bold text-sm uppercase tracking-wider bg-white dark:bg-slate-800">
+                        Fun & RPG
                     </button>
                 </div>
-
             </div>
         </div>
     </header>
 
     <!-- TOOLS GRID -->
-    <main class="max-w-7xl mx-auto w-full px-6 pb-20 flex-grow">
-        <div id="toolGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Tools will be injected here via JSON -->
-            <div class="col-span-full py-20 text-center animate-pulse">
-                <i data-lucide="loader-2" class="w-12 h-12 text-slate-300 mx-auto animate-spin mb-4"></i>
-                <p class="font-bold text-slate-400">
-                    Loading your tools...
+    <main class="max-w-7xl mx-auto w-full px-6 pb-24 flex-grow">
+        <div id="toolGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <!-- Shimmer / Loading State -->
+            <div class="col-span-full py-32 text-center">
+                <div class="inline-block animate-spin mb-6">
+                    <i data-lucide="refresh-cw" class="w-16 h-16 text-pink"></i>
+                </div>
+                <p class="font-headings font-bold text-3xl uppercase tracking-widest text-slate-400">
+                    Deploying Resources...
                 </p>
             </div>
         </div>
     </main>
 
     <!-- FOOTER -->
-    <footer class="w-full bg-white dark:bg-slate-900 border-t-4 border-e1-dark dark:border-slate-800 p-8 mt-auto">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="flex gap-4">
-                <a href="https://github.com/pod-III"
-                    class="bg-white dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-700 p-2 rounded-lg shadow-neo dark:shadow-neo-dark hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i
-                        data-lucide="github"></i></a>
-                <a href="mailto:fahyandp@gmail.com"
-                    class="bg-white dark:bg-slate-800 border-3 border-e1-dark dark:border-slate-700 p-2 rounded-lg shadow-neo dark:shadow-neo-dark hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i
-                        data-lucide="mail"></i></a>
+    <footer class="w-full glass-panel border-t-4 border-brand-dark dark:border-slate-800 p-12 mt-auto">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
+            <div class="flex flex-col gap-6 items-center md:items-start text-center md:text-left">
+                <div class="flex items-center gap-3">
+                    <div class="bg-pink p-1.5 rounded-lg border-3 border-brand-dark dark:border-slate-500 shadow-hard">
+                        <i data-lucide="cpu" class="text-white w-5 h-5"></i>
+                    </div>
+                    <span class="font-headings font-bold text-2xl uppercase tracking-tighter">Mr. Fahrul</span>
+                </div>
+                <p class="font-bold text-slate-500 max-w-xs">Built with precision for the modern educator. No shortcuts, just pure utility.</p>
             </div>
-            <p class="text-sm font-bold text-slate-400">© 2026 Mr.Fahrul. Built for teachers.</p>
+
+            <div class="flex gap-4">
+                <a href="https://github.com/pod-III" target="_blank"
+                    class="bg-white dark:bg-slate-800 border-4 border-brand-dark dark:border-slate-500 p-4 rounded-2xl shadow-hard btn-chunky group">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7 group-hover:text-pink transition-colors">
+                        <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.28 1.15-.28 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path>
+                        <path d="M9 18c-4.51 2-5-2-7-2"></path>
+                    </svg>
+                </a>
+                <a href="mailto:fahyandp@gmail.com"
+                    class="bg-white dark:bg-slate-800 border-4 border-brand-dark dark:border-slate-500 p-4 rounded-2xl shadow-hard btn-chunky group">
+                    <i data-lucide="mail" class="w-7 h-7 group-hover:text-blue transition-colors"></i>
+                </a>
+            </div>
+            
+            <div class="text-center md:text-right">
+                <p class="font-headings font-bold text-xs uppercase tracking-widest text-slate-400 mb-2">System Status</p>
+                <div class="flex items-center gap-2 justify-center md:justify-end text-green font-bold text-sm">
+                    <span class="w-2 h-2 rounded-full bg-green animate-pulse"></span>
+                    All Tools Operational
+                </div>
+            </div>
         </div>
     </footer>
 
-
     <script>
-        lucide.createIcons();
-
+        // Store references
         let allTools = [];
         let currentFilter = "All";
+
+        // Initial Icon Creation
+        lucide.createIcons();
 
         // Fetch Tools from JSON
         async function loadTools() {
@@ -251,10 +371,10 @@
             } catch (err) {
                 console.error("Error loading tools:", err);
                 document.getElementById("toolGrid").innerHTML = `
-                    <div class="col-span-full bg-red-50 border-4 border-red-500 rounded-3xl p-10 text-center">
-                        <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-4"></i>
-                        <h3 class="font-headings text-2xl font-bold text-red-600 mb-2">Oops! Something went wrong.</h3>
-                        <p class="font-bold text-red-400">Could not load tools database. Please ensure tools.json exists.</p>
+                    <div class="col-span-full bg-orange/10 border-4 border-orange rounded-[2rem] p-12 text-center card-neo">
+                        <i data-lucide="alert-triangle" class="w-16 h-16 text-orange mx-auto mb-6"></i>
+                        <h3 class="font-headings text-3xl font-bold uppercase mb-4">Command Error</h3>
+                        <p class="font-bold text-slate-500 mb-8">Failed to synchronize tools database. Please verify connections.</p>
                     </div>
                 `;
                 lucide.createIcons();
@@ -267,48 +387,70 @@
 
             if (tools.length === 0) {
                 grid.innerHTML = `
-                    <div class="col-span-full py-20 text-center opacity-40">
-                        <i data-lucide="search-x" class="w-16 h-16 mx-auto mb-4"></i>
-                        <p class="font-headings text-2xl font-bold">No tools found matching your search.</p>
+                    <div class="col-span-full py-32 text-center opacity-40">
+                        <i data-lucide="eye-off" class="w-24 h-24 mx-auto mb-6"></i>
+                        <p class="font-headings text-3xl font-bold uppercase tracking-widest">Zero Results Found</p>
                     </div>
                 `;
                 lucide.createIcons();
                 return;
             }
 
-            tools.forEach((tool) => {
-                const colorMap = {
-                    "e1-blue": "bg-e1-blue border-e1-blue",
-                    "e1-pink": "bg-e1-pink border-e1-pink",
-                    "e1-orange": "bg-e1-orange border-e1-orange",
-                    "e1-green": "bg-e1-green border-e1-green",
+            tools.forEach((tool, index) => {
+                const colorConfig = {
+                    "e1-blue": { bg: "bg-blue", text: "text-blue", border: "border-blue" },
+                    "e1-pink": { bg: "bg-pink", text: "text-pink", border: "border-pink" },
+                    "e1-orange": { bg: "bg-orange", text: "text-orange", border: "border-orange" },
+                    "e1-green": { bg: "bg-green", text: "text-green", border: "border-green" },
                 };
+
+                // Normalizing legacy tool colors if any
+                let toolColor = tool.color || "e1-blue";
+                if (toolColor.includes("bg-")) toolColor = toolColor.replace("bg-", "");
+                if (toolColor.includes("border-")) toolColor = toolColor.split(" ")[0];
+                
+                const theme = colorConfig[toolColor] || colorConfig["e1-blue"];
 
                 const card = document.createElement("a");
                 card.href = tool.route;
-                card.className =
-                    "tool-card bg-white dark:bg-slate-800 border-4 border-e1-dark dark:border-slate-800 rounded-[2rem] p-8 shadow-neo-lg dark:shadow-neo-lg-dark flex flex-col group";
+                card.className = "card-neo group animate-pop-in flex flex-col p-8 rounded-[2.5rem] relative";
+                card.style.animationDelay = `${index * 50}ms`;
 
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-6">
-                    <div class="p-4 rounded-2xl border-3 border-e1-dark dark:border-slate-800 shadow-neo dark:shadow-neo-dark ${colorMap[tool.color] || tool.color || "bg-e1-blue border-e1-blue"} text-white group-hover:rotate-6 transition-transform">
-                            <i data-lucide="${tool.icon || "box"}" class="w-8 h-8"></i>
+                    <div class="flex justify-between items-start mb-8 relative">
+                        <div class="${theme.bg} p-6 rounded-3xl border-4 border-brand-dark dark:border-slate-500 shadow-hard -rotate-6 group-hover:rotate-6 transition-transform duration-300 relative">
+                            <div class="absolute inset-0 bg-white/20 rounded-2xl pointer-events-none"></div>
+                            <i data-lucide="${tool.icon || "command"}" class="w-10 h-10 text-white relative z-10"></i>
                         </div>
-
-                        <span class="bg-slate-100 dark:bg-slate-700 border-2 border-e1-dark dark:border-slate-800 dark:text-slate-300 rounded-full px-4 py-1 text-[10px] font-bold uppercase tracking-widest">${tool.category}</span>
+                        <div class="flex flex-col items-end">
+                            <span class="bg-brand-dark text-white dark:bg-slate-700 dark:text-slate-300 font-headings font-bold text-[9px] uppercase tracking-[0.2em] px-4 py-2 border-2 border-brand-dark dark:border-slate-500 rounded-lg shadow-hard mb-2">
+                                ${tool.category}
+                            </span>
+                            <div class="flex gap-1">
+                                <span class="w-2 h-2 rounded-full ${theme.bg} animate-pulse"></span>
+                                <span class="text-[8px] font-black uppercase text-slate-400">Stable</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <h3 class="font-headings text-2xl font-bold mb-3 group-hover:text-e1-blue transition-colors dark:text-white">${tool.name}</h3>
-                    <p class="text-slate-500 dark:text-slate-400 font-bold text-sm mb-6 flex-grow leading-relaxed">
+                    <h3 class="font-headings text-3xl font-bold uppercase leading-tight mb-4 group-hover:text-blue transition-colors">
+                        ${tool.name}
+                    </h3>
+                    
+                    <p class="text-slate-500 dark:text-slate-400 font-bold leading-relaxed mb-8 flex-grow text-sm">
                         ${tool.description}
                     </p>
 
-                    <div class="flex flex-wrap gap-2 mb-8">
-                        ${tool.tags.map((tag) => `<span class="text-[9px] font-black uppercase text-slate-400 dark:text-slate-500">#${tag}</span>`).join("")}
+                    <div class="flex flex-wrap gap-2 mb-10">
+                        ${tool.tags.map(tag => `
+                            <span class="text-[9px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 dark:bg-slate-900 px-2 py-1 border border-slate-200 dark:border-slate-700 rounded transition-colors group-hover:border-slate-400">
+                                #${tag}
+                            </span>
+                        `).join("")}
                     </div>
 
-                    <div class="w-full bg-e1-dark dark:bg-slate-700 text-white font-headings font-bold py-3 rounded-xl text-center border-2 border-e1-dark dark:border-slate-800 shadow-neo-sm dark:shadow-neo-dark group-hover:bg-e1-blue transition-colors">
-                        Open Tool
+                    <div class="btn-chunky w-full bg-blue border-4 py-4 rounded-2xl text-center font-headings font-bold uppercase tracking-wider text-white group-hover:bg-pink group-hover:border-brand-dark dark:group-hover:border-slate-400 transition-colors">
+                        Execute Sequence
                     </div>
                 `;
 
@@ -318,16 +460,10 @@
         }
 
         function filterTools() {
-            const query = document
-                .getElementById("toolSearch")
-                .value.toLowerCase();
-            const filtered = allTools.filter((tool) => {
-                const matchesSearch =
-                    tool.name.toLowerCase().includes(query) ||
-                    tool.description.toLowerCase().includes(query);
-                const matchesCategory =
-                    currentFilter === "All" ||
-                    tool.category === currentFilter;
+            const query = document.getElementById("toolSearch").value.toLowerCase();
+            const filtered = allTools.filter(tool => {
+                const matchesSearch = tool.name.toLowerCase().includes(query) || tool.description.toLowerCase().includes(query);
+                const matchesCategory = currentFilter === "All" || tool.category === currentFilter;
                 return matchesSearch && matchesCategory;
             });
             renderTools(filtered);
@@ -336,18 +472,17 @@
         function setSetupFormat(category) {
             currentFilter = category;
 
-            // UI Updates
+            // UI Updates for Buttons
             document.querySelectorAll(".filter-btn").forEach((btn) => {
-                const isSelected = btn.innerText === category;
+                const isSelected = btn.innerText.includes(category);
                 if (isSelected) {
-                    btn.classList.add("bg-e1-dark", "text-white");
+                    btn.classList.add("bg-brand-dark", "text-white", "dark:bg-blue");
                     btn.classList.remove("bg-white", "dark:bg-slate-800");
                 } else {
-                    btn.classList.remove("bg-e1-dark", "text-white");
+                    btn.classList.remove("bg-brand-dark", "text-white", "dark:bg-blue");
                     btn.classList.add("bg-white", "dark:bg-slate-800");
                 }
             });
-
 
             filterTools();
         }
@@ -355,9 +490,8 @@
         function toggleDarkMode() {
             const isDark = document.documentElement.classList.toggle("dark");
             localStorage.setItem("theme", isDark ? "dark" : "light");
-            lucide.createIcons(); // Refresh icons if needed
+            lucide.createIcons();
         }
-
 
         // Initialize
         loadTools();
