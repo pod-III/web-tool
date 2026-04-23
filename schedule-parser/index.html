@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schedule Analyser — English 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pink:#FF6B95;--orange:#FF8C42;--green:#00C964;--blue:#2979FF;
+  --dark:#1e293b;--chalk:#f8fafc;--purple:#7c3aed;
+  --shadow:4px 4px 0px 0px rgba(30,41,59,1);
+  --shadow-sm:3px 3px 0px 0px rgba(30,41,59,1);
+  --shadow-lg:6px 6px 0px 0px rgba(30,41,59,1);
+}
+body{font-family:'Nunito',sans-serif;background:var(--chalk);color:var(--dark);min-height:100vh}
+h1,h2,h3,.fredoka{font-family:'Fredoka',sans-serif}
+
+/* ── Upload Screen ── */
+#upload-screen{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;padding:2rem;gap:1.5rem;
+}
+.logo-bar{display:flex;align-items:center;gap:.75rem}
+.logo-circle{
+  width:52px;height:52px;background:var(--pink);border-radius:50%;
+  border:3px solid var(--dark);box-shadow:var(--shadow-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fredoka',sans-serif;font-size:1.1rem;font-weight:700;color:white
+}
+.logo-title{font-family:'Fredoka',sans-serif;font-size:1.8rem;font-weight:700;color:var(--dark)}
+.logo-sub{font-size:.85rem;color:#64748b;font-weight:600}
+
+.drop-zone{
+  width:100%;max-width:540px;border:3px dashed var(--dark);border-radius:1.25rem;
+  padding:3rem 2rem;text-align:center;cursor:pointer;
+  background:white;box-shadow:var(--shadow-lg);
+  transition:all .2s;position:relative;overflow:hidden
+}
+.drop-zone:hover,.drop-zone.dragover{
+  background:#fff0f5;border-style:solid;transform:translate(-2px,-2px);
+  box-shadow:8px 8px 0px 0px rgba(30,41,59,1)
+}
+.drop-icon{font-size:3rem;margin-bottom:1rem;display:block}
+.drop-title{font-family:'Fredoka',sans-serif;font-size:1.4rem;font-weight:600;margin-bottom:.5rem}
+.drop-sub{color:#64748b;font-size:.9rem;margin-bottom:1.25rem}
+.drop-btn{
+  display:inline-block;padding:.6rem 1.5rem;background:var(--blue);color:white;
+  border-radius:.75rem;border:2.5px solid var(--dark);box-shadow:var(--shadow-sm);
+  font-family:'Fredoka',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;
+  transition:all .1s
+}
+.drop-btn:hover{transform:translate(-1px,-1px);box-shadow:var(--shadow)}
+.drop-btn:active{transform:translate(2px,2px);box-shadow:none}
+#file-input{display:none}
+.format-hint{
+  margin-top:1.5rem;padding:.75rem 1rem;background:var(--chalk);
+  border-radius:.75rem;border:2px solid #e2e8f0;font-size:.8rem;color:#64748b;text-align:left
+}
+.format-hint strong{color:var(--dark);font-weight:700}
+#error-msg{
+  display:none;color:#dc2626;background:#fef2f2;border:2px solid #fca5a5;
+  border-radius:.75rem;padding:.75rem 1rem;font-size:.9rem;max-width:540px;width:100%;text-align:center
+}
+
+/* ── Dashboard ── */
+#dashboard{display:none;padding:1.25rem;max-width:1200px;margin:0 auto}
+
+.top-bar{
+  background:var(--dark);color:white;border-radius:1rem;border:3px solid var(--dark);
+  box-shadow:var(--shadow);padding:1rem 1.5rem;margin-bottom:1rem;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem
+}
+.top-bar-left{}
+.branch-name{font-family:'Fredoka',sans-serif;font-size:1.6rem;font-weight:700;color:var(--pink);line-height:1}
+.week-info{font-size:.85rem;color:#94a3b8;margin-top:.2rem}
+.top-bar-right{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.pill{
+  padding:.3rem .85rem;border-radius:.6rem;font-family:'Fredoka',sans-serif;
+  font-size:.85rem;font-weight:600;border:2px solid rgba(255,255,255,.4)
+}
+.pill-pink{background:var(--pink);color:white}
+.pill-orange{background:var(--orange);color:white}
+.reset-btn{
+  padding:.3rem .85rem;border-radius:.6rem;font-family:'Fredoka',sans-serif;
+  font-size:.85rem;font-weight:600;border:2px solid white;color:white;
+  background:transparent;cursor:pointer;transition:all .1s
+}
+.reset-btn:hover{background:rgba(255,255,255,.15)}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem;margin-bottom:1rem}
+.kpi-card{
+  background:white;border-radius:1rem;border:3px solid var(--dark);
+  box-shadow:var(--shadow);padding:.9rem 1rem;
+  transition:transform .15s,box-shadow .15s;cursor:default
+}
+.kpi-card:hover{transform:translate(-2px,-2px);box-shadow:var(--shadow-lg)}
+.kpi-label{font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem}
+.kpi-val{font-family:'Fredoka',sans-serif;font-size:2rem;font-weight:700;line-height:1}
+.kpi-sub{font-size:.75rem;color:#94a3b8;margin-top:.2rem}
+
+.tabs{display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
+.tab-btn{
+  font-family:'Fredoka',sans-serif;font-size:.95rem;font-weight:600;
+  border:2.5px solid var(--dark);border-radius:.7rem;padding:.45rem 1rem;
+  cursor:pointer;background:white;color:var(--dark);
+  box-shadow:var(--shadow-sm);transition:all .1s
+}
+.tab-btn.active{background:var(--dark);color:white;transform:translate(2px,2px);box-shadow:none}
+.tab-btn:hover:not(.active){background:#f1f5f9}
+
+.panel{display:none}
+.panel.active{display:block}
+
+.chart-card{
+  background:white;border-radius:1rem;border:3px solid var(--dark);
+  box-shadow:var(--shadow);padding:1.25rem;margin-bottom:1rem
+}
+.card-title{font-family:'Fredoka',sans-serif;font-size:1.1rem;font-weight:600;margin-bottom:.75rem}
+.legend-row{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:.75rem;font-size:.78rem;color:#475569}
+.legend-dot{width:11px;height:11px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle}
+
+.teacher-table{width:100%;border-collapse:separate;border-spacing:0;border-radius:.85rem;border:3px solid var(--dark);overflow:hidden;box-shadow:var(--shadow)}
+.teacher-table th{background:var(--dark);color:white;font-family:'Fredoka',sans-serif;font-size:.85rem;padding:.55rem .85rem;text-align:left;white-space:nowrap}
+.teacher-table td{padding:.45rem .85rem;font-size:.82rem;border-bottom:1px solid #e2e8f0;white-space:nowrap}
+.trow:hover{background:#fef9c3}
+.trow:last-child td{border-bottom:none}
+
+.badge{display:inline-block;padding:.12rem .5rem;border-radius:.4rem;font-size:.72rem;font-weight:700;border:1.5px solid}
+.b-dos{background:#fef9c3;color:#92400e;border-color:#f59e0b}
+.b-lt{background:#dbeafe;color:#1e40af;border-color:#3b82f6}
+.b-nt{background:#f3e8ff;color:#6b21a8;border-color:#a855f7}
+.b-ta{background:#dcfce7;color:#166534;border-color:#22c55e}
+
+.util-bar{height:9px;border-radius:5px;background:#e2e8f0;overflow:hidden;min-width:60px}
+.util-fill{height:100%;border-radius:5px;transition:width .5s ease}
+
+.c-over{color:#dc2626;font-weight:700}
+.c-high{color:#16a34a;font-weight:700}
+.c-mid{color:#d97706;font-weight:700}
+.c-low{color:#6366f1;font-weight:600}
+
+.insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.85rem}
+.insight-card{
+  background:white;border:2.5px solid var(--dark);border-radius:.85rem;
+  box-shadow:var(--shadow-sm);padding:1rem;
+  transition:transform .15s,box-shadow .15s
+}
+.insight-card:hover{transform:translate(-2px,-2px);box-shadow:var(--shadow)}
+.ins-icon{font-size:1.5rem;margin-bottom:.4rem}
+.ins-title{font-family:'Fredoka',sans-serif;font-size:.95rem;font-weight:600;margin-bottom:.3rem}
+.ins-body{font-size:.8rem;color:#475569;line-height:1.5}
+
+.summary-bar{
+  background:white;border:3px solid var(--dark);border-radius:1rem;
+  box-shadow:var(--shadow);padding:1rem 1.25rem;margin-bottom:1rem;
+  display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center
+}
+.summary-stat{text-align:center}
+.summary-num{font-family:'Fredoka',sans-serif;font-size:1.3rem;font-weight:700}
+.summary-lbl{font-size:.72rem;color:#64748b;text-transform:uppercase;font-weight:700;letter-spacing:.05em}
+
+.sort-btn{background:none;border:none;cursor:pointer;font-size:.8rem;opacity:.5;padding:0 3px}
+.sort-btn:hover{opacity:1}
+.sort-btn.asc::after{content:' ▲'}
+.sort-btn.desc::after{content:' ▼'}
+
+@media(max-width:600px){
+  .top-bar{flex-direction:column;align-items:flex-start}
+  #dashboard{padding:.75rem}
+  .kpi-val{font-size:1.6rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ UPLOAD SCREEN ═══ -->
+<div id="upload-screen">
+  <div class="logo-bar">
+    <div class="logo-circle">E1</div>
+    <div>
+      <div class="logo-title">Schedule Analyser</div>
+      <div class="logo-sub">English 1 Batam • Powered by CSV</div>
+    </div>
+  </div>
+
+  <div class="drop-zone" id="drop-zone">
+    <span class="drop-icon">📋</span>
+    <div class="drop-title">Drop your Schedule CSV here</div>
+    <div class="drop-sub">or click the button below to browse</div>
+    <label class="drop-btn" for="file-input">Choose File</label>
+    <input type="file" id="file-input" accept=".csv">
+    <div class="format-hint">
+      <strong>Compatible format:</strong> Batam Centre schedule exports (Batam_Schedule_XXXX.csv)<br>
+      The file is processed entirely in your browser — nothing is uploaded to any server.
+    </div>
+  </div>
+  <div id="error-msg"></div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="dashboard">
+
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="branch-name" id="db-branch">Batam Centre</div>
+      <div class="week-info" id="db-week">Week — • — </div>
+    </div>
+    <div class="top-bar-right">
+      <div class="pill pill-pink" id="db-staff-pill">— Staff</div>
+      <div class="pill pill-orange" id="db-ta-pill">— TAs</div>
+      <button class="reset-btn" onclick="resetToUpload()">↩ New File</button>
+    </div>
+  </div>
+
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('hours')">📊 Teaching Hours</button>
+    <button class="tab-btn" onclick="switchTab('util')">⚡ Utility</button>
+    <button class="tab-btn" onclick="switchTab('table')">👥 Staff Table</button>
+    <button class="tab-btn" onclick="switchTab('insights')">💡 Insights</button>
+  </div>
+
+  <!-- Panel: Hours -->
+  <div class="panel active" id="panel-hours">
+    <div class="chart-card">
+      <div class="card-title">Teaching Hours per Staff Member</div>
+      <div class="legend-row">
+        <span><span class="legend-dot" style="background:#2979FF"></span>Lead Teacher (LT)</span>
+        <span><span class="legend-dot" style="background:#a855f7"></span>New Teacher (NT)</span>
+        <span><span class="legend-dot" style="background:#22c55e"></span>Teaching Asst (TA)</span>
+        <span><span class="legend-dot" style="background:#f59e0b"></span>Director of Studies</span>
+      </div>
+      <div style="position:relative;width:100%" id="hours-wrap">
+        <canvas id="hoursChart" role="img" aria-label="Horizontal bar chart of teaching hours per staff member"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel: Utility -->
+  <div class="panel" id="panel-util">
+    <div class="chart-card">
+      <div class="card-title">Teaching Utility % vs 100% Contract Target</div>
+      <div class="legend-row">
+        <span><span class="legend-dot" style="background:#dc2626"></span>Over 100%</span>
+        <span><span class="legend-dot" style="background:#16a34a"></span>High (80–100%)</span>
+        <span><span class="legend-dot" style="background:#d97706"></span>Mid (60–80%)</span>
+        <span><span class="legend-dot" style="background:#6366f1"></span>Low (&lt;60%)</span>
+        <span><span class="legend-dot" style="background:#FF6B95;height:3px;border-radius:0"></span>— 100% target</span>
+      </div>
+      <div style="position:relative;width:100%" id="util-wrap">
+        <canvas id="utilChart" role="img" aria-label="Horizontal bar chart of teaching utility percentages"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel: Table -->
+  <div class="panel" id="panel-table">
+    <div class="summary-bar" id="summary-bar"></div>
+    <div style="overflow-x:auto">
+      <table class="teacher-table">
+        <thead>
+          <tr>
+            <th>Name <button class="sort-btn" id="sort-name" onclick="sortTable('name')">⇅</button></th>
+            <th>Role</th>
+            <th>Contract ACH <button class="sort-btn" id="sort-cach" onclick="sortTable('contractACH')">⇅</button></th>
+            <th>Teach Min <button class="sort-btn" id="sort-tm" onclick="sortTable('tm')">⇅</button></th>
+            <th>ACH <button class="sort-btn" id="sort-ach" onclick="sortTable('ach')">⇅</button></th>
+            <th>Utility <button class="sort-btn" id="sort-util" onclick="sortTable('util')">⇅</button></th>
+            <th style="min-width:80px">Bar</th>
+          </tr>
+        </thead>
+        <tbody id="teacher-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Panel: Insights -->
+  <div class="panel" id="panel-insights">
+    <div class="insight-grid" id="insight-grid"></div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let parsedData = null;
+let sortState = {col: 'util', dir: 'desc'};
+let hoursChartInst = null;
+let utilChartInst = null;
+
+// ══════════════════════════════════════════════
+//  UPLOAD HANDLING
+// ══════════════════════════════════════════════
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const errMsg = document.getElementById('error-msg');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
+
+function showError(msg) {
+  errMsg.textContent = '⚠️ ' + msg;
+  errMsg.style.display = 'block';
+}
+function hideError() { errMsg.style.display = 'none'; }
+
+function handleFile(file) {
+  hideError();
+  if (!file.name.endsWith('.csv')) { showError('Please upload a .csv file.'); return; }
+  Papa.parse(file, {
+    skipEmptyLines: false,
+    complete: result => {
+      try {
+        parsedData = parseScheduleCSV(result.data);
+        renderDashboard(parsedData);
+      } catch(e) {
+        showError('Could not parse this CSV. Make sure it is a Batam schedule export. (' + e.message + ')');
+        console.error(e);
+      }
+    },
+    error: e => showError('Failed to read file: ' + e.message)
+  });
+}
+
+function resetToUpload() {
+  document.getElementById('upload-screen').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+  fileInput.value = '';
+  if (hoursChartInst) { hoursChartInst.destroy(); hoursChartInst = null; }
+  if (utilChartInst) { utilChartInst.destroy(); utilChartInst = null; }
+}
+
+// ══════════════════════════════════════════════
+//  CSV PARSER
+// ══════════════════════════════════════════════
+function clean(v) { return (v === null || v === undefined) ? '' : String(v).trim(); }
+function toNum(v) { return parseFloat(clean(v).replace('%','').replace(',','')) || 0; }
+
+function parseScheduleCSV(rows) {
+  if (rows.length < 10) throw new Error('File too short — expected at least 10 rows.');
+
+  // ── Branch name (row 0, col 0)
+  const branchName = clean(rows[0][0]) || 'Batam Centre';
+
+  // ── Week string: find row where col 0 = "Week :"
+  let weekStr = '';
+  for (let i = 0; i < Math.min(10, rows.length); i++) {
+    if (clean(rows[i][0]) === 'Week :') {
+      weekStr = clean(rows[i][1]);
+      break;
+    }
+  }
+
+  // ── Stat labels row: find row containing "Classes" somewhere
+  let labelRowIdx = -1;
+  let statCols = {};
+  const statKeys = {
+    'Classes': 'classes',
+    'Active Students': 'students',
+    'Utility': 'utility',
+    'Spare ACH': 'spareACH',
+    'Avg. Class Size': 'avgClass',
+    'S:T Ratio': 'stRatio',
+    'S:PA Ratio': 'spARatio'
+  };
+  for (let i = 0; i < Math.min(15, rows.length); i++) {
+    for (let c = 0; c < rows[i].length; c++) {
+      const v = clean(rows[i][c]);
+      if (statKeys[v]) {
+        statCols[statKeys[v]] = c;
+        labelRowIdx = i;
+      }
+    }
+  }
+  const valRowIdx = labelRowIdx - 1;
+  const stats = {};
+  for (const [key, col] of Object.entries(statCols)) {
+    stats[key] = clean(rows[valRowIdx]?.[col]) || '—';
+  }
+
+  // ── Find key row indices by scanning col 0
+  let titleRowIdx = -1, nameRowIdx = -1, contractACHRowIdx = -1;
+  let teachMinRowIdx = -1, achRowIdx = -1, utilRowIdx = -1;
+
+  for (let i = 0; i < rows.length; i++) {
+    const v = clean(rows[i][0]);
+    if (v === 'Title' && titleRowIdx === -1) titleRowIdx = i;
+    if (v === 'Name' && nameRowIdx === -1) nameRowIdx = i;
+    if (v === 'Contract ACH' && contractACHRowIdx === -1) contractACHRowIdx = i;
+    if (v === 'Teaching Minutes' && teachMinRowIdx === -1) teachMinRowIdx = i;
+    if (v === 'ACH' && teachMinRowIdx !== -1 && achRowIdx === -1) achRowIdx = i;
+    if (v === 'Teaching Utility' && utilRowIdx === -1) utilRowIdx = i;
+  }
+
+  if (titleRowIdx === -1) throw new Error('"Title" row not found. Is this a Batam schedule CSV?');
+  if (nameRowIdx === -1) throw new Error('"Name" row not found.');
+  if (teachMinRowIdx === -1) throw new Error('"Teaching Minutes" row not found.');
+
+  // ── Find teacher columns from the Title row
+  const titleRow = rows[titleRowIdx];
+  const teacherCols = [];
+  for (let c = 1; c < titleRow.length; c++) {
+    const v = clean(titleRow[c]);
+    if (/^(DoS|LT\d+|NT\d+|TA\d+)$/.test(v)) {
+      teacherCols.push(c);
+    }
+  }
+  if (teacherCols.length === 0) throw new Error('No teacher columns (DoS/LT/NT/TA) found in Title row.');
+
+  // ── Extract teacher records
+  const teachers = teacherCols.map(col => {
+    const name = clean(rows[nameRowIdx]?.[col]);
+    const title = clean(rows[titleRowIdx]?.[col]);
+    const contractACH = toNum(rows[contractACHRowIdx]?.[col]);
+    const tm = toNum(rows[teachMinRowIdx]?.[col]);
+    const ach = achRowIdx !== -1 ? toNum(rows[achRowIdx]?.[col]) : 0;
+    const util = utilRowIdx !== -1 ? toNum(rows[utilRowIdx]?.[col]) : 0;
+    return { name, title, contractACH, tm, ach, util };
+  }).filter(t => t.name && t.tm >= 0);
+
+  // Count teachers vs TAs
+  const teacherCount = teachers.filter(t => /^(DoS|LT|NT)/.test(t.title)).length;
+  const taCount = teachers.filter(t => /^TA/.test(t.title)).length;
+
+  return { branchName, weekStr, stats, teachers, teacherCount, taCount };
+}
+
+// ══════════════════════════════════════════════
+//  RENDER DASHBOARD
+// ══════════════════════════════════════════════
+function roleColor(role) {
+  if (role === 'DoS') return '#f59e0b';
+  if (role.startsWith('LT')) return '#2979FF';
+  if (role.startsWith('NT')) return '#a855f7';
+  return '#22c55e';
+}
+function badgeClass(role) {
+  if (role === 'DoS') return 'badge b-dos';
+  if (role.startsWith('LT')) return 'badge b-lt';
+  if (role.startsWith('NT')) return 'badge b-nt';
+  return 'badge b-ta';
+}
+function utilColor(u) {
+  if (u > 100) return '#dc2626';
+  if (u >= 80) return '#16a34a';
+  if (u >= 60) return '#d97706';
+  return '#6366f1';
+}
+function utilClass(u) {
+  if (u > 100) return 'c-over';
+  if (u >= 80) return 'c-high';
+  if (u >= 60) return 'c-mid';
+  return 'c-low';
+}
+
+const KPI_DEFS = [
+  {key:'classes', label:'Total Classes', sub:'this week', color:'#2979FF'},
+  {key:'students', label:'Active Students', sub:'enrolled', color:'#FF6B95'},
+  {key:'utility', label:'Branch Utility', sub:'overall', color:'#FF8C42'},
+  {key:'spareACH', label:'Spare ACH', sub:'available hrs', color:'#00C964'},
+  {key:'avgClass', label:'Avg Class Size', sub:'students/class', color:'#2979FF'},
+  {key:'stRatio', label:'S:T Ratio', sub:'student per teacher', color:'#FF6B95'},
+];
+
+function renderDashboard(data) {
+  document.getElementById('upload-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+
+  document.getElementById('db-branch').textContent = data.branchName;
+  document.getElementById('db-week').textContent = 'Week ' + data.weekStr;
+  document.getElementById('db-staff-pill').textContent = data.teacherCount + ' Teachers';
+  document.getElementById('db-ta-pill').textContent = data.taCount + ' TAs';
+
+  // KPI cards
+  const kpiGrid = document.getElementById('kpi-grid');
+  kpiGrid.innerHTML = '';
+  KPI_DEFS.forEach(def => {
+    const val = data.stats[def.key] || '—';
+    kpiGrid.innerHTML += `
+      <div class="kpi-card">
+        <div class="kpi-label">${def.label}</div>
+        <div class="kpi-val" style="color:${def.color}">${val}</div>
+        <div class="kpi-sub">${def.sub}</div>
+      </div>`;
+  });
+
+  // Summary bar
+  const active = data.teachers.filter(t => t.tm > 0);
+  const avgUtil = active.length ? (active.reduce((s,t) => s + t.util, 0) / active.length).toFixed(1) : 0;
+  const totalMin = active.reduce((s,t) => s + t.tm, 0);
+  const over = active.filter(t => t.util > 100).length;
+  const under = active.filter(t => t.util < 60).length;
+  document.getElementById('summary-bar').innerHTML = `
+    <div class="summary-stat"><div class="summary-num" style="color:#2979FF">${active.length}</div><div class="summary-lbl">Active Staff</div></div>
+    <div class="summary-stat"><div class="summary-num" style="color:#FF8C42">${avgUtil}%</div><div class="summary-lbl">Avg Utility</div></div>
+    <div class="summary-stat"><div class="summary-num" style="color:#dc2626">${over}</div><div class="summary-lbl">Overloaded</div></div>
+    <div class="summary-stat"><div class="summary-num" style="color:#6366f1">${under}</div><div class="summary-lbl">Under 60%</div></div>
+    <div class="summary-stat"><div class="summary-num" style="color:#16a34a">${(totalMin/60).toFixed(0)}h</div><div class="summary-lbl">Total Teach Hours</div></div>
+  `;
+
+  renderTable(data.teachers);
+  renderInsights(data);
+  renderCharts(data.teachers);
+}
+
+// ── CHARTS
+function renderCharts(teachers) {
+  const sorted = [...teachers].filter(t => t.tm > 0).sort((a, b) => b.tm - a.tm);
+  const names = sorted.map(t => t.name);
+  const hours = sorted.map(t => parseFloat((t.tm / 60).toFixed(1)));
+  const colors = sorted.map(t => roleColor(t.title));
+
+  // Set canvas heights dynamically
+  const h = Math.max(300, sorted.length * 36 + 60);
+  document.getElementById('hours-wrap').style.height = h + 'px';
+  document.getElementById('util-wrap').style.height = h + 'px';
+
+  if (hoursChartInst) hoursChartInst.destroy();
+  hoursChartInst = new Chart(document.getElementById('hoursChart'), {
+    type: 'bar',
+    data: {
+      labels: names,
+      datasets: [{
+        label: 'Teaching Hours',
+        data: hours,
+        backgroundColor: colors,
+        borderColor: '#1e293b',
+        borderWidth: 2,
+        borderRadius: 5,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => ` ${c.parsed.x.toFixed(1)} hrs (${sorted[c.dataIndex].tm} min)` } }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { font: { family: 'Nunito', size: 11 } }, title: { display: true, text: 'Hours', font: { family: 'Fredoka', size: 12 } } },
+        y: { ticks: { font: { family: 'Nunito', size: 11 } } }
+      }
+    }
+  });
+
+  const utilSorted = [...teachers].filter(t => t.tm > 0).sort((a, b) => b.util - a.util);
+  if (utilChartInst) utilChartInst.destroy();
+  utilChartInst = new Chart(document.getElementById('utilChart'), {
+    type: 'bar',
+    data: {
+      labels: utilSorted.map(t => t.name),
+      datasets: [
+        {
+          label: 'Utility %',
+          data: utilSorted.map(t => t.util),
+          backgroundColor: utilSorted.map(t => utilColor(t.util)),
+          borderColor: '#1e293b',
+          borderWidth: 2,
+          borderRadius: 5,
+        },
+        {
+          label: '100% target',
+          data: utilSorted.map(() => 100),
+          type: 'line',
+          borderColor: '#FF6B95',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false,
+          tension: 0,
+        }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => c.dataset.label === '100% target' ? '' : ` ${c.parsed.x.toFixed(1)}%` } }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          ticks: { callback: v => v + '%', font: { family: 'Nunito', size: 11 } },
+          max: Math.max(160, Math.ceil(Math.max(...utilSorted.map(t => t.util)) / 10) * 10 + 10)
+        },
+        y: { ticks: { font: { family: 'Nunito', size: 11 } } }
+      }
+    }
+  });
+}
+
+// ── TABLE
+function renderTable(teachers) {
+  const col = sortState.col;
+  const dir = sortState.dir;
+  const sorted = [...teachers].filter(t => t.tm >= 0).sort((a, b) => {
+    const av = typeof a[col] === 'string' ? a[col].toLowerCase() : a[col];
+    const bv = typeof b[col] === 'string' ? b[col].toLowerCase() : b[col];
+    return dir === 'asc' ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
+  });
+
+  const tbody = document.getElementById('teacher-tbody');
+  tbody.innerHTML = '';
+  sorted.forEach(t => {
+    const fillW = Math.min(t.util, 160) / 160 * 100;
+    const tr = document.createElement('tr');
+    tr.className = 'trow';
+    tr.innerHTML = `
+      <td style="font-weight:700">${t.name || '—'}</td>
+      <td><span class="${badgeClass(t.title)}">${t.title}</span></td>
+      <td style="text-align:right">${t.contractACH || '—'}</td>
+      <td style="text-align:right">${t.tm.toLocaleString()}</td>
+      <td style="text-align:right">${t.ach || '—'}</td>
+      <td class="${utilClass(t.util)}" style="text-align:right">${t.util ? t.util.toFixed(1) + '%' : '—'}</td>
+      <td><div class="util-bar"><div class="util-fill" style="width:${fillW}%;background:${utilColor(t.util)}"></div></div></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function sortTable(col) {
+  if (sortState.col === col) {
+    sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortState.col = col;
+    sortState.dir = 'desc';
+  }
+  document.querySelectorAll('.sort-btn').forEach(b => b.className = 'sort-btn');
+  const btn = document.getElementById('sort-' + col);
+  if (btn) btn.className = 'sort-btn ' + sortState.dir;
+  renderTable(parsedData.teachers);
+}
+
+// ── INSIGHTS
+function renderInsights(data) {
+  const teachers = data.teachers.filter(t => t.tm > 0);
+  const overloaded = teachers.filter(t => t.util > 100).sort((a,b) => b.util - a.util);
+  const underutil = teachers.filter(t => t.util < 60).sort((a,b) => a.util - b.util);
+  const high = teachers.filter(t => t.util >= 80 && t.util <= 100).sort((a,b) => b.util - a.util);
+  const topTeacher = [...teachers].sort((a,b) => b.tm - a.tm)[0];
+  const avgUtil = (teachers.reduce((s,t) => s+t.util,0)/teachers.length).toFixed(1);
+  const zeroDuty = data.teachers.filter(t => t.tm === 0);
+
+  const insights = [
+    overloaded.length > 0 ? {
+      icon: '🔥', titleColor: '#dc2626', title: 'Overloaded Staff',
+      body: overloaded.map(t => `${t.name} (${t.util.toFixed(1)}%)`).join(', ') + ' exceed their contracted hours. Consider redistributing load or reviewing contract terms.'
+    } : null,
+    underutil.length > 0 ? {
+      icon: '⚠️', titleColor: '#d97706', title: 'Underutilised Staff',
+      body: underutil.map(t => `${t.name} (${t.util.toFixed(1)}%)`).join(', ') + ' are below 60% utility. Spare capacity available for reallocation.'
+    } : null,
+    {
+      icon: '📊', titleColor: '#2979FF', title: 'Branch Overview',
+      body: `${data.stats.classes || '—'} classes running with ${data.stats.students || '—'} active students at ${data.stats.utility || '—'} utilisation. Average staff utility this week: ${avgUtil}%.`
+    },
+    high.length > 0 ? {
+      icon: '⭐', titleColor: '#16a34a', title: 'High Performers (80–100%)',
+      body: high.slice(0,5).map(t => `${t.name} (${t.util.toFixed(1)}%)`).join(', ') + ' — efficient load-bearing without exceeding contracts.'
+    } : null,
+    topTeacher ? {
+      icon: '🏆', titleColor: '#FF8C42', title: 'Most Teaching Minutes',
+      body: `${topTeacher.name} (${topTeacher.title}) leads with ${topTeacher.tm.toLocaleString()} minutes (${(topTeacher.tm/60).toFixed(1)} hrs) of teaching this week.`
+    } : null,
+    {
+      icon: '📐', titleColor: '#6366f1', title: 'Class & Ratio Stats',
+      body: `Average class size: ${data.stats.avgClass || '—'}. Student-to-teacher ratio: ${data.stats.stRatio || '—'}. Student-to-PA ratio: ${data.stats.spARatio || '—'}.`
+    },
+    zeroDuty.length > 0 ? {
+      icon: '❓', titleColor: '#94a3b8', title: 'No Teaching Minutes Logged',
+      body: zeroDuty.map(t => `${t.name} (${t.title})`).join(', ') + ' have 0 teaching minutes. May be unassigned, absent, or admin-only this week.'
+    } : null,
+  ].filter(Boolean);
+
+  const grid = document.getElementById('insight-grid');
+  grid.innerHTML = insights.map(ins => `
+    <div class="insight-card">
+      <div class="ins-icon">${ins.icon}</div>
+      <div class="ins-title" style="color:${ins.titleColor}">${ins.title}</div>
+      <div class="ins-body">${ins.body}</div>
+    </div>`).join('');
+}
+
+// ── TABS
+function switchTab(id) {
+  const tabIds = ['hours','util','table','insights'];
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', tabIds[i] === id);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+
+  // Re-trigger chart render on first view (charts need visible container)
+  if ((id === 'hours' || id === 'util') && parsedData) {
+    setTimeout(() => {
+      if (hoursChartInst) hoursChartInst.update();
+      if (utilChartInst) utilChartInst.update();
+    }, 50);
+  }
+}
+</script>
+</body>
+</html>

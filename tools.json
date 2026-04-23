@@ -152,5 +152,19 @@
       "Utility",
       "Reports"
     ]
+  },
+  {
+    "id": "schedule-parser",
+    "name": "Schedule Analyser",
+    "description": "Batam Centre schedule analyser. Upload your schedule CSV to visualize teaching hours, utility percentages, and staff distribution.",
+    "category": "Work",
+    "route": "./schedule-parser/index.html",
+    "icon": "calendar",
+    "color": "bg-e1-orange border-e1-orange",
+    "tags": [
+      "Teaching",
+      "Utility",
+      "Work"
+    ]
   }
 ]
