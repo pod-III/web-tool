@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>English 1 – Comment Maker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            pink:   { DEFAULT: '#FF6B95' },
+            orange: { DEFAULT: '#FF8C42' },
+            green:  { DEFAULT: '#00E676' },
+            blue:   { DEFAULT: '#2979FF' },
+            dark:   { DEFAULT: '#1e293b' },
+            chalk:  { DEFAULT: '#f8fafc' },
+          },
+          fontFamily: {
+            fredoka: ['Fredoka', 'sans-serif'],
+            nunito:  ['Nunito', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { font-family: 'Nunito', sans-serif; }
+    h1, h2, h3, .fredoka { font-family: 'Fredoka', sans-serif; }
+    .btn { transition: transform 0.1s ease, box-shadow 0.1s ease; }
+    .btn:hover  { transform: translate(-2px,-2px); box-shadow: 6px 6px 0px 0px rgba(30,41,59,1); }
+    .btn:active { transform: translate(2px,2px);   box-shadow: 2px 2px 0px 0px rgba(30,41,59,1); }
+    .score-input { -moz-appearance: textfield; }
+    .score-input::-webkit-outer-spin-button,
+    .score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .comment-card { animation: popIn 0.3s cubic-bezier(.18,.89,.32,1.28) both; }
+    .comment-card:nth-child(2) { animation-delay: 0.08s; }
+    .comment-card:nth-child(3) { animation-delay: 0.16s; }
+    @keyframes popIn {
+      from { opacity:0; transform: scale(0.88) translateY(10px); }
+      to   { opacity:1; transform: scale(1) translateY(0); }
+    }
+    .student-pill { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+    .student-pill:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0px 0px rgba(30,41,59,1); }
+    .hard  { box-shadow: 4px 4px 0px 0px rgba(30,41,59,1); }
+    .hard-sm { box-shadow: 2px 2px 0px 0px rgba(30,41,59,1); }
+  </style>
+</head>
+<body class="bg-[#f8fafc] dark:bg-slate-900 min-h-screen transition-colors duration-300">
+
+  <!-- Header -->
+  <header class="bg-[#2979FF] border-b-4 border-[#1e293b] px-6 py-4 flex items-center justify-between hard">
+    <div class="flex items-center gap-3">
+      <div class="bg-[#f8fafc] border-2 border-[#1e293b] rounded-xl p-2 hard-sm">
+        <i data-lucide="message-square-text" class="text-[#1e293b]" style="width:26px;height:26px;stroke-width:2.5"></i>
+      </div>
+      <div>
+        <h1 class="text-white fredoka text-2xl font-bold leading-tight">Comment Maker</h1>
+        <p class="text-blue-100 text-xs font-semibold tracking-wide">English 1 Batam · Progress Update</p>
+      </div>
+    </div>
+    <button id="darkToggle" class="bg-[#f8fafc] border-2 border-[#1e293b] rounded-xl p-2 hard-sm btn" title="Toggle dark mode">
+      <i data-lucide="moon" id="darkIcon" style="width:20px;height:20px;stroke-width:2.5"></i>
+    </button>
+  </header>
+
+  <div class="max-w-3xl mx-auto px-4 py-6 space-y-5">
+
+    <!-- Student Roster -->
+    <section class="bg-white dark:bg-slate-800 border-4 border-[#1e293b] rounded-2xl p-5 hard">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="fredoka text-xl font-bold text-[#1e293b] dark:text-[#f8fafc] flex items-center gap-2">
+          <i data-lucide="users" style="width:20px;height:20px;stroke-width:2.5;color:#FF8C42"></i>
+          Students
+          <span id="rosterCount" class="text-sm bg-[#FF8C42]/20 border-2 border-[#1e293b] rounded-lg px-2 py-0.5 font-nunito">0</span>
+        </h2>
+        <button onclick="addNewStudent()" class="btn bg-[#FF6B95] border-[3px] border-[#1e293b] rounded-xl px-3 py-1.5 fredoka font-bold text-white text-sm hard-sm flex items-center gap-1">
+          <i data-lucide="plus" style="width:16px;height:16px;stroke-width:3"></i> Add Student
+        </button>
+      </div>
+      <div id="rosterList" class="flex flex-wrap gap-2 min-h-[38px] items-center">
+        <p class="text-slate-400 font-semibold text-sm italic" id="rosterEmpty">No students yet. Click "Add Student" to begin.</p>
+      </div>
+    </section>
+
+    <!-- Score Input Card -->
+    <section class="bg-white dark:bg-slate-800 border-4 border-[#1e293b] rounded-2xl p-6 hard">
+      <h2 class="fredoka text-2xl font-bold text-[#1e293b] dark:text-[#f8fafc] mb-4 flex items-center gap-2">
+        <i data-lucide="clipboard-list" style="width:24px;height:24px;stroke-width:2.5;color:#2979FF"></i>
+        <span id="formTitle">Select or Add a Student</span>
+      </h2>
+
+      <!-- Student Name -->
+      <div class="mb-4">
+        <label class="block fredoka font-semibold text-[#1e293b] dark:text-[#f8fafc] mb-1 text-sm">Student Name</label>
+        <input id="studentName" type="text" placeholder="e.g. Aisyah" readonly
+          class="w-full border-4 border-[#1e293b] rounded-xl px-4 py-2 fredoka text-lg font-bold bg-[#f8fafc] dark:bg-slate-700 dark:text-[#f8fafc] focus:outline-none cursor-default opacity-70" />
+      </div>
+
+      <!-- Score Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div class="bg-[#FF6B95]/10 border-2 border-[#1e293b] rounded-xl p-3 hard-sm">
+          <label class="fredoka font-semibold text-[#1e293b] dark:text-[#f8fafc] text-sm block mb-1">
+            <i data-lucide="hand" style="width:13px;height:13px;stroke-width:2.5;color:#FF6B95;display:inline"></i> Participation
+          </label>
+          <input id="s_participation" type="number" min="0" max="10" placeholder="–"
+            class="score-input w-full border-2 border-[#1e293b] rounded-lg px-2 py-1.5 text-center fredoka text-2xl font-bold bg-white dark:bg-slate-700 dark:text-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#FF6B95]" />
+        </div>
+        <div class="bg-[#FF8C42]/10 border-2 border-[#1e293b] rounded-xl p-3 hard-sm">
+          <label class="fredoka font-semibold text-[#1e293b] dark:text-[#f8fafc] text-sm block mb-1">
+            <i data-lucide="users" style="width:13px;height:13px;stroke-width:2.5;color:#FF8C42;display:inline"></i> Social
+          </label>
+          <input id="s_social" type="number" min="0" max="10" placeholder="–"
+            class="score-input w-full border-2 border-[#1e293b] rounded-lg px-2 py-1.5 text-center fredoka text-2xl font-bold bg-white dark:bg-slate-700 dark:text-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#FF8C42]" />
+        </div>
+        <div class="bg-[#2979FF]/10 border-2 border-[#1e293b] rounded-xl p-3 hard-sm">
+          <label class="fredoka font-semibold text-[#1e293b] dark:text-[#f8fafc] text-sm block mb-1">
+            <i data-lucide="ear" style="width:13px;height:13px;stroke-width:2.5;color:#2979FF;display:inline"></i> Listening
+          </label>
+          <input id="s_listening" type="number" min="0" max="10" placeholder="–"
+            class="score-input w-full border-2 border-[#1e293b] rounded-lg px-2 py-1.5 text-center fredoka text-2xl font-bold bg-white dark:bg-slate-700 dark:text-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2979FF]" />
+        </div>
+        <div class="bg-[#00E676]/10 border-2 border-[#1e293b] rounded-xl p-3 hard-sm">
+          <label class="fredoka font-semibold text-[#1e293b] dark:text-[#f8fafc] text-sm block mb-1">
+            <i data-lucide="shield-check" style="width:13px;height:13px;stroke-width:2.5;color:#00E676;display:inline"></i> Confidence
+          </label>
+          <input id="s_confidence" type="number" min="0" max="10" placeholder="–"
+            class="score-input w-full border-2 border-[#1e293b] rounded-lg px-2 py-1.5 text-center fredoka text-2xl font-bold bg-white dark:bg-slate-700 dark:text-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#00E676]" />
+        </div>
+        <div class="bg-[#FF6B95]/10 border-2 border-[#1e293b] rounded-xl p-3 hard-sm">
+          <label class="fredoka font-semibold text-[#1e293b] dark:text-[#f8fafc] text-sm block mb-1">
+            <i data-lucide="mic" style="width:13px;height:13px;stroke-width:2.5;color:#FF6B95;display:inline"></i> Speaking
+          </label>
+          <input id="s_spoken" type="number" min="0" max="10" placeholder="–"
+            class="score-input w-full border-2 border-[#1e293b] rounded-lg px-2 py-1.5 text-center fredoka text-2xl font-bold bg-white dark:bg-slate-700 dark:text-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#FF6B95]" />
+        </div>
+        <div class="bg-[#FF8C42]/10 border-2 border-[#1e293b] rounded-xl p-3 hard-sm">
+          <label class="fredoka font-semibold text-[#1e293b] dark:text-[#f8fafc] text-sm block mb-1">
+            <i data-lucide="calendar-check" style="width:13px;height:13px;stroke-width:2.5;color:#FF8C42;display:inline"></i> Attendance
+          </label>
+          <input id="s_attendance" type="number" min="0" max="10" placeholder="–"
+            class="score-input w-full border-2 border-[#1e293b] rounded-lg px-2 py-1.5 text-center fredoka text-2xl font-bold bg-white dark:bg-slate-700 dark:text-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#FF8C42]" />
+        </div>
+        <div class="col-span-2 sm:col-span-3 bg-[#2979FF]/10 border-2 border-[#1e293b] rounded-xl p-3 hard-sm">
+          <label class="fredoka font-semibold text-[#1e293b] dark:text-[#f8fafc] text-sm block mb-1">
+            <i data-lucide="alert-triangle" style="width:13px;height:13px;stroke-width:2.5;color:#2979FF;display:inline"></i>
+            Accuracy (Errors)
+            <span class="text-xs font-nunito font-normal text-slate-400 ml-1">(10 = very few errors)</span>
+          </label>
+          <input id="s_errors" type="number" min="0" max="10" placeholder="–"
+            class="score-input w-full border-2 border-[#1e293b] rounded-lg px-2 py-1.5 text-center fredoka text-2xl font-bold bg-white dark:bg-slate-700 dark:text-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[#2979FF]" />
+        </div>
+      </div>
+
+      <div id="errorBox" class="hidden mt-3 bg-red-100 border-2 border-red-500 rounded-xl p-3 text-red-700 font-semibold text-sm"></div>
+
+      <!-- Buttons -->
+      <div class="flex gap-3 mt-5">
+        <button id="generateBtn" onclick="saveAndGenerate()"
+          class="btn flex-1 bg-[#FF6B95] border-4 border-[#1e293b] rounded-xl py-3 fredoka text-white text-xl font-bold hard flex items-center justify-center gap-2">
+          <i data-lucide="sparkles" style="width:20px;height:20px;stroke-width:2.5"></i>
+          Save & Generate
+        </button>
+        <button onclick="deleteCurrentStudent()"
+          class="btn bg-slate-200 dark:bg-slate-700 border-4 border-[#1e293b] rounded-xl px-4 py-3 fredoka font-bold text-[#1e293b] dark:text-[#f8fafc] hard">
+          <i data-lucide="trash-2" style="width:20px;height:20px;stroke-width:2.5"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- Output -->
+    <section id="outputSection" class="hidden space-y-4">
+      <h2 class="fredoka text-2xl font-bold text-[#1e293b] dark:text-[#f8fafc] flex items-center gap-2">
+        <i data-lucide="star" style="width:24px;height:24px;stroke-width:2.5;color:#FF8C42"></i>
+        <span id="outputName">Comments</span>
+      </h2>
+      <div id="commentCards" class="space-y-3"></div>
+      <button onclick="copyAll()"
+        class="btn w-full bg-[#00E676] border-4 border-[#1e293b] rounded-xl py-3 fredoka text-[#1e293b] text-lg font-bold hard flex items-center justify-center gap-2">
+        <i data-lucide="copy" style="width:20px;height:20px;stroke-width:2.5"></i>
+        Copy Full Comment
+      </button>
+    </section>
+
+  </div>
+
+  <!-- Add Student Modal -->
+  <div id="modal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden px-4">
+    <div class="bg-white dark:bg-slate-800 border-4 border-[#1e293b] rounded-2xl p-6 w-full max-w-sm hard">
+      <h3 class="fredoka text-xl font-bold text-[#1e293b] dark:text-[#f8fafc] mb-3">New Student</h3>
+      <input id="modalName" type="text" placeholder="Student name…"
+        class="w-full border-4 border-[#1e293b] rounded-xl px-4 py-2 fredoka text-lg font-bold bg-[#f8fafc] dark:bg-slate-700 dark:text-[#f8fafc] focus:outline-none mb-4"
+        onkeydown="if(event.key==='Enter') confirmAddStudent()" />
+      <div class="flex gap-2">
+        <button onclick="confirmAddStudent()"
+          class="btn flex-1 bg-[#2979FF] border-4 border-[#1e293b] rounded-xl py-2 fredoka font-bold text-white hard-sm">Add</button>
+        <button onclick="closeModal()"
+          class="btn flex-1 bg-slate-200 dark:bg-slate-600 border-4 border-[#1e293b] rounded-xl py-2 fredoka font-bold text-[#1e293b] dark:text-[#f8fafc] hard-sm">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  lucide.createIcons();
+
+  // ── Dark Mode ─────────────────────────────────────────────────────────────
+  const darkToggle = document.getElementById('darkToggle');
+  if (localStorage.getItem('e1_dark') === '1') {
+    document.documentElement.classList.add('dark');
+    document.getElementById('darkIcon').setAttribute('data-lucide', 'sun');
+    lucide.createIcons();
+  }
+  darkToggle.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    const isDark = document.documentElement.classList.contains('dark');
+    document.getElementById('darkIcon').setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+    lucide.createIcons();
+    localStorage.setItem('e1_dark', isDark ? '1' : '0');
+  });
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  let students  = JSON.parse(localStorage.getItem('e1_students') || '[]');
+  let currentId = localStorage.getItem('e1_currentId') || null;
+
+  function save() { localStorage.setItem('e1_students', JSON.stringify(students)); }
+  function getStudent(id) { return students.find(s => s.id === id) || null; }
+
+  // ── Roster ─────────────────────────────────────────────────────────────────
+  function renderRoster() {
+    const list  = document.getElementById('rosterList');
+    document.getElementById('rosterCount').textContent = students.length;
+    list.innerHTML = '';
+
+    if (students.length === 0) {
+      list.innerHTML = '<p class="text-slate-400 font-semibold text-sm italic">No students yet. Click "Add Student" to begin.</p>';
+      return;
+    }
+
+    students.forEach(s => {
+      const done = s.scores && Object.values(s.scores).every(v => v !== '' && v !== undefined);
+      const isActive = s.id === currentId;
+      const pill = document.createElement('button');
+      pill.className = 'student-pill border-2 border-[#1e293b] rounded-xl px-3 py-1.5 fredoka font-bold text-sm hard-sm flex items-center gap-1';
+      pill.style.background = isActive ? '#2979FF' : (document.documentElement.classList.contains('dark') ? '#334155' : '#f8fafc');
+      pill.style.color = isActive ? '#fff' : (document.documentElement.classList.contains('dark') ? '#f8fafc' : '#1e293b');
+      pill.innerHTML = `${done ? '<span style="color:#00E676">✓</span>' : ''} ${s.name}`;
+      pill.onclick = () => loadStudent(s.id);
+      list.appendChild(pill);
+    });
+  }
+
+  function loadStudent(id) {
+    currentId = id;
+    localStorage.setItem('e1_currentId', id);
+    const s = getStudent(id);
+    if (!s) return;
+
+    document.getElementById('studentName').value = s.name;
+    document.getElementById('formTitle').textContent = `Scores for ${s.name}`;
+
+    const sc = s.scores || {};
+    document.getElementById('s_participation').value = sc.participation ?? '';
+    document.getElementById('s_social').value        = sc.social        ?? '';
+    document.getElementById('s_listening').value     = sc.listening     ?? '';
+    document.getElementById('s_confidence').value    = sc.confidence    ?? '';
+    document.getElementById('s_spoken').value        = sc.spoken        ?? '';
+    document.getElementById('s_attendance').value    = sc.attendance    ?? '';
+    document.getElementById('s_errors').value        = sc.errors        ?? '';
+
+    renderRoster();
+    hideError();
+
+    if (s.comments) {
+      renderComments(s.name, s.comments);
+    } else {
+      document.getElementById('outputSection').classList.add('hidden');
+    }
+  }
+
+  // ── Modal ──────────────────────────────────────────────────────────────────
+  function addNewStudent() {
+    document.getElementById('modalName').value = '';
+    document.getElementById('modal').classList.remove('hidden');
+    setTimeout(() => document.getElementById('modalName').focus(), 60);
+  }
+  function closeModal() {
+    document.getElementById('modal').classList.add('hidden');
+  }
+  function confirmAddStudent() {
+    const name = document.getElementById('modalName').value.trim();
+    if (!name) return;
+    const s = { id: Date.now().toString(), name, scores: {}, comments: null };
+    students.push(s);
+    save();
+    closeModal();
+    renderRoster();
+    loadStudent(s.id);
+  }
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal')) closeModal();
+  });
+
+  // ── Save & Generate ────────────────────────────────────────────────────────
+  function saveAndGenerate() {
+    if (!currentId) { showError('Please select or add a student first.'); return; }
+    const name = document.getElementById('studentName').value.trim();
+
+    const fields = {
+      participation: document.getElementById('s_participation').value,
+      social:        document.getElementById('s_social').value,
+      listening:     document.getElementById('s_listening').value,
+      confidence:    document.getElementById('s_confidence').value,
+      spoken:        document.getElementById('s_spoken').value,
+      attendance:    document.getElementById('s_attendance').value,
+      errors:        document.getElementById('s_errors').value,
+    };
+
+    const labels = { participation:'Participation', social:'Social', listening:'Listening',
+                     confidence:'Confidence', spoken:'Speaking', attendance:'Attendance', errors:'Accuracy (Errors)' };
+
+    for (const [k, v] of Object.entries(fields)) {
+      if (v === '' || isNaN(+v)) { showError(`Please enter a score for "${labels[k]}".`); return; }
+      if (+v < 0 || +v > 10)    { showError(`"${labels[k]}" must be between 0 and 10.`);  return; }
+    }
+    hideError();
+
+    const s = getStudent(currentId);
+    s.name   = name;
+    s.scores = fields;
+    s.comments = buildComments(name, fields);
+    save();
+    renderRoster();
+    renderComments(name, s.comments);
+  }
+
+  function deleteCurrentStudent() {
+    if (!currentId) return;
+    if (!confirm('Delete this student and their scores?')) return;
+    students = students.filter(s => s.id !== currentId);
+    currentId = null;
+    localStorage.removeItem('e1_currentId');
+    save();
+    renderRoster();
+    clearForm();
+    document.getElementById('outputSection').classList.add('hidden');
+  }
+
+  function clearForm() {
+    document.getElementById('studentName').value = '';
+    document.getElementById('formTitle').textContent = 'Select or Add a Student';
+    ['s_participation','s_social','s_listening','s_confidence','s_spoken','s_attendance','s_errors']
+      .forEach(id => { document.getElementById(id).value = ''; });
+  }
+
+  // ── Comment Engine ─────────────────────────────────────────────────────────
+  function level(v) {
+    v = +v;
+    if (v >= 9) return 'excellent';
+    if (v >= 7) return 'good';
+    if (v >= 5) return 'developing';
+    return 'needs_work';
+  }
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  // Short, hopeful phrases for the new Skill Breakdown format (4 options, 3 sentences each)
+  const hopefulPhrases = {
+    participation: {
+      excellent: [
+        "Always brings bright energy to our classroom. They participate fully in every single activity. It's wonderful to see such enthusiasm for learning!",
+        "Eagerly joins in all our class discussions. They are always ready to share great ideas. I love their active role in our classroom.",
+        "Throws themselves into every task with a big smile. They are a true star when it comes to participating. This positive energy makes the class so much fun.",
+        "Consistently raises their hand to answer questions. They are always involved in our daily activities. Their eagerness to learn is fantastic to watch."
+      ],
+      good: [
+        "Doing a wonderful job joining in our daily activities. They are showing great interest in the lessons. I'm proud of their steady effort.",
+        "Often participates well during our group tasks. They bring good ideas to the classroom. It is great to see them engaged and learning.",
+        "Shows steady involvement in most of our class work. They are usually happy to share their thoughts. Keep up this wonderful participation.",
+        "Takes an active part in our daily lessons. They are doing well at joining in with friends. I am happy with their consistent effort."
+      ],
+      developing: [
+        "Making great steps in joining class activities. They are starting to share more ideas with us. I encourage them to keep raising their hand.",
+        "Slowly becoming more active in our lessons. They are finding the courage to participate more often. I know they have great things to share.",
+        "Beginning to show more interest during class tasks. They are taking small but important steps to join in. Let's keep building this wonderful habit.",
+        "Starting to engage more with our daily activities. They are learning to speak up during group time. I am excited to see them grow further."
+      ],
+      needs_work: [
+        "I believe they will find their voice and participate even more. Taking small steps to join in will help a lot. I'm excited to see their confidence grow here.",
+        "They have so many wonderful ideas waiting to be shared. Joining in just a little more will make learning so much fun. I am always here to help them participate.",
+        "Let's work together on raising our hand more often. They are capable of doing amazing things in class. I know they can become a bright participant.",
+        "I would love to see them jump into activities more. Taking part makes the lessons much more exciting. They will do great once they start joining in."
+      ]
+    },
+    social: {
+      excellent: [
+        "A fantastic team player who always lifts everyone up. They work wonderfully with all of their classmates. Their kindness makes the classroom a better place.",
+        "Always treats friends with kindness and respect. They are incredibly helpful during our group activities. Everyone loves having them on their team.",
+        "A true friend to everyone in the classroom. They share nicely and play beautifully with others. It is a joy to see their warm heart.",
+        "Brilliant at making sure everyone feels included. They are highly cooperative during all team tasks. Their social skills are truly outstanding."
+      ],
+      good: [
+        "Works very nicely with all classmates during group tasks. They are always polite and friendly to others. It is great to see them building good relationships.",
+        "Plays well with friends and shares their things. They are a kind and caring classmate. Keep being this wonderful friend.",
+        "Gets along well with peers during most activities. They are learning how to be a supportive teammate. I am glad to see their friendly nature.",
+        "Cooperates easily with others in the classroom. They show good manners when working together. It is lovely to see them smile with friends."
+      ],
+      developing: [
+        "Growing more comfortable working with friends in class. They are learning how to share and take turns nicely. With more practice, they will be great team players.",
+        "Starting to interact more warmly with classmates. They are slowly building better friendships every day. Keep practicing those friendly hellos.",
+        "Making good progress in playing together with others. They are learning how to listen to friends' ideas. These social skills will keep getting stronger.",
+        "Beginning to join group activities more comfortably. They are finding it easier to work alongside friends. I am proud of these positive social steps."
+      ],
+      needs_work: [
+        "Keep building those wonderful friendships in class. Playing and working together is a big part of learning. I know they can be a great friend to others.",
+        "Let's try to share and play with friends a bit more. Working as a team makes everything easier and fun. I am here to help them make great friends.",
+        "They have a kind heart that is ready to shine. Practicing taking turns will help them grow socially. I believe they will become a wonderful team player.",
+        "I encourage them to talk and play more with classmates. Joining a group can be so much fun. They will surely make wonderful friends soon."
+      ]
+    },
+    listening: {
+      excellent: [
+        "Amazing focus during all of our lessons. They never miss a detail when instructions are given. This great listening helps them learn very quickly.",
+        "Always pays close attention to the teacher and friends. They are a fantastic listener every single day. This skill makes them a brilliant student.",
+        "Shows incredible focus whenever we are learning. They follow all instructions perfectly on the first try. Their listening skills are truly top-notch.",
+        "Listens beautifully and respects whoever is speaking. They soak up new information like a sponge. It is wonderful to teach such an attentive learner."
+      ],
+      good: [
+        "Pays good attention and follows instructions well. They are usually focused when the teacher is speaking. This helps them complete tasks smoothly.",
+        "Listens nicely during most of our daily activities. They try their best to follow classroom rules. Keep up this solid focus and effort.",
+        "Usually hears and understands what they need to do. They are doing a fine job paying attention in class. Good listening makes learning much easier.",
+        "Shows good focus during our listening exercises. They are respectful when others are talking. I am happy with their listening habits."
+      ],
+      developing: [
+        "Listening skills are improving every single day. They are trying harder to focus during longer activities. A little more attention will make a huge difference.",
+        "Working hard to become a better listener in class. They are slowly learning to follow directions more closely. Keep practicing this very important skill.",
+        "Making good steps towards better focus. They are starting to listen more carefully to instructions. I am proud of their growing attention span.",
+        "Beginning to tune in better during our lessons. They are trying to reduce distractions around them. These small improvements are great to see."
+      ],
+      needs_work: [
+        "With a little more focus, their listening will be perfect. It is important to look and listen when the teacher speaks. I know they can improve this skill easily.",
+        "Let's work on keeping our ears open during class time. Following instructions closely will help them learn faster. I am here to help them focus better.",
+        "They will learn so much more by practicing active listening. Paying attention helps us do our best work. I believe their focus will grow stronger soon.",
+        "I encourage them to look at the speaker and listen carefully. Staying focused can be tricky but they can do it. Let's aim for super listening skills next term!"
+      ]
+    },
+    confidence: {
+      excellent: [
+        "So brave and confident in trying new things! They never give up when faced with a tricky task. This strong self-belief is truly inspiring to see.",
+        "Absolutely shines with confidence in the classroom. They believe in their own amazing abilities. It is a joy to watch them tackle challenges fearlessly.",
+        "Shows outstanding bravery during all English activities. They are never afraid to make mistakes and learn. This confidence will take them very far.",
+        "A truly fearless learner who always gives 100%. They approach every lesson with a wonderful, positive attitude. I admire their strong self-confidence."
+      ],
+      good: [
+        "Showing wonderful confidence in class lately. They are happy to try most activities without fear. It is great to see them believing in themselves.",
+        "Displays a healthy amount of bravery during our lessons. They are usually willing to have a go at new tasks. Keep building this great self-belief.",
+        "Approaching their work with a positive and confident mindset. They are doing well at overcoming little challenges. I am proud of their brave attitude.",
+        "Generally feels good about their skills in class. They are showing strong confidence when answering questions. Keep trusting in your own abilities!"
+      ],
+      developing: [
+        "Believing in themselves more and more each week. They are becoming braver when trying new English words. I want them to keep being courageous!",
+        "Slowly building the courage to try difficult things. They are finding their inner strength day by day. Let's keep growing this wonderful confidence.",
+        "Starting to feel more sure of their own abilities. They are taking brave little steps in the classroom. I am thrilled to see this confidence blooming.",
+        "Learning to trust themselves more during lessons. They are beginning to realize how smart they are. I will always cheer for their brave efforts."
+      ],
+      needs_work: [
+        "Keep believing in yourself because you are doing great. It is okay to make mistakes while we learn. I am always here to support and cheer them on.",
+        "They have so much talent hiding inside them. Finding the courage to try will unlock their potential. I know they can be incredibly brave.",
+        "Let's work on trusting our own amazing skills. Everyone makes mistakes and that is how we grow. I believe in them completely.",
+        "I want them to know how capable they truly are. Taking a deep breath and trying is the first step. Their confidence will surely shine bright soon."
+      ]
+    },
+    spoken: {
+      excellent: [
+        "Speaks English so clearly and beautifully. They can express their thoughts with great ease. I always love hearing their voice in class.",
+        "Communicates perfectly and fluently during our lessons. They use wonderful vocabulary when talking. Their speaking skills are truly a joy to listen to.",
+        "Incredibly articulate and confident when speaking out loud. They can explain their ideas wonderfully in English. Keep using that amazing voice.",
+        "Has an outstanding ability to speak English naturally. They form sentences effortlessly and clearly. It is fantastic to hear them speak so well."
+      ],
+      good: [
+        "Communicating ideas very well in spoken English. They are using new vocabulary words nicely. Keep practicing speaking out loud.",
+        "Speaks clearly and is easily understood by everyone. They are doing a solid job practicing their English out loud. Their spoken skills are growing nicely.",
+        "Does a great job sharing thoughts in spoken English. They are trying hard to use correct pronunciation. I enjoy listening to their sentences.",
+        "Expresses themselves nicely during our speaking tasks. They are showing good control of their words. Let's keep this great speaking momentum going."
+      ],
+      developing: [
+        "Speaking up more and getting better every day. They are trying hard to use full English sentences. I love hearing them practice their words.",
+        "Slowly finding their voice in the English language. They are learning how to put words together nicely. Keep practicing and speaking out loud.",
+        "Making steady progress in their spoken English. They are starting to pronounce new words more clearly. With time, they will speak very smoothly.",
+        "Beginning to share more ideas using spoken words. They are taking good steps towards better communication. Keep trying to speak English every day."
+      ],
+      needs_work: [
+        "Keep practicing speaking; you have so much potential! Trying to say just one new English word a day helps. I can't wait to hear them speak more.",
+        "Let's try to use our spoken English a little more often. Even small words and sentences are a great start. I am here to help them find their voice.",
+        "They will grow so much by practicing speaking loudly. It is completely okay to stumble on words. Let's talk more and build those speaking muscles.",
+        "I encourage them to practice speaking English at home too. The more we speak, the easier it becomes. I know they will speak beautifully soon."
+      ]
+    },
+    attendance: {
+      excellent: [
+        "Thank you for always being here and ready to learn. Perfect attendance shows true dedication to improving. We love having such a reliable student.",
+        "Never misses a day and always arrives with a smile. Their excellent attendance makes learning so much smoother. It is a joy to see them every single class.",
+        "Has an outstanding record of coming to class. They show great commitment to their English journey. This perfect attendance is a key to their success.",
+        "Always present and eager to start our lessons. We appreciate their wonderful dedication to being here. Keep up this amazing attendance record."
+      ],
+      good: [
+        "Great job coming to class regularly this term. Consistent attendance helps them remember new words. Keep up this wonderful habit!",
+        "Shows good reliability by attending most of our lessons. Being here often helps them stay on track nicely. I am pleased with their attendance.",
+        "Usually present and ready to join the fun. This good attendance supports their steady learning. Keep coming to class and growing.",
+        "Attends class consistently and puts in good effort. Being present regularly makes a big difference. Let's maintain this solid attendance."
+      ],
+      developing: [
+        "Always happy to see them in class when they come. Coming to every lesson will help them learn faster. We hope to see their smiling face more often.",
+        "Trying their best to attend classes more regularly. Being present helps us catch up on fun activities. Let's keep working on coming to school.",
+        "Making efforts to be in class as much as possible. Consistent attendance will really boost their English. We love having them here with us.",
+        "Starting to build a more regular attendance habit. Every class missed is a missed opportunity to shine. We look forward to seeing them more."
+      ],
+      needs_work: [
+        "We love having them here and hope to see them every lesson. Missing classes makes it harder to catch up. Let's aim for perfect attendance next term!",
+        "Let's try our very best to come to class more often. Being here every day is the secret to getting better. We miss them when they are not around.",
+        "I encourage them to attend as many lessons as possible. Consistent practice is needed to grow their skills. Let's make coming to class a big goal.",
+        "Regular attendance will help them feel much more confident. It is hard to learn when we miss our fun lessons. I hope to see them every single time."
+      ]
+    },
+    errors: {
+      excellent: [
+        "Incredibly accurate with very few mistakes in their English. They understand the grammar rules perfectly. This shows they are really absorbing the lessons.",
+        "Produces outstanding work with almost zero errors. They are highly careful and precise with their English. It is wonderful to see such exact work.",
+        "Rarely makes mistakes and corrects themselves quickly. They have a brilliant grasp of the English language. This high accuracy is truly impressive.",
+        "Shows a perfect understanding of vocabulary and grammar. They speak and write with amazing precision. I am so proud of their flawless progress."
+      ],
+      good: [
+        "Showing solid control of English grammar and spelling. They usually correct their own little mistakes. This is a great sign of independent learning.",
+        "Makes very few mistakes during our daily activities. They are doing a good job applying the rules. Keep up this careful and accurate work.",
+        "Generally very accurate when using new English words. They understand the basics and use them correctly. This solid accuracy helps them communicate well.",
+        "Produces good work with only minor, expected errors. They are learning to spot their mistakes easily. I am happy with their overall accuracy."
+      ],
+      developing: [
+        "Learning so well from every little mistake made. They are starting to understand the grammar rules better. Keep up the good work and patience.",
+        "Slowly reducing their common mistakes over time. They are trying harder to remember the right words. These improvements in accuracy are great to see.",
+        "Beginning to catch their own errors during practice. They are taking good steps toward speaking correctly. Let's keep practicing those tricky rules.",
+        "Making steady progress in using correct English. Mistakes are getting fewer as they learn more. Keep focusing and practicing carefully."
+      ],
+      needs_work: [
+        "Every mistake is just a new chance to learn and grow. We will keep practicing the basic grammar rules together. Don't worry, they will get it soon!",
+        "Let's work on slowing down to fix our little errors. Making mistakes is a very normal part of learning. We will practice until they get it right.",
+        "I encourage them to focus a bit more on accuracy. Reviewing the rules will help stop these common errors. I am here to help them practice properly.",
+        "They will improve their accuracy with continued practice. Mistakes just show us what we need to learn next. Let's keep trying our very best."
+      ]
+    }
+  };
+
+  const extraPhrases = {
+  participation: {
+    excellent: [
+      "Takes part in every lesson with great energy and focus. They never miss a chance to share their ideas. This active attitude really helps them learn faster.",
+      "Always ready to join in and do their best in class. They show real interest in every activity we do. Their participation makes the whole class more lively.",
+      "Joins every classroom activity with clear enthusiasm. They are always willing to answer questions and try new things. It is very rewarding to teach such an engaged student."
+    ],
+    good: [
+      "Participates well in most lessons and activities. They are comfortable joining in with the group. I am pleased with how involved they are becoming.",
+      "Shows a good level of involvement during class time. They are willing to take part when given the chance. Keep up this positive approach to learning.",
+      "Joins in classroom tasks with a helpful attitude. They are making good progress in being more active. This growing involvement is great to see."
+    ],
+    developing: [
+      "Becoming more confident about joining class activities. They are trying to speak up more during our lessons. With more practice, their participation will grow.",
+      "Taking small but positive steps to get more involved. They are showing more interest in our daily tasks. I am looking forward to seeing them participate even more.",
+      "Working on becoming a more active part of the class. They are slowly feeling more comfortable joining in. I encourage them to keep trying their best."
+    ],
+    needs_work: [
+      "They show potential and I know they can join in more. Every small step towards participating will help them grow. I am excited to see what they can do when they try.",
+      "Joining in with class activities will really help their learning. Even a short answer or idea is a great start. I believe they have a lot to offer the class.",
+      "I encourage them to try to speak up a little more each lesson. Their ideas are valuable and worth sharing. With more practice, joining in will feel much easier."
+    ]
+  },
+  social: {
+    excellent: [
+      "Always kind and friendly to every person in the class. They help others and make everyone feel welcome. Their positive attitude makes the classroom a happy place.",
+      "Works well with all classmates and treats everyone fairly. They are a natural leader in group activities. It is wonderful to see them bring people together.",
+      "A very cooperative student who always supports their peers. They listen to others and share their ideas politely. Their social skills are a real strength."
+    ],
+    good: [
+      "Works well with classmates in most group activities. They are friendly and helpful to those around them. Keep building on these good social habits.",
+      "Generally gets along well with others in the class. They show kindness and respect to their peers. I am happy with their positive attitude towards friends.",
+      "Shows good teamwork skills during our group tasks. They are polite and patient when working with others. These are important skills that will help them a lot."
+    ],
+    developing: [
+      "Slowly becoming more open to working with others. They are starting to share and cooperate more often. I can see their social confidence growing each week.",
+      "Learning how to work as part of a team more effectively. They are making an effort to connect with classmates. These social steps are positive and important.",
+      "Showing more interest in talking and playing with friends. They are beginning to feel more comfortable in group settings. I am proud of the progress they are making."
+    ],
+    needs_work: [
+      "Working with others is a skill that takes time to develop. I encourage them to try joining a group activity each day. I know they have the kindness needed to be a great team player.",
+      "They will benefit a lot from practising teamwork in class. Sharing ideas with friends is a great way to learn together. I am here to help them feel comfortable with others.",
+      "There is great social potential in this student. Trying to start a conversation with a classmate is a good first step. I look forward to seeing them connect more with their peers."
+    ]
+  },
+  listening: {
+    excellent: [
+      "Pays full attention during all parts of the lesson. They understand instructions quickly and follow them well. This excellent listening skill helps them perform very well.",
+      "Always focuses on the speaker and listens carefully. They rarely need instructions to be repeated. This is a very important skill and they do it brilliantly.",
+      "Listens with great care during all classroom activities. They remember information well because they pay close attention. This strong skill supports all areas of their learning."
+    ],
+    good: [
+      "Pays attention well during most of our lessons. They follow the main instructions without much difficulty. This good listening helps them complete tasks successfully.",
+      "Shows solid focus during classroom discussions and tasks. They usually understand what is expected of them. I am satisfied with their listening habits.",
+      "Generally listens well and follows directions correctly. They are respectful when the teacher or a classmate is talking. This positive habit supports their overall learning."
+    ],
+    developing: [
+      "Getting better at focusing during classroom activities. They are trying harder to listen to all instructions. With continued effort, their listening will improve a lot.",
+      "Working hard to improve their focus in class. They are learning to pay more attention when others speak. These efforts are making a real difference.",
+      "Showing gradual improvement in their listening skills. They are starting to follow instructions more carefully. I am confident they will keep improving in this area."
+    ],
+    needs_work: [
+      "Improving listening skills will help them in all areas of learning. I encourage them to look at the speaker when listening. Small changes in focus will make a big difference.",
+      "Practising active listening will be very beneficial for them. Trying to repeat instructions quietly to themselves can help. I know they are capable of becoming a great listener.",
+      "There is room to grow in the area of listening and focus. I suggest they try to reduce distractions during lesson time. I am here to help them develop this important skill."
+    ]
+  },
+  confidence: {
+    excellent: [
+      "Shows great confidence when trying new and difficult things. They never seem afraid to make a mistake. This brave attitude helps them grow and learn quickly.",
+      "Always willing to give something a try, even if it is hard. They believe in their own ability to succeed. This self-confidence is a very valuable quality.",
+      "Faces every challenge with a positive and brave mindset. They are not afraid to be wrong and always keep trying. Their confidence is an example for others."
+    ],
+    good: [
+      "Shows a good level of confidence during our lessons. They are willing to try activities without too much hesitation. I am pleased to see this growing self-belief.",
+      "Generally feels comfortable trying new tasks in class. They are building good self-confidence over time. Keep trusting in your abilities — it is working well.",
+      "Demonstrates a healthy level of bravery during lessons. They approach most activities with a positive attitude. This confidence will continue to grow."
+    ],
+    developing: [
+      "Growing more confident with each lesson that passes. They are starting to believe in their own abilities more. I will continue to encourage and support them.",
+      "Building their self-confidence step by step. They are getting braver about trying new activities. This is a very positive development to see.",
+      "Showing more willingness to try things, even when unsure. They are slowly becoming more comfortable in class. I am glad to see their confidence beginning to shine."
+    ],
+    needs_work: [
+      "Building confidence takes time and they are on the right path. Every attempt, even a small one, is a great achievement. I am always here to support and encourage them.",
+      "I want them to know it is perfectly fine to make mistakes. Trying is always better than not trying at all. Their confidence will grow with every lesson.",
+      "They have real ability and just need to trust themselves more. I encourage them to take one small brave step each class. I have complete confidence in their potential."
+    ]
+  },
+  spoken: {
+    excellent: [
+      "Speaks English clearly and with great confidence. They can express complex ideas in an understandable way. Their spoken English is one of their strongest skills.",
+      "Uses a wide range of vocabulary when speaking in English. They communicate naturally and with good fluency. It is always a pleasure to hear them speak.",
+      "Speaks with clarity and uses good grammar most of the time. They express their thoughts in a logical and clear way. Their spoken English ability is very impressive."
+    ],
+    good: [
+      "Communicates their ideas well during speaking activities. They are using new vocabulary with growing confidence. I am happy with the progress in their spoken English.",
+      "Speaks clearly and is easy to understand in most situations. They are making good use of the language we study in class. Keep practising speaking as often as possible.",
+      "Does well in spoken activities and tries to use full sentences. They are showing good improvement in their fluency. With regular practice, their speaking will continue to improve."
+    ],
+    developing: [
+      "Making real progress in their ability to speak in English. They are trying to use more complete sentences. I encourage them to keep practising speaking every day.",
+      "Getting more comfortable speaking English during our lessons. They are starting to use new words they have learned. With more practice, their fluency will grow nicely.",
+      "Showing steady improvement in their spoken English skills. They are putting effort into forming correct sentences. I look forward to hearing them speak more confidently."
+    ],
+    needs_work: [
+      "Speaking more in English will help them improve very quickly. Even short sentences are a great way to start. I will always encourage them to use their voice in class.",
+      "Practising spoken English regularly will make a big difference. I encourage them to try speaking English at home as well. Every word practised is a step towards fluency.",
+      "There is strong potential in this student's spoken English. Trying to speak a little more each lesson will help. I am confident they will find their voice soon."
+    ]
+  },
+  attendance: {
+    excellent: [
+      "Comes to every class and is always ready to learn. Their perfect attendance shows real dedication to improving. This commitment is a very positive quality.",
+      "Always present and on time for every English lesson. They show great responsibility by attending regularly. This consistent effort makes a clear difference to their learning.",
+      "Has an excellent attendance record throughout the term. Their commitment to being in class is very admirable. This dedication will continue to support their progress."
+    ],
+    good: [
+      "Attends class regularly and makes the most of each lesson. They show a good commitment to their English learning. I am pleased with their reliable attendance.",
+      "Comes to class consistently and is always prepared. Their regular attendance helps them stay on top of their learning. Keep up this great commitment.",
+      "Shows good attendance habits throughout the term. Being in class regularly is helping their progress a lot. I appreciate their dedication to coming to every lesson."
+    ],
+    developing: [
+      "Attending more regularly will really help their English improve. Each lesson missed is a chance to grow that is lost. I hope to see them in class more often next term.",
+      "They are making an effort to attend more lessons this term. Consistent attendance will help them feel more confident. I encourage them to keep trying to be here each class.",
+      "When they are in class, they show great effort and enthusiasm. Coming more regularly will help them progress faster. I look forward to seeing them more often."
+    ],
+    needs_work: [
+      "Regular attendance is one of the most important keys to progress. I strongly encourage them to try to come to every class. Their learning will improve a great deal with better attendance.",
+      "Each lesson they attend is a valuable opportunity to learn. Missing classes makes it harder to keep up with new topics. I hope to see a real improvement in their attendance.",
+      "They have good potential and being in class more will help unlock it. I encourage them and their family to prioritise regular attendance. We look forward to having them here every lesson."
+    ]
+  },
+  errors: {
+    excellent: [
+      "Shows excellent accuracy when speaking and writing in English. They make very few mistakes and correct themselves quickly. This high level of accuracy is something to be very proud of.",
+      "Uses grammar and vocabulary with great precision. They clearly understand the language rules and apply them well. This strong accuracy is a key part of their success.",
+      "Produces very accurate work in almost all activities. They pay careful attention to detail in their English. This level of accuracy is truly impressive and well-deserved."
+    ],
+    good: [
+      "Shows good accuracy when using English in class. They make only minor mistakes and are improving. This solid control of the language supports their overall progress.",
+      "Generally uses correct grammar and vocabulary in their work. They are good at noticing and fixing small errors. I am satisfied with the accuracy they are showing.",
+      "Produces work with a good level of correctness overall. They are building a stronger understanding of grammar rules. Keep up this careful and accurate approach."
+    ],
+    developing: [
+      "Accuracy is improving as they learn more grammar rules. They are starting to catch and correct their own mistakes. With continued practice, their precision will grow.",
+      "Making progress in reducing errors in their English. They are working hard to understand and apply the rules correctly. These improvements in accuracy are encouraging.",
+      "Slowly becoming more aware of common errors they make. They are putting in good effort to use correct forms. I am confident their accuracy will continue to improve."
+    ],
+    needs_work: [
+      "Reviewing key grammar rules regularly will help reduce errors. I encourage them to check their work carefully before finishing. With consistent practice, their accuracy will improve.",
+      "Making mistakes is a normal and important part of learning. The important thing is to keep practising and trying. Their accuracy will grow stronger with every lesson.",
+      "They will benefit from focusing on one grammar rule at a time. Practising these rules in sentences will make a big difference. I am here to support their progress in accuracy."
+    ]
+  }
+};
+
+// Merge into hopefulPhrases — paste this right after the block above
+for (const cat in extraPhrases) {
+  for (const lv in extraPhrases[cat]) {
+    hopefulPhrases[cat][lv].push(...extraPhrases[cat][lv]);
+  }
+}
+
+  function buildComments(name, sc) {
+    const labels = { participation:'Participation', social:'Social', listening:'Listening', confidence:'Confidence', spoken:'Speaking', attendance:'Attendance', errors:'Accuracy' };
+    let skillBreakdown = `Here is ${name}'s progress across all skills:\n\n`;
+    for (const [k, v] of Object.entries(sc)) {
+      skillBreakdown += `• ${labels[k]}:\n  ${pick(hopefulPhrases[k][level(v)])}\n\n`;
+    }
+    skillBreakdown += `Keep up the great work!`;
+
+    return [skillBreakdown.trim()];
+  }
+
+  // ── Render Comments ────────────────────────────────────────────────────────
+  let lastComments = [];
+
+  const styleConfig = [
+    { label:'Skill Breakdown (Hopeful)', icon:'list-checks', color:'#00E676' }
+  ];
+
+  function renderComments(name, comments) {
+    lastComments = comments;
+    document.getElementById('outputName').textContent = `Comments for ${name}`;
+    const container = document.getElementById('commentCards');
+    container.innerHTML = '';
+
+    comments.forEach((text, i) => {
+      const cfg = styleConfig[i];
+      const card = document.createElement('div');
+      card.className = 'comment-card border-4 border-[#1e293b] rounded-2xl p-4 hard';
+      card.style.background = cfg.color + '18';
+      // Added whitespace-pre-wrap to the paragraph so \n line breaks render properly
+      card.innerHTML = `
+        <div class="flex items-center justify-between mb-2">
+          <span class="fredoka font-bold text-sm px-3 py-1 rounded-lg border-2 border-[#1e293b] text-white flex items-center gap-1 hard-sm"
+                style="background:${cfg.color}">
+            <i data-lucide="${cfg.icon}" style="width:13px;height:13px;stroke-width:2.5"></i>
+            ${cfg.label}
+          </span>
+          <button onclick="copyOne(${i})" title="Copy this comment"
+            class="btn bg-white dark:bg-slate-700 border-2 border-[#1e293b] rounded-lg p-1.5 hard-sm">
+            <i data-lucide="copy" style="width:16px;height:16px;stroke-width:2.5"></i>
+          </button>
+        </div>
+        <p class="text-[#1e293b] dark:text-[#f8fafc] font-semibold leading-relaxed whitespace-pre-wrap">${text}</p>
+      `;
+      container.appendChild(card);
+    });
+
+    lucide.createIcons();
+    document.getElementById('outputSection').classList.remove('hidden');
+    document.getElementById('outputSection').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  function copyOne(i) {
+    navigator.clipboard.writeText(lastComments[i]).then(() => showToast('Copied!'));
+  }
+  function copyAll() {
+    navigator.clipboard.writeText(lastComments[0]).then(() => showToast('Comment copied!'));
+  }
+
+  function showToast(msg) {
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#00E676;border:4px solid #1e293b;border-radius:12px;padding:10px 24px;font-family:Fredoka,sans-serif;font-weight:700;font-size:18px;color:#1e293b;box-shadow:4px 4px 0px 0px rgba(30,41,59,1);z-index:9999';
+    t.textContent = '✓ ' + msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2000);
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.textContent = '⚠ ' + msg;
+    box.classList.remove('hidden');
+  }
+  function hideError() {
+    document.getElementById('errorBox').classList.add('hidden');
+  }
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  renderRoster();
+  if (currentId && getStudent(currentId)) {
+    loadStudent(currentId);
+  } else if (students.length > 0) {
+    loadStudent(students[0].id);
+  }
+</script>
+</body>
+</html>
