@@ -101,6 +101,22 @@
           class="w-full border-4 border-[#1e293b] rounded-xl px-4 py-2 fredoka text-lg font-bold bg-[#f8fafc] dark:bg-slate-700 dark:text-[#f8fafc] focus:outline-none cursor-default opacity-70" />
       </div>
 
+      <!-- Pronoun Selector -->
+      <div class="mb-4">
+        <label class="block fredoka font-semibold text-[#1e293b] dark:text-[#f8fafc] mb-1 text-sm">
+          <i data-lucide="user" style="width:13px;height:13px;stroke-width:2.5;color:#2979FF;display:inline"></i>
+          Pronoun
+        </label>
+        <div id="pronounBtns" class="flex gap-2">
+          <button type="button" data-pronoun="they" onclick="setPronoun('they')"
+            class="btn pronoun-btn flex-1 border-3 border-[#1e293b] rounded-xl py-2 fredoka font-bold text-sm hard-sm transition-colors">They / Them</button>
+          <button type="button" data-pronoun="he" onclick="setPronoun('he')"
+            class="btn pronoun-btn flex-1 border-3 border-[#1e293b] rounded-xl py-2 fredoka font-bold text-sm hard-sm transition-colors">He / Him</button>
+          <button type="button" data-pronoun="she" onclick="setPronoun('she')"
+            class="btn pronoun-btn flex-1 border-3 border-[#1e293b] rounded-xl py-2 fredoka font-bold text-sm hard-sm transition-colors">She / Her</button>
+        </div>
+      </div>
+
       <!-- Score Grid -->
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div class="bg-[#FF6B95]/10 border-2 border-[#1e293b] rounded-xl p-3 hard-sm">
@@ -253,6 +269,27 @@
     });
   }
 
+  let currentPronoun = 'they';
+
+  function setPronoun(p) {
+    currentPronoun = p;
+    renderPronounButtons();
+    // Persist to current student
+    if (currentId) {
+      const s = getStudent(currentId);
+      if (s) { s.pronoun = p; save(); }
+    }
+  }
+
+  function renderPronounButtons() {
+    document.querySelectorAll('.pronoun-btn').forEach(btn => {
+      const p = btn.getAttribute('data-pronoun');
+      const active = p === currentPronoun;
+      btn.style.background = active ? '#2979FF' : (document.documentElement.classList.contains('dark') ? '#334155' : '#f8fafc');
+      btn.style.color = active ? '#fff' : (document.documentElement.classList.contains('dark') ? '#f8fafc' : '#1e293b');
+    });
+  }
+
   function loadStudent(id) {
     currentId = id;
     localStorage.setItem('e1_currentId', id);
@@ -270,6 +307,9 @@
     document.getElementById('s_spoken').value        = sc.spoken        ?? '';
     document.getElementById('s_attendance').value    = sc.attendance    ?? '';
     document.getElementById('s_errors').value        = sc.errors        ?? '';
+
+    currentPronoun = s.pronoun || 'they';
+    renderPronounButtons();
 
     renderRoster();
     hideError();
@@ -293,7 +333,7 @@
   function confirmAddStudent() {
     const name = document.getElementById('modalName').value.trim();
     if (!name) return;
-    const s = { id: Date.now().toString(), name, scores: {}, comments: null };
+    const s = { id: Date.now().toString(), name, scores: {}, comments: null, pronoun: 'they' };
     students.push(s);
     save();
     closeModal();
@@ -331,7 +371,8 @@
     const s = getStudent(currentId);
     s.name   = name;
     s.scores = fields;
-    s.comments = buildComments(name, fields);
+    s.pronoun = currentPronoun;
+    s.comments = buildComments(name, fields, currentPronoun);
     save();
     renderRoster();
     renderComments(name, s.comments);
@@ -354,6 +395,8 @@
     document.getElementById('formTitle').textContent = 'Select or Add a Student';
     ['s_participation','s_social','s_listening','s_confidence','s_spoken','s_attendance','s_errors']
       .forEach(id => { document.getElementById(id).value = ''; });
+    currentPronoun = 'they';
+    renderPronounButtons();
   }
 
   // ── Comment Engine ─────────────────────────────────────────────────────────
@@ -383,11 +426,69 @@
     return arr[Math.floor(Math.random() * arr.length)]; 
   }
 
-  function buildComments(name, sc) {
+  // ── Pronoun Replacement Engine ──────────────────────────────────────────
+  const PRONOUN_MAP = {
+    he:  { subject: 'He',  object: 'him', poss: 'his',  refl: 'himself',  are: 'is',  were: 'was', have: 'have' },
+    she: { subject: 'She', object: 'her', poss: 'her',  refl: 'herself',  are: 'is',  were: 'was', have: 'have' },
+    they:{ subject: 'They',object: 'them',poss: 'their', refl: 'themselves',are: 'are', were: 'were', have: 'have' },
+  };
+
+  /** Add third-person singular -s/-es/-ies to a base verb */
+  function conjugate3rd(verb) {
+    const low = verb.toLowerCase();
+    if (['can','will','would','could','should','may','might','must','shall'].includes(low)) return verb;
+    if (low === 'are') return 'is';
+    if (low === 'have') return 'has';
+    if (low === 'do') return 'does';
+    if (low === 'go') return 'goes';
+    if (/(?:s|sh|ch|x|z)$/.test(low)) return verb + 'es';
+    if (/[^aeiou]y$/.test(low)) return verb.slice(0, -1) + 'ies';
+    return verb + 's';
+  }
+
+  function applyPronoun(text, pronoun) {
+    if (pronoun === 'they') return text;            // JSON already uses they
+    const m = PRONOUN_MAP[pronoun];
+
+    // Order matters: longest / most specific first
+    // 1. Reflexive
+    text = text.replace(/\bthemselves\b/g, m.refl);
+    text = text.replace(/\bThemselves\b/g, m.refl.charAt(0).toUpperCase() + m.refl.slice(1));
+
+    // 2. Possessive  (before object, since "their" contains "the")
+    text = text.replace(/\bTheir\b/g, m.poss.charAt(0).toUpperCase() + m.poss.slice(1));
+    text = text.replace(/\btheir\b/g, m.poss);
+
+    // 3. Object  (use word boundary to avoid partial matches)
+    text = text.replace(/\bthem\b/g, m.object);
+    text = text.replace(/\bThem\b/g, m.object.charAt(0).toUpperCase() + m.object.slice(1));
+
+    // 4. "They are" / "they are"  →  "He is" / "he is"
+    text = text.replace(/\bThey are\b/g, m.subject + ' ' + m.are);
+    text = text.replace(/\bthey are\b/g, m.subject.toLowerCase() + ' ' + m.are);
+
+    // 5. "They were" / "they were"
+    text = text.replace(/\bThey were\b/g, m.subject + ' ' + m.were);
+    text = text.replace(/\bthey were\b/g, m.subject.toLowerCase() + ' ' + m.were);
+
+    // 6. "They have" / "they have"
+    text = text.replace(/\bThey have\b/g, m.subject + ' has');
+    text = text.replace(/\bthey have\b/g, m.subject.toLowerCase() + ' has');
+
+    // 7. "They + verb" → "He/She + verb+s" for remaining verbs
+    text = text.replace(/\bThey (\w+)/g, (_, verb) => m.subject + ' ' + conjugate3rd(verb));
+    text = text.replace(/\bthey (\w+)/g, (_, verb) => m.subject.toLowerCase() + ' ' + conjugate3rd(verb));
+
+    return text;
+  }
+
+  function buildComments(name, sc, pronoun) {
+    pronoun = pronoun || 'they';
     const labels = { participation:'Participation', social:'Social', listening:'Listening', confidence:'Confidence', spoken:'Speaking', attendance:'Attendance', errors:'Accuracy' };
     let skillBreakdown = `Here is ${name}'s progress across all skills:\n\n`;
     for (const [k, v] of Object.entries(sc)) {
-      skillBreakdown += `• ${labels[k]}:\n  ${pick(hopefulPhrases[k][level(v)])}\n\n`;
+      const raw = pick(hopefulPhrases[k][level(v)]);
+      skillBreakdown += `• ${labels[k]}:\n  ${applyPronoun(raw, pronoun)}\n\n`;
     }
     skillBreakdown += `Keep up the great work!`;
 
@@ -462,6 +563,7 @@
   // ── Init ───────────────────────────────────────────────────────────────────
   (async () => {
     await loadComments();
+    renderPronounButtons();
     renderRoster();
     if (currentId && getStudent(currentId)) {
       loadStudent(currentId);
